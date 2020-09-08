@@ -1,2 +1,6 @@
 export { App } from './common/App'
 export { AppHeader } from './common/AppHeader'
+export { Authentication } from './common/Authentication'
+export { LoadingSpinner } from './common/LoadingSpinner'
+export { Board } from './views/Board'
+export { Login } from './views/Login'
