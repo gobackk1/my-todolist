@@ -1,1 +1,1 @@
-export { AuthenticationContext } from './modules/AuthenticationContext'
+export { AuthContext } from './modules/AuthContext'

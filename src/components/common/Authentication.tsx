@@ -1,13 +1,13 @@
 import React from 'react'
-import { AuthenticationContext } from '@/scripts/context'
+import { AuthContext } from '@/scripts/context'
 import { useAuth } from '@/scripts/hooks'
 
 export const Authentication: React.FC = ({ children }) => {
-  const auth = useAuth()
+  const { auth, setAuth } = useAuth()
 
   return (
-    <AuthenticationContext.Provider value={auth}>
-      {!auth.isLoggingIn && children}
-    </AuthenticationContext.Provider>
+    <AuthContext.Provider value={[auth, setAuth]}>
+      {children}
+    </AuthContext.Provider>
   )
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppHeader, Login, Board, Authentication } from '@/components'
+import { AppHeader, Home, Board, Authentication } from '@/components'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 
 export const App: React.FC = () => {
@@ -8,8 +8,8 @@ export const App: React.FC = () => {
       <Authentication>
         <AppHeader />
         <Switch>
-          <Route path="/login" component={Login} />
           <Route path="/board" component={Board} />
+          <Route path="/" component={Home} exact />
         </Switch>
       </Authentication>
     </BrowserRouter>

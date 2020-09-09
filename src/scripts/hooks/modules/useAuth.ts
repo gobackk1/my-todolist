@@ -10,10 +10,8 @@ export const useAuth = () => {
   const isMounted = useMountedRef()
   const [auth, setAuth] = useState<I.AuthContext>({
     isLoggingIn: true,
-    user: {
-      uid: '',
-      displayName: ''
-    }
+    isLoggedIn: false,
+    user: null
   })
 
   useEffect(() => {
@@ -23,18 +21,24 @@ export const useAuth = () => {
         if (!isMounted.current) return
         setAuth({
           isLoggingIn: false,
+          isLoggedIn: true,
           user: {
             uid: user.uid!,
-            displayName: user.displayName!
+            displayName: user.displayName!,
+            photoURL: user.photoURL!
           }
         })
       } else {
         console.log('debug: Logout User', user)
         if (!isMounted.current) return
-        setAuth({ isLoggingIn: false, user: null })
+        setAuth({
+          isLoggingIn: false,
+          user: null,
+          isLoggedIn: false
+        })
       }
     })
   }, [setAuth, isMounted])
 
-  return auth
+  return { auth, setAuth }
 }
