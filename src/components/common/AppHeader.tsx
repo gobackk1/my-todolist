@@ -1,39 +1,57 @@
-import React, { useCallback, useContext } from 'react'
+import React, { useCallback } from 'react'
 import { AppBar, Toolbar, IconButton, Button } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 import firebase from '@/scripts/firebase'
 import { useHistory } from 'react-router-dom'
 import { css } from 'emotion/macro'
 import { LoadingSpinner, Modal } from '@/components'
-import { AuthContext } from '@/scripts/context'
+import { useAuthContext, useSnackbarContext } from '@/scripts/hooks'
+import { OPTION } from '@/option'
 
 const provider = new firebase.auth.GoogleAuthProvider()
 
 export const AppHeader: React.FC = () => {
-  const [{ isLoggingIn, user }, setAuth] = useContext(AuthContext)
+  const { auth, setAuth } = useAuthContext()
+  const { showSnackbar } = useSnackbarContext()
   const history = useHistory()
 
   const onClick = useCallback(async () => {
+    setAuth(state => ({ ...state, isLoggingIn: true }))
     try {
-      setAuth(state => ({ ...state, isLoggingIn: true }))
       await firebase.auth().signInWithPopup(provider)
       setAuth(state => ({ ...state, isLoggingIn: false }))
+      showSnackbar({
+        message: OPTION.MESSAGE.LOGIN.SUCCESS,
+        type: 'success'
+      })
       history.push('/board')
     } catch (e) {
-      // TODO: ポップアップ
+      setAuth(state => ({ ...state, isLoggingIn: false }))
+      showSnackbar({
+        message: OPTION.MESSAGE.LOGIN.ERROR,
+        type: 'error'
+      })
     }
-  }, [history, setAuth])
+  }, [history, setAuth, showSnackbar])
 
   const onClickLogout = useCallback(async () => {
+    setAuth(state => ({ ...state, isLoggingIn: true }))
     try {
-      setAuth(state => ({ ...state, isLoggingIn: true }))
       await firebase.auth().signOut()
       setAuth(state => ({ ...state, isLoggingIn: false }))
+      showSnackbar({
+        message: OPTION.MESSAGE.LOGOUT.SUCCESS,
+        type: 'success'
+      })
       history.push('/')
     } catch (e) {
-      // TODO: ポップアップ
+      setAuth(state => ({ ...state, isLoggingIn: false }))
+      showSnackbar({
+        message: OPTION.MESSAGE.LOGOUT.ERROR,
+        type: 'error'
+      })
     }
-  }, [history, setAuth])
+  }, [history, setAuth, showSnackbar])
 
   return (
     <AppBar position="static">
@@ -42,13 +60,17 @@ export const AppHeader: React.FC = () => {
           <MenuIcon />
         </IconButton>
         <h1 className={styles['h1']}>Pacrello</h1>
-        {isLoggingIn && <LoadingSpinner />}
-        {!isLoggingIn && user ? (
+        {auth.isLoggingIn && <LoadingSpinner />}
+        {!auth.isLoggingIn && auth.user ? (
           <>
             <Button color="inherit" onClick={onClickLogout}>
               Logout
             </Button>
-            <img src={user.photoURL} alt={user.displayName} width="40" />
+            <img
+              src={auth.user.photoURL}
+              alt={auth.user.displayName}
+              width="40"
+            />
           </>
         ) : (
           <Modal>
