@@ -74,6 +74,7 @@ export const AppHeader: React.FC = () => {
           </>
         ) : (
           <Modal>
+            <div className={styles['modal-title']}>ログイン</div>
             <button onClick={onClick} type="button">
               Google アカウントでログイン
             </button>
@@ -87,5 +88,10 @@ export const AppHeader: React.FC = () => {
 const styles = {
   h1: css`
     flex-grow: 1;
+  `,
+  'modal-title': css`
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
   `
 }
