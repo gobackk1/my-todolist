@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
-import { boardReducer } from '@/scripts/redux/state/board/actions'
-import { userReducer } from '@/scripts/redux/state/user/reducer'
+import { boardReducer } from '~redux/state/board/reducer'
+import { userReducer } from '~redux/state/user/reducer'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import * as I from '@/scripts/interfaces'
 
@@ -11,7 +11,7 @@ const enhancer =
     : applyMiddleware(thunk)
 
 const reducers = combineReducers<I.ReduxState>({
-  // board: boardReducer,
+  board: boardReducer,
   user: userReducer
 })
 

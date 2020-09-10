@@ -1,6 +1,6 @@
 import React from 'react'
 import { Redirect } from 'react-router-dom'
-import { setTitle, asyncSetTitle } from '@/scripts/redux/state/board/actions'
+import { asyncSetTitle } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 
 export const Board: React.FC = () => {
