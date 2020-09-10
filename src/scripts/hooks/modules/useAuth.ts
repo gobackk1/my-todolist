@@ -1,44 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import firebase from '@/scripts/firebase'
-import * as I from '@/scripts/interfaces'
 import { useMountedRef } from '@/scripts/hooks'
+import { setLoginUser, setLoggingIn } from '@/scripts/redux/state/user/actions'
+import { useDispatch } from 'react-redux'
 
 /**
  * ログイン状態の保持・監視
  */
 export const useAuth = () => {
   const isMounted = useMountedRef()
-  const [auth, setAuth] = useState<I.AuthContext>({
-    isLoggingIn: true,
-    isLoggedIn: false,
-    user: null
-  })
+  const dispatch = useDispatch()
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {
+      dispatch(setLoggingIn(false))
       if (user) {
         console.log('debug: Login User', user)
         if (!isMounted.current) return
-        setAuth({
-          isLoggingIn: false,
-          isLoggedIn: true,
-          user: {
-            uid: user.uid!,
-            displayName: user.displayName!,
-            photoURL: user.photoURL!
-          }
-        })
+        dispatch(setLoginUser(user))
       } else {
         console.log('debug: Logout User', user)
         if (!isMounted.current) return
-        setAuth({
-          isLoggingIn: false,
-          user: null,
-          isLoggedIn: false
-        })
+        dispatch(setLoginUser(null))
       }
     })
-  }, [setAuth, isMounted])
-
-  return { auth, setAuth }
+  }, [isMounted, dispatch])
 }

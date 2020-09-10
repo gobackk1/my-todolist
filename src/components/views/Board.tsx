@@ -1,9 +1,21 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Redirect } from 'react-router-dom'
-import { AuthContext } from '@/scripts/context'
+import { setTitle, asyncSetTitle } from '@/scripts/redux/state/board/actions'
+import { useSelector, useDispatch } from 'react-redux'
 
 export const Board: React.FC = () => {
-  const [{ isLoggedIn }] = useContext(AuthContext)
+  const boardState = useSelector((state: any) => state.board)
+  const dispatch = useDispatch()
 
-  return isLoggedIn ? <div>Board</div> : <Redirect to="/" />
+  const onClick = () => {
+    // dispatch(setTitle('newTitle'))
+    dispatch(asyncSetTitle('asyncTitle'))
+  }
+
+  return (
+    <div>
+      {boardState.title}
+      <button onClick={onClick}>test</button>
+    </div>
+  )
 }
