@@ -3,7 +3,8 @@ import { Redirect } from 'react-router-dom'
 import {
   fetchBoards,
   createBoard,
-  updateBoard
+  updateBoard,
+  deleteBoard
 } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
@@ -27,13 +28,13 @@ export const Board: React.FC = () => {
     }
   }
 
-  const update = async (id: string) => {
+  const deleteboard = async (id: string) => {
     if (!inputRef.current) return
-    const { value } = inputRef.current
     try {
-      await dispatch(updateBoard({ id, title: value }))
+      await dispatch(deleteBoard({ id }))
     } catch (e) {}
   }
+  console.log(boardState.isLoading)
 
   return (
     <div>
@@ -49,10 +50,10 @@ export const Board: React.FC = () => {
                   <div>{board.title}</div>
                   <button
                     onClick={() => {
-                      update(board.id)
+                      deleteboard(board.id)
                     }}
                   >
-                    updateBoard
+                    delete
                   </button>
                 </div>
               )

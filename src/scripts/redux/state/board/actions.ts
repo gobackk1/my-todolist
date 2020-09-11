@@ -9,10 +9,11 @@ import { OPTION } from '@/option'
  * サーバーからボードを取得する
  * state.boards をクリアしてから、新しく取得したボードを state.boards 割り当てる
  */
-export const fetchBoards = asyncActionCreator<void, void, Error>(
+export const fetchBoards = asyncActionCreator<void, Board[], Error>(
   'FETCH_BOARDS',
-  async (params, dispatch) => {
+  async params => {
     const { user } = store.getState().user
+    const boards: Board[] = []
 
     if (user && user.uid) {
       try {
@@ -25,11 +26,13 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
           const { id } = doc
           const { title } = doc.data()
 
-          dispatch(addBoard({ id, title, list: [] }))
+          boards.push({ id, title, list: [] })
         })
       } catch (e) {
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
       }
+
+      return boards
     } else {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
@@ -70,8 +73,8 @@ export const updateBoard = asyncActionCreator<
   Error
 >('UPDATE_BOARD', async ({ id, title }, dispatch) => {
   const { user } = store.getState().user
+
   if (user && user.uid) {
-    let board
     try {
       const documentReference: any = await firebase
         .firestore()
@@ -79,9 +82,7 @@ export const updateBoard = asyncActionCreator<
         .doc(id)
 
       documentReference.set({ title }, { merge: true })
-      board = await documentReference.get()
       //リストは board.data().list で
-      console.log(board.data(), 'board')
       return { id, title }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
@@ -90,6 +91,30 @@ export const updateBoard = asyncActionCreator<
     throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
   }
 })
-// delete
+
+/**
+ * ボードを削除する
+ */
+export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
+  'DELETE_BOARD',
+  async ({ id }) => {
+    const { user } = store.getState().user
+
+    if (user && user.uid) {
+      try {
+        const snapshot = await firebase
+          .firestore()
+          .collection(`users/${user.uid}/boards/`)
+          .doc(id)
+          .delete()
+        return id
+      } catch (e) {
+        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+      }
+    } else {
+      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+    }
+  }
+)
 
 export const addBoard = actionCreator<Board>('ADD_BOARD')
