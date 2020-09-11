@@ -1,10 +1,10 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
-import { fetchBoards, addBoard } from './actions'
+import { fetchBoards, addBoard, createBoard } from './actions'
 
 export interface Board {
-  id: number
+  id: string
   title: string
-  lists: any[]
+  list: any[]
 }
 export interface BoardState {
   isLoading: boolean
@@ -20,12 +20,18 @@ const initialState: BoardState = {
 
 export const boardReducer = reducerWithInitialState(initialState)
   .case(fetchBoards.async.started, state => {
+    return { ...state, boards: [] }
+  })
+  .cases([createBoard.async.started], state => {
     return { ...state, isLoading: true }
   })
-  .case(fetchBoards.async.failed, (state, { error }) => {
-    return { ...state, isLoading: false, error }
-  })
-  .case(fetchBoards.async.done, state => {
+  .cases(
+    [fetchBoards.async.failed, createBoard.async.failed],
+    (state, { error }) => {
+      return { ...state, isLoading: false, error }
+    }
+  )
+  .cases([fetchBoards.async.done, createBoard.async.done], state => {
     return { ...state, isLoading: false }
   })
   .case(addBoard, (state, params) => {
