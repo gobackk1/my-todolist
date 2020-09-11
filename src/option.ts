@@ -3,7 +3,7 @@ import { SnackbarOrigin } from '@material-ui/core'
 export const OPTION = {
   PATH: {
     HOME: '/',
-    BOARD: '/board'
+    BOARD: '/boards'
   },
   AUTO_HIDE_DURATION: 5000,
   POSITION: {
@@ -18,6 +18,8 @@ export const OPTION = {
     LOGOUT: {
       SUCCESS: 'ログアウトしました',
       ERROR: 'ログアウトに失敗しました。サーバーとの接続を確認して下さい。'
-    }
+    },
+    UNAUTHORIZED_OPERATION:
+      '不正な画面遷移でアクセスされた可能性があります。画面を更新し、操作をやり直して下さい。'
   }
 } as const

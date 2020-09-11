@@ -31,7 +31,11 @@ export const App: React.FC = () => {
             <AppHeader />
             <Switch>
               <Route path={OPTION.PATH.BOARD} component={Board} />
-              <Route path={OPTION.PATH.HOME} component={Home} exact />
+              <Route
+                path={`${OPTION.PATH.HOME}/:boardId`}
+                component={Home}
+                exact
+              />
             </Switch>
           </SnackbarProvider>
         </Authentication>

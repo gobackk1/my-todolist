@@ -1,18 +1,32 @@
 import firebase from '@/scripts/firebase'
-import { asyncActionCreator } from '~redux/action'
-import * as I from '@/scripts/interfaces'
+import { asyncActionCreator, actionCreator } from '~redux/action'
+// import * as I from '@/scripts/interfaces'
+import { store } from '~redux/store'
+import { Board } from '~redux/state/board/reducer'
+import { OPTION } from '@/option'
 
-export const asyncSetTitle = asyncActionCreator<any, any, any>(
-  'ASYNC_SET_TITLE',
-  async (params, dispatch, getState) => {
-    const { user } = (getState() as I.ReduxState).user
+export const fetchBoards = asyncActionCreator<void, void, Error>(
+  'FETCH_BOARDS',
+  async (params, dispatch) => {
+    const { user } = store.getState().user
+
     if (user && user.uid) {
-      const response = await firebase
+      const snapshot = await firebase
         .firestore()
-        .collection(`users/${user.uid}/title`)
-        .add({ title: params })
-      console.log('response', response)
-      return ''
+        .collection(`users/${user.uid}/boards`)
+        .get()
+
+      snapshot.forEach(doc => {
+        dispatch(addBoard(doc.data() as Board))
+      })
+    } else {
+      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
   }
 )
+
+// create
+// update
+// delete
+
+export const addBoard = actionCreator<Board>('ADD_BOARD')

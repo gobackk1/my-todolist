@@ -28,7 +28,7 @@ export const AppHeader: React.FC = () => {
         type: 'success'
       })
       dispatch(setLoggingIn(false))
-      history.push('/board')
+      history.push('/boards')
     } catch (e) {
       showSnackbar({
         message: OPTION.MESSAGE.LOGIN.ERROR,

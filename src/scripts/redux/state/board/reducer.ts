@@ -1,18 +1,52 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
-import { asyncSetTitle } from './actions'
+import { fetchBoards, addBoard } from './actions'
 
-export interface BoardState {
+export interface Board {
+  id: number
   title: string
+  lists: any[]
+}
+export interface BoardState {
+  isLoading: boolean
+  error: Error | null
+  boards: Board[]
 }
 
 const initialState: BoardState = {
-  title: 'initial'
+  isLoading: false,
+  error: null,
+  boards: [] as Board[]
 }
 
 export const boardReducer = reducerWithInitialState(initialState)
-  .case(asyncSetTitle.async.started, (state, params) => {
-    return { ...state }
+  .case(fetchBoards.async.started, state => {
+    return { ...state, isLoading: true }
   })
-  .case(asyncSetTitle.async.done, (state, params) => {
-    return { ...state }
+  .case(fetchBoards.async.failed, (state, { error }) => {
+    return { ...state, isLoading: false, error }
   })
+  .case(fetchBoards.async.done, state => {
+    return { ...state, isLoading: false }
+  })
+  .case(addBoard, (state, params) => {
+    return { ...state, boards: state.boards.concat(params) }
+  })
+//これはmemo
+interface board {
+  id: number
+  title: string
+  lists: [
+    {
+      boardId: number
+      id: number
+      title: string
+      cards: [
+        {
+          listId: number
+          id: number
+          title: string
+        }
+      ]
+    }
+  ]
+}
