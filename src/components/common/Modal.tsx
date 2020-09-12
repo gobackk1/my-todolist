@@ -1,12 +1,17 @@
 import React, { useState } from 'react'
-import { Modal as MaterialModal, Backdrop, Fade } from '@material-ui/core'
+import {
+  Modal as MaterialModal,
+  Backdrop,
+  Fade,
+  IconButton
+} from '@material-ui/core'
 import { css } from 'emotion/macro'
+import { Close } from '@material-ui/icons'
 
 export const Modal: React.FC<Props> = ({ children, render }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
-
   const onClick = () => handleOpen()
 
   return (
@@ -23,7 +28,14 @@ export const Modal: React.FC<Props> = ({ children, render }) => {
         }}
       >
         <Fade in={open}>
-          <div className={styles['modal-inner']}>{children}</div>
+          <div className={styles['modal-inner']}>
+            <div className={styles['modal-inner-header']}>
+              <IconButton size="small" onClick={handleClose}>
+                <Close />
+              </IconButton>
+            </div>
+            {children}
+          </div>
         </Fade>
       </MaterialModal>
     </div>
@@ -39,6 +51,9 @@ const styles = {
   'modal-inner': css`
     background: #fff;
     padding: 20px;
+  `,
+  'modal-inner-header': css`
+    text-align: right;
   `
 }
 
