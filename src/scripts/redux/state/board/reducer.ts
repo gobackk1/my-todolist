@@ -1,11 +1,5 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
-import {
-  fetchBoards,
-  createBoard,
-  updateBoard,
-  deleteBoard,
-  addBoard
-} from './actions'
+import { fetchBoards, createBoard, updateBoard, deleteBoard } from './actions'
 
 export interface Board {
   id: string
@@ -52,8 +46,8 @@ export const boardReducer = reducerWithInitialState(initialState)
   .case(fetchBoards.async.done, (state, { result }) => {
     return { ...state, isLoading: false, boards: result }
   })
-  .cases([createBoard.async.done], state => {
-    return { ...state, isLoading: false }
+  .cases([createBoard.async.done], (state, { result }) => {
+    return { ...state, isLoading: false, boards: state.boards.concat(result) }
   })
   .case(updateBoard.async.done, (state, { result }) => {
     const index = state.boards.findIndex(board => board.id === result.id)
@@ -77,7 +71,4 @@ export const boardReducer = reducerWithInitialState(initialState)
         ...state.boards.slice(index + 1)
       ]
     }
-  })
-  .case(addBoard, (state, params) => {
-    return { ...state, boards: state.boards.concat(params) }
   })

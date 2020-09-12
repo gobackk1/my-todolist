@@ -4,7 +4,7 @@ import { asyncActionCreator, actionCreator } from '~redux/action'
 import { store } from '~redux/store'
 import { Board } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
-
+import { UserState } from '~redux/state/user/reducer'
 /**
  * サーバーからボードを取得する
  * state.boards をクリアしてから、新しく取得したボードを state.boards 割り当てる
@@ -12,7 +12,7 @@ import { OPTION } from '@/option'
 export const fetchBoards = asyncActionCreator<void, Board[], Error>(
   'FETCH_BOARDS',
   async params => {
-    const { user } = store.getState().user
+    const { user }: UserState = store.getState().user
     const boards: Board[] = []
 
     if (user && user.uid) {
@@ -42,27 +42,28 @@ export const fetchBoards = asyncActionCreator<void, Board[], Error>(
 /**
  * ボードを新規作成する
  */
-export const createBoard = asyncActionCreator<Pick<Board, 'title'>, any, Error>(
-  'CREATE_BOARD',
-  async ({ title }, dispatch) => {
-    const { user } = store.getState().user
+export const createBoard = asyncActionCreator<
+  Pick<Board, 'title'>,
+  Pick<Board, 'title' | 'id' | 'list'>,
+  Error
+>('CREATE_BOARD', async ({ title }) => {
+  const { user }: UserState = store.getState().user
 
-    if (user && user.uid) {
-      try {
-        const { id } = await firebase
-          .firestore()
-          .collection(`users/${user.uid}/boards`)
-          .add({ title })
+  if (user && user.uid) {
+    try {
+      const { id }: firebase.firestore.DocumentReference = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/boards`)
+        .add({ title })
 
-        dispatch(addBoard({ title, id, list: [] }))
-      } catch (e) {
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-    } else {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+      return { title, id, list: [] }
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
   }
-)
+})
 
 /**
  * ボードをアップデートする
@@ -72,7 +73,7 @@ export const updateBoard = asyncActionCreator<
   any,
   Error
 >('UPDATE_BOARD', async ({ id, title }, dispatch) => {
-  const { user } = store.getState().user
+  const { user }: UserState = store.getState().user
 
   if (user && user.uid) {
     try {
@@ -98,7 +99,7 @@ export const updateBoard = asyncActionCreator<
 export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
   'DELETE_BOARD',
   async ({ id }) => {
-    const { user } = store.getState().user
+    const { user }: UserState = store.getState().user
 
     if (user && user.uid) {
       try {
@@ -116,5 +117,3 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
     }
   }
 )
-
-export const addBoard = actionCreator<Board>('ADD_BOARD')
