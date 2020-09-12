@@ -13,11 +13,12 @@ import { useSnackbarContext } from '@/scripts/hooks'
 
 export const Board: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
+  const userState = useSelector((state: I.ReduxState) => state.user)
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const inputRef = useRef<HTMLInputElement | null>(null)
 
-  const onClick = async () => {
+  const dispatchFetchBoard = async () => {
     try {
       await dispatch(fetchBoards())
     } catch (e) {
@@ -28,13 +29,23 @@ export const Board: React.FC = () => {
     }
   }
 
+  React.useEffect(() => {
+    if (userState.user && userState.user.uid) {
+      dispatchFetchBoard()
+    }
+  }, [dispatch, fetchBoards, userState])
+
+  const create = async (title: string) => {
+    try {
+      await dispatch(createBoard({ title }))
+    } catch (e) {}
+  }
+
   const deleteboard = async (id: string) => {
-    if (!inputRef.current) return
     try {
       await dispatch(deleteBoard({ id }))
     } catch (e) {}
   }
-  console.log(boardState.isLoading)
 
   return (
     <div>
@@ -42,24 +53,13 @@ export const Board: React.FC = () => {
       {!boardState.isLoading && (
         <>
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
-          {boardState.boards &&
-            boardState.boards.map((board, i) => {
-              return (
-                <div key={i}>
-                  <div>{board.id}</div>
-                  <div>{board.title}</div>
-                  <button
-                    onClick={() => {
-                      deleteboard(board.id)
-                    }}
-                  >
-                    delete
-                  </button>
-                </div>
-              )
-            })}
-          <button onClick={onClick}>test</button>
-          <input ref={inputRef} type="text" />
+          <button
+            onClick={() => {
+              create('newboard')
+            }}
+          >
+            createBoard
+          </button>
         </>
       )}
     </div>

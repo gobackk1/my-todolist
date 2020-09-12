@@ -4,7 +4,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import firebase from '@/scripts/firebase'
 import { useHistory } from 'react-router-dom'
 import { css } from 'emotion/macro'
-import { LoadingSpinner, Modal } from '@/components'
+import { LoadingSpinner, Modal, BoardMenu } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
@@ -60,9 +60,10 @@ export const AppHeader: React.FC = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <IconButton edge="start" color="inherit" aria-label="menu">
+        <BoardMenu />
+        {/* <IconButton edge="start" color="inherit" aria-label="menu">
           <MenuIcon />
-        </IconButton>
+        </IconButton> */}
         <h1 className={styles['h1']}>Pacrello</h1>
         {userState.isLoggingIn && <LoadingSpinner />}
         {!userState.isLoggingIn && (
@@ -96,6 +97,7 @@ export const AppHeader: React.FC = () => {
 const styles = {
   h1: css`
     flex-grow: 1;
+    text-align: center;
   `,
   'modal-title': css`
     font-weight: bold;
