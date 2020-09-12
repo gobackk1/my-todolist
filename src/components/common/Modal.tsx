@@ -1,22 +1,17 @@
 import React, { useState } from 'react'
-import {
-  Modal as MaterialModal,
-  Backdrop,
-  Fade,
-  Button
-} from '@material-ui/core'
+import { Modal as MaterialModal, Backdrop, Fade } from '@material-ui/core'
 import { css } from 'emotion/macro'
 
-export const Modal: React.FC = ({ children }) => {
+export const Modal: React.FC<Props> = ({ children, render }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
 
+  const onClick = () => handleOpen()
+
   return (
     <div>
-      <Button onClick={handleOpen} color="inherit">
-        Login
-      </Button>
+      {render({ onClick })}
       <MaterialModal
         open={open}
         className={styles['modal']}
@@ -45,4 +40,8 @@ const styles = {
     background: #fff;
     padding: 20px;
   `
+}
+
+type Props = {
+  render: (props: any) => JSX.Element
 }

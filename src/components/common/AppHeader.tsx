@@ -4,7 +4,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import firebase from '@/scripts/firebase'
 import { useHistory } from 'react-router-dom'
 import { css } from 'emotion/macro'
-import { LoadingSpinner, Modal, BoardMenu } from '@/components'
+import { LoadingSpinner, Modal, BoardListMenu } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
@@ -60,7 +60,7 @@ export const AppHeader: React.FC = () => {
   return (
     <AppBar position="static">
       <Toolbar>
-        <BoardMenu />
+        <BoardListMenu />
         {/* <IconButton edge="start" color="inherit" aria-label="menu">
           <MenuIcon />
         </IconButton> */}
@@ -69,7 +69,13 @@ export const AppHeader: React.FC = () => {
         {!userState.isLoggingIn && (
           <>
             {userState.user === null ? (
-              <Modal>
+              <Modal
+                render={props => (
+                  <Button color="inherit" {...props}>
+                    ログイン
+                  </Button>
+                )}
+              >
                 <div className={styles['modal-title']}>ログイン</div>
                 <button onClick={onClick} type="button">
                   Google アカウントでログイン
