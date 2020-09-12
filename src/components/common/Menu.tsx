@@ -1,49 +1,83 @@
 import React from 'react'
-import { Menu as MenuMui } from '@material-ui/core'
 import { css } from 'emotion/macro'
+import { useEventListener } from '@/scripts/hooks'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
  */
 export const Menu: React.FC<Props> = ({ children, render }) => {
-  const [
-    anchorElement,
-    setAnchorElement
-  ] = React.useState<HTMLButtonElement | null>(null)
+  const [isOpen, setIsOpen] = React.useState(false)
+  const menuInnerRef = React.useRef(null)
+  const openButtonRef = React.useRef(null)
 
-  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorElement(e.currentTarget)
+  /**
+   * ボードリストの外側をクリックしたらリストを閉じる
+   */
+  const onClickOffMenuList = (e: Event) => {
+    if (
+      (e.target as HTMLElement).parentElement === menuInnerRef.current ||
+      (e.target as HTMLElement).parentElement === openButtonRef.current
+    ) {
+      return
+    }
+
+    setIsOpen(false)
+  }
+  useEventListener('click', onClickOffMenuList)
+
+  /**
+   * render に渡ってきたボタンに props を付与する
+   */
+  const providingProps = {
+    onClick: () => {
+      setIsOpen(!isOpen)
+    },
+    ref: openButtonRef
   }
 
   const handleClose = () => {
-    setAnchorElement(null)
+    setIsOpen(false)
   }
 
+  /**
+   * children からこのコンポーネントを閉じる為に、handleClose を提供する
+   */
+  const childrenWithProps = React.Children.map(children, child => {
+    switch (typeof child) {
+      case 'string':
+        return child
+      case 'object':
+        return React.cloneElement(child as any, {
+          handleClose
+        })
+      default:
+        return null
+    }
+  })
+
   return (
-    <>
-      {render({ onClick })}
-      <MenuMui
-        id="simple-menu"
-        getContentAnchorEl={null}
-        anchorEl={anchorElement}
-        open={!!anchorElement}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center'
-        }}
+    <div className={styles['menu']}>
+      {render({ ...providingProps })}
+      <div
+        id="menu-inner"
+        className={styles['menu-inner']}
+        ref={menuInnerRef}
+        style={{ display: isOpen ? 'block' : 'none' }}
       >
-        {children}
-      </MenuMui>
-    </>
+        {childrenWithProps}}
+      </div>
+    </div>
   )
 }
 
-const styles = {}
+const styles = {
+  menu: css`
+    position: relative;
+  `,
+  'menu-inner': css`
+    position: absolute;
+  `
+}
 
 type Props = {
   render: (props: any) => JSX.Element

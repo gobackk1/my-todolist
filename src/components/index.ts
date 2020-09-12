@@ -1,7 +1,7 @@
 export { App } from './common/App'
 export { AppHeader } from './common/AppHeader'
 export { Authentication } from './common/Authentication'
-export { BoardMenu } from './common/BoardMenu'
+export { BoardListMenu } from './common/BoardListMenu'
 export { LoadingSpinner } from './common/LoadingSpinner'
 export { Modal } from './common/Modal'
 export { Menu } from './common/Menu'

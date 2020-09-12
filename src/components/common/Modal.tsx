@@ -8,10 +8,12 @@ import {
 import { css } from 'emotion/macro'
 import { Close } from '@material-ui/icons'
 
-export const Modal: React.FC<Props> = ({ children, render }) => {
+export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
-  const handleClose = () => setOpen(false)
+  const handleClose = (e: any, reason: any) => {
+    setOpen(false)
+  }
   const onClick = () => handleOpen()
 
   return (
@@ -26,11 +28,13 @@ export const Modal: React.FC<Props> = ({ children, render }) => {
         BackdropProps={{
           timeout: 500
         }}
+        keepMounted={true}
       >
         <Fade in={open}>
           <div className={styles['modal-inner']}>
             <div className={styles['modal-inner-header']}>
-              <IconButton size="small" onClick={handleClose}>
+              {/* HACK: <BoardListMenu> からノードウォーキングで参照されている */}
+              <IconButton size="small" onClick={handleClose as any}>
                 <Close />
               </IconButton>
             </div>
@@ -40,7 +44,7 @@ export const Modal: React.FC<Props> = ({ children, render }) => {
       </MaterialModal>
     </div>
   )
-}
+})
 
 const styles = {
   modal: css`
