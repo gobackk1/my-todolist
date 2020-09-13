@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   AppHeader,
-  Home,
   Board,
   SnackbarProvider,
   Authentication
@@ -13,6 +12,26 @@ import { reset, global } from '@/styles'
 import { OPTION } from '@/option'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from '~redux/store'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+
+/**
+ * Material-UI のグローバルに適用するスタイル
+ */
+const theme = createMuiTheme({
+  typography: {
+    button: {
+      textTransform: 'none'
+    }
+  }
+})
+
+/**
+ * このプロダクトのグローバルに適用するスタイル
+ */
+export const globalStyle = css`
+  ${reset}
+  ${global}
+`
 
 /**
  * index.tsx でマウントするコンポーネント
@@ -20,29 +39,26 @@ import { store } from '~redux/store'
  */
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <ReduxProvider store={store}>
-        <Authentication>
-          <Global styles={globalStyle} />
-          <SnackbarProvider
-            autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
-            position={OPTION.SNACKBAR.POSITION}
-          >
-            <AppHeader />
-            <Switch>
-              <Route
-                path={`${OPTION.PATH.BOARD}/:boardId?`}
-                component={Board}
-              />
-            </Switch>
-          </SnackbarProvider>
-        </Authentication>
-      </ReduxProvider>
-    </BrowserRouter>
+    <MuiThemeProvider theme={theme}>
+      <Global styles={globalStyle} />
+      <BrowserRouter>
+        <ReduxProvider store={store}>
+          <Authentication>
+            <SnackbarProvider
+              autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
+              position={OPTION.SNACKBAR.POSITION}
+            >
+              <AppHeader />
+              <Switch>
+                <Route
+                  path={`${OPTION.PATH.BOARD}/:boardId?`}
+                  component={Board}
+                />
+              </Switch>
+            </SnackbarProvider>
+          </Authentication>
+        </ReduxProvider>
+      </BrowserRouter>
+    </MuiThemeProvider>
   )
 }
-
-export const globalStyle = css`
-  ${reset}
-  ${global}
-`
