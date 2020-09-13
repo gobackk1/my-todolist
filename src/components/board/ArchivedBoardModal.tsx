@@ -18,6 +18,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { OPTION } from '@/option'
 import { useHistory } from 'react-router-dom'
 import * as I from '@/scripts/interfaces'
+import { Reply, DeleteForever } from '@material-ui/icons'
+import { css } from 'emotion'
 
 export const ArchivedBoardModal: React.FC = () => {
   const dispatch = useDispatch()
@@ -25,7 +27,7 @@ export const ArchivedBoardModal: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
 
-  const styles = useStyles()
+  const muiStyles = useStyles()
   const {
     register,
     handleSubmit,
@@ -51,7 +53,7 @@ export const ArchivedBoardModal: React.FC = () => {
     props => (
       <Button
         {...props}
-        className={styles.buttonCreate}
+        className={muiStyles.buttonCreate}
         onClick={() => {
           props.onClick()
           dispatchFetchArchiveBoards()
@@ -82,10 +84,16 @@ export const ArchivedBoardModal: React.FC = () => {
     try {
       dispatch(restoreBoard({ id }))
       showSnackbar({
-        message: `アーカイブされた${title}を戻しました。`,
+        message: `アーカイブされた「${title}」を戻しました。`,
         type: 'info'
       })
-      e.target.parentElement.previousSibling.previousSibling.children[0].click()
+
+      //NOTE: Modalを閉じるため
+      const backdrops = document.querySelectorAll('.MuiBackdrop-root')
+      if (backdrops)
+        [].forEach.call(backdrops, (backdrop: HTMLElement) => {
+          if (backdrop) backdrop.click()
+        })
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
     }
@@ -93,32 +101,49 @@ export const ArchivedBoardModal: React.FC = () => {
 
   return (
     <Modal render={renderButton}>
-      <div>アーカイブ済みボード</div>
-      {boardState.isLoading && <LoadingSpinner />}
-      {!boardState.isLoading && (
-        <>
-          {boardState.archivedBoards &&
-            boardState.archivedBoards.map((board, i) => (
-              <div key={i}>
-                <div>{board.title}</div>
-                <button
-                  onClick={e => {
-                    onClickRestore(e, board.id, board.title)
-                  }}
-                >
-                  アーカイブしたボードを戻す
-                </button>
-                <button
-                  onClick={() => {
-                    onClickDelete(board.id)
-                  }}
-                >
-                  削除する
-                </button>
-              </div>
-            ))}
-        </>
-      )}
+      <div className={styles['modal-inner']}>
+        <div className={styles['modal-title']}>アーカイブ済みボード</div>
+        {boardState.isLoading && <LoadingSpinner />}
+        {!boardState.isLoading && (
+          <>
+            {boardState.archivedBoards.length ? (
+              <ul>
+                {boardState.archivedBoards.map((board, i) => (
+                  <li className={styles['archived-board']} key={i}>
+                    <div className={styles['archived-board-title']}>
+                      {board.title}
+                    </div>
+                    <Button
+                      onClick={e => {
+                        onClickRestore(e, board.id, board.title)
+                      }}
+                      startIcon={<Reply />}
+                      variant="contained"
+                      className={muiStyles['restore-button']}
+                      size="small"
+                    >
+                      アーカイブから戻す
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        onClickDelete(board.id)
+                      }}
+                      startIcon={<DeleteForever />}
+                      variant="contained"
+                      className={muiStyles['delete-button']}
+                      size="small"
+                    >
+                      削除する
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              'アーカイブはありません'
+            )}
+          </>
+        )}
+      </div>
     </Modal>
   )
 }
@@ -134,9 +159,35 @@ const useStyles = makeStyles((theme: Theme) => ({
     '& .MuiButton-label': {
       textDecoration: 'underline'
     }
+  },
+  'restore-button': {
+    backgroundColor: 'green',
+    marginLeft: 10
+  },
+  'delete-button': {
+    backgroundColor: 'red',
+    marginLeft: 10
   }
 }))
 
-type FormValue = {
-  title: string
+const styles = {
+  'modal-inner': css`
+    width: 600px;
+  `,
+  'archived-board': css`
+    display: flex;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e2e2e2;
+  `,
+  'archived-board-title': css`
+    flex: 1;
+    display: flex;
+    align-items: center;
+  `,
+  'modal-title': css`
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-align: center;
+  `
 }

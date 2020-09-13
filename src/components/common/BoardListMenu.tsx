@@ -81,7 +81,7 @@ const CSS = {
   'menu-content': css`
     background: #fff;
     padding: 20px;
-    width: 250px;
+    width: 300px;
     box-shadow: 2px 2px 13px 0px #6f6f6f;
   `,
   'menu-content-item': css`
