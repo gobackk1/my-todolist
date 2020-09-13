@@ -1,10 +1,11 @@
-import firebase from '@/scripts/firebase'
 import { asyncActionCreator, actionCreator } from '~redux/action'
 // import * as I from '@/scripts/interfaces'
 import { store } from '~redux/store'
 import { Board } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
+import firebase from '@/scripts/firebase'
+
 /**
  * サーバーからボードを取得する
  * state.boards をクリアしてから、新しく取得したボードを state.boards 割り当てる

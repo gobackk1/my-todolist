@@ -103,10 +103,10 @@ export const BoardListMenu: React.FC = () => {
               id="test"
               name="title"
               inputRef={register({
-                required: 'タイトルは必須です',
+                required: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
                 maxLength: {
-                  value: 50,
-                  message: 'タイトルは50字以内で指定してください'
+                  value: OPTION.BOARD.TITLE.MAX_LENGTH,
+                  message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR
                 }
               })}
               type="text"

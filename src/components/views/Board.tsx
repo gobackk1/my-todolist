@@ -9,75 +9,52 @@ import {
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { LoadingSpinner } from '../common/LoadingSpinner'
-import { useSnackbarContext } from '@/scripts/hooks'
-import { useParams } from 'react-router-dom'
-import { Board as IBoard } from '~redux/state/board/reducer'
+import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
+import { css } from 'emotion/macro'
+import { BoardTitle } from '@/components'
 
+/**
+ * ボードの View, 各種操作を管理する
+ */
 export const Board: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
-  const inputRef = useRef<HTMLInputElement | null>(null)
-  const params = useParams<{ boardId: string }>()
-  const [currentBoard, setCurrentBoard] = React.useState({} as IBoard)
 
-  const dispatchFetchBoard = async () => {
-    try {
-      await dispatch(fetchBoards())
-    } catch (e) {
-      showSnackbar({
-        message: e.message,
-        type: 'error'
-      })
-    }
-  }
   /**
    * ユーザーがログインしていたら、ボード一覧を取得
    */
   React.useEffect(() => {
     if (userState.user && userState.user.uid) {
-      dispatchFetchBoard()
+      ;(async () => {
+        try {
+          await dispatch(fetchBoards())
+        } catch (e) {
+          showSnackbar({
+            message: e.message,
+            type: 'error'
+          })
+        }
+      })()
     }
   }, [dispatch, fetchBoards, userState])
 
-  /**
-   * 選択中のボードの情報を state で管理する
-   */
-  React.useEffect(() => {
-    const current = boardState.boards.find(board => board.id === params.boardId)
-    if (!current) return
-    setCurrentBoard(current)
-  }, [params, boardState, setCurrentBoard])
-
-  const create = async (title: string) => {
-    try {
-      await dispatch(createBoard({ title }))
-    } catch (e) {}
-  }
-
-  const deleteboard = async (id: string) => {
-    try {
-      await dispatch(deleteBoard({ id }))
-    } catch (e) {}
-  }
-
   return (
-    <div>
+    <div className={styles['root']}>
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
         <>
-          <div>タイトル： {currentBoard.title}</div>
+          <BoardTitle />
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
-          <button
-            onClick={() => {
-              create('newboard')
-            }}
-          >
-            createBoard
-          </button>
         </>
       )}
     </div>
   )
+}
+
+const styles = {
+  root: css`
+    padding: 10px;
+  `
 }

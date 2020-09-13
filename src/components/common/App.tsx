@@ -25,8 +25,8 @@ export const App: React.FC = () => {
         <Authentication>
           <Global styles={globalStyle} />
           <SnackbarProvider
-            autoHideDuration={OPTION.AUTO_HIDE_DURATION}
-            position={OPTION.POSITION}
+            autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
+            position={OPTION.SNACKBAR.POSITION}
           >
             <AppHeader />
             <Switch>
