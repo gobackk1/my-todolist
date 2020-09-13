@@ -6,15 +6,16 @@ import {
   BoardListSearchForm
 } from '@/components'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { Link } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { css } from 'emotion/macro'
-import { useForm } from 'react-hook-form'
 import { Board } from '~redux/state/board/reducer'
-import { useEventListener } from '@/scripts/hooks'
 import { LoadingSpinner } from './LoadingSpinner'
+import { createBoard } from '@/scripts/redux/state/board/actions'
+import { useSnackbarContext } from '@/scripts/hooks'
+import { useHistory } from 'react-router-dom'
 
 /**
  * ボード一覧ボタンと、押した時にでるメニュー
@@ -23,59 +24,62 @@ import { LoadingSpinner } from './LoadingSpinner'
 export const BoardListMenu: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const muiStyles = useStyles()
-  const { register, reset } = useForm()
   const [state, setState] = React.useState<SearchState>({
     isSearching: false,
     value: '',
     result: []
   })
-  const inputRef = React.useRef(null)
+  const dispatch = useDispatch()
+  const { showSnackbar } = useSnackbarContext()
+  const history = useHistory()
 
-  useEventListener('onMenuClose', (e: React.MouseEvent<HTMLElement>) => {
-    reset()
-    /**
-     * HACK: <TextField inputRef={register} /> だと、defaultValueを使っていても
-     * 最初の１回の onChange イベントが発火しないので、
-     * <TextFiled ref={inputRef} />で参照し、無理やり input の value を初期化した
-     */
-    ;((inputRef.current! as HTMLInputElement).children[0]
-      .firstElementChild! as HTMLInputElement).value = ''
-    setState({ isSearching: false, value: '', result: [] })
-  })
-
-  //TODO: {state.value}というタイトルのボードを作成ロジック
+  const onClickCreate = async (title: string) => {
+    try {
+      const { id }: any = await dispatch(createBoard({ title }))
+      document.body.click()
+      history.push(`/boards/${id}`)
+    } catch ({ message }) {
+      showSnackbar({ message, type: 'error' })
+    }
+  }
 
   const SearchView: React.FC = () => {
     return (
-      <>
-        <div>結果は{state.result.length}件です</div>
-        {state.result.length && (
-          <>
+      <div className={muiStyles['search-root']}>
+        <Typography>結果は{state.result.length}件です</Typography>
+        {state.result.length ? (
+          <ul>
             {state.result.map((board, i) => {
               return (
-                <Button
-                  to={`${OPTION.PATH.BOARD}/${board.id}`}
-                  component={Link}
-                  fullWidth={true}
-                  variant="contained"
-                  className={muiStyles['button-board']}
-                  onClick={() => {
-                    document.body.click()
-                  }}
-                  defaultValue=""
-                  key={i}
-                >
-                  {board.title}
-                </Button>
+                <li key={i}>
+                  <Button
+                    to={`${OPTION.PATH.BOARD}/${board.id}`}
+                    component={Link}
+                    fullWidth={true}
+                    variant="contained"
+                    className={muiStyles['button-board']}
+                    onClick={() => {
+                      document.body.click()
+                    }}
+                    defaultValue=""
+                  >
+                    {board.title}
+                  </Button>
+                </li>
               )
             })}
-          </>
-        )}
-        <div>
-          {state.value}
-          というタイトルのボードを作成
-        </div>
-      </>
+          </ul>
+        ) : null}
+        {/* NOTE: サーバーからも検索するのであればここに表示 */}
+        <Button
+          onClick={() => {
+            onClickCreate(state.value)
+          }}
+          className={muiStyles['create-board-button']}
+        >
+          「{state.value}」というタイトルのボードを作成
+        </Button>
+      </div>
     )
   }
 
@@ -161,6 +165,18 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   'board-list-title': {
     marginBottom: 20
+  },
+  'search-root': {
+    '& .MuiButton-root': {
+      marginBottom: theme.spacing(2)
+    },
+    '& .MuiTypography-root': {
+      marginBottom: theme.spacing(1)
+    }
+  },
+  'create-board-button': {
+    textDecoration: 'underline',
+    textAlign: 'left'
   }
 }))
 
@@ -176,7 +192,7 @@ const styles = {
     margin-bottom: 15px;
   `,
   'board-list': css`
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   `
 }
 

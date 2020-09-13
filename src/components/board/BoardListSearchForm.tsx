@@ -4,6 +4,8 @@ import { TextField } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { Board } from '~redux/state/board/reducer'
+import { useEventListener } from '@/scripts/hooks'
+import { useForm } from 'react-hook-form'
 
 type Props = {
   state: SearchState
@@ -13,6 +15,7 @@ type Props = {
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const inputRef = React.useRef(null)
+  const { register, reset } = useForm()
 
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.currentTarget
@@ -25,6 +28,18 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
     )
     setState(state => ({ ...state, result, value }))
   }
+
+  useEventListener('onMenuClose', (e: React.MouseEvent<HTMLElement>) => {
+    reset()
+    /**
+     * HACK: <TextField inputRef={register} /> だと、defaultValueを使っていても
+     * 最初の１回の onChange イベントが発火しないので、
+     * <TextFiled ref={inputRef} />で参照し、無理やり input の value を初期化した
+     */
+    ;((inputRef.current! as HTMLInputElement).children[0]
+      .firstElementChild! as HTMLInputElement).value = ''
+    setState({ isSearching: false, value: '', result: [] })
+  })
 
   return (
     <form className={styles['search']}>
