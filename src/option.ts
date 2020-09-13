@@ -36,5 +36,8 @@ export const OPTION = {
         REQUIRED_ERROR: 'タイトルは必須です'
       }
     }
+  },
+  LAYER: {
+    MENU: 10
   }
 } as const

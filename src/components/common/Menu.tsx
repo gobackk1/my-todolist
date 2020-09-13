@@ -1,6 +1,7 @@
 import React from 'react'
 import { css } from 'emotion/macro'
 import { useEventListener } from '@/scripts/hooks'
+import { OPTION } from '@/option'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
@@ -73,6 +74,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 const styles = {
   menu: css`
     position: relative;
+    z-index: ${OPTION.LAYER.MENU};
   `,
   'menu-inner': css`
     position: absolute;

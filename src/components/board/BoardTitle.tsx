@@ -111,10 +111,6 @@ export const BoardTitle = () => {
     return null
   }, [titleInputRef.current])
 
-  /**
-   * input タグの幅を可変にする
-   * 複製した input の Width を複製元の input の style に割り当てる
-   */
   const resizeInput = () => {
     const span = document.createElement('span')
     if (!inputStyles) return
@@ -173,7 +169,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   button: {
     '&.MuiButton-root': {
-      border: '2px solid transparent'
+      border: '2px solid transparent',
+      fontWeight: 'bold'
     }
   },
   input: {
