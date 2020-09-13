@@ -104,7 +104,7 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
 
     if (user && user.uid) {
       try {
-        const snapshot = await firebase
+        await firebase
           .firestore()
           .collection(`users/${user.uid}/boards/`)
           .doc(id)
@@ -118,3 +118,53 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
     }
   }
 )
+
+/**
+ * ボードをアーカイブする
+ */
+export const archiveBoard = asyncActionCreator<
+  Pick<Board, 'id'>,
+  string,
+  Error
+>('ARCHIVE_BOARD', async ({ id }) => {
+  const { user }: UserState = store.getState().user
+  if (user && user.uid) {
+    let documentReference: firebase.firestore.DocumentReference
+
+    // NOTE: まずリファレンスを取得する
+    try {
+      documentReference = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/boards/`)
+        .doc(id)
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+
+    /**
+     * リファレンス取得後、
+     * 1. document 読み取り
+     * 2. アーカイブ先 collection に追加
+     * 3. アーカイブ対象を削除
+     */
+    try {
+      await firebase.firestore().runTransaction(async t => {
+        const doc = await t.get(documentReference)
+        const archiveBoard = doc.data()
+        if (!archiveBoard || !user) return
+
+        await firebase
+          .firestore()
+          .collection(`users/${user.uid}/archiveBoards/`)
+          .add(archiveBoard)
+
+        await documentReference.delete()
+      })
+      return id
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})

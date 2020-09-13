@@ -17,7 +17,9 @@ import { Autorenew } from '@material-ui/icons'
 import { fontFamily } from '@material-ui/system'
 
 export const BoardTitle = () => {
-  const [currentBoard, setCurrentBoard] = React.useState({} as IBoard)
+  const [currentBoard, setCurrentBoard] = React.useState<IBoard | null>(
+    {} as IBoard
+  )
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const params = useParams<{
     boardId: string
@@ -41,15 +43,21 @@ export const BoardTitle = () => {
    */
   React.useEffect(() => {
     const current = boardState.boards.find(board => board.id === params.boardId)
-    if (!current) return
-    setCurrentBoard(current)
+    if (current) {
+      setCurrentBoard(current)
+    } else {
+      setCurrentBoard(null)
+    }
   }, [params, boardState, setCurrentBoard])
 
   React.useEffect(() => {
+    if (!currentBoard) return
     titleInputRef.current!.value = currentBoard.title
   }, [currentBoard, isEditing])
 
   const updateBoardTitle = async (e: any) => {
+    if (!currentBoard) return
+
     const title = e.target.value
     const { boardId: id } = params
 
@@ -119,6 +127,7 @@ export const BoardTitle = () => {
     span.style.padding = inputStyles.padding
     span.style.fontFamily = inputStyles.fontFamily
     span.style.fontSize = inputStyles.fontSize
+    span.style.fontWeight = inputStyles.fontWeight
     span.style.letterSpacing = inputStyles.letterSpacing
     span.style.whiteSpace = 'nowrap'
     span.style.visibility = 'hidden'
@@ -129,7 +138,7 @@ export const BoardTitle = () => {
     titleInputRef.current!.style.width = `${spanWidth + 4}px`
   }
 
-  return (
+  return currentBoard ? (
     <div className={styles['root']}>
       <BoardTitleButton
         onClick={onClickTitle}
@@ -153,7 +162,7 @@ export const BoardTitle = () => {
         }}
       />
     </div>
-  )
+  ) : null
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -175,7 +184,8 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   input: {
     '&.MuiButton-outlined': {
-      padding: '6px 8px'
+      padding: '6px 8px',
+      fontWeight: 'bold'
     }
   }
 }))

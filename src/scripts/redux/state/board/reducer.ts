@@ -1,5 +1,11 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
-import { fetchBoards, createBoard, updateBoard, deleteBoard } from './actions'
+import {
+  fetchBoards,
+  createBoard,
+  updateBoard,
+  deleteBoard,
+  archiveBoard
+} from './actions'
 
 export interface Board {
   id: string
@@ -19,6 +25,9 @@ const initialState: BoardState = {
 }
 
 export const boardReducer = reducerWithInitialState(initialState)
+  /**
+   * async.started
+   */
   .case(fetchBoards.async.started, state => {
     return { ...state, isLoading: true, boards: [] }
   })
@@ -26,28 +35,44 @@ export const boardReducer = reducerWithInitialState(initialState)
     [
       createBoard.async.started,
       updateBoard.async.started,
-      deleteBoard.async.started
+      deleteBoard.async.started,
+      archiveBoard.async.started
     ],
     state => {
       return { ...state, isLoading: true }
     }
   )
+
+  /**
+   * async.failed
+   */
+  .case(fetchBoards.async.failed, (state, { error }) => {
+    return { ...state, isLoading: false, error }
+  })
   .cases(
     [
-      fetchBoards.async.failed,
       createBoard.async.failed,
       updateBoard.async.failed,
-      deleteBoard.async.failed
+      deleteBoard.async.failed,
+      archiveBoard.async.failed
     ],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
     }
   )
+
+  /**
+   * async.done
+   */
   .case(fetchBoards.async.done, (state, { result }) => {
     return { ...state, isLoading: false, boards: result }
   })
   .cases([createBoard.async.done], (state, { result }) => {
-    return { ...state, isLoading: false, boards: state.boards.concat(result) }
+    return {
+      ...state,
+      isLoading: false,
+      boards: state.boards.concat(result)
+    }
   })
   .case(updateBoard.async.done, (state, { result }) => {
     const index = state.boards.findIndex(board => board.id === result.id)
@@ -61,14 +86,17 @@ export const boardReducer = reducerWithInitialState(initialState)
       ]
     }
   })
-  .case(deleteBoard.async.done, (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result)
-    return {
-      ...state,
-      isLoading: false,
-      boards: [
-        ...state.boards.slice(0, index),
-        ...state.boards.slice(index + 1)
-      ]
+  .cases(
+    [deleteBoard.async.done, archiveBoard.async.done],
+    (state, { result }) => {
+      const index = state.boards.findIndex(board => board.id === result)
+      return {
+        ...state,
+        isLoading: false,
+        boards: [
+          ...state.boards.slice(0, index),
+          ...state.boards.slice(index + 1)
+        ]
+      }
     }
-  })
+  )
