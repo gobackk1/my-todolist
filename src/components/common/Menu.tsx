@@ -74,7 +74,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 const styles = {
   menu: css`
     position: relative;
-    z-index: ${OPTION.LAYER.MENU};
+    z-index: ${OPTION.ELEVATION.MENU};
   `,
   'menu-inner': css`
     position: absolute;

@@ -37,7 +37,7 @@ export const OPTION = {
       }
     }
   },
-  LAYER: {
+  ELEVATION: {
     MENU: 10
   }
 } as const
