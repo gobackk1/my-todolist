@@ -1,5 +1,5 @@
 import React from 'react'
-import { Menu, CreateBoardModal } from '@/components'
+import { Menu, CreateBoardModal, ArchivedBoardModal } from '@/components'
 import {
   Button,
   TextField,
@@ -48,6 +48,7 @@ export const BoardListMenu: React.FC = () => {
             )
           })}
         <CreateBoardModal />
+        <ArchivedBoardModal />
       </div>
     </Menu>
   )

@@ -4,7 +4,9 @@ import {
   createBoard,
   updateBoard,
   deleteBoard,
-  archiveBoard
+  archiveBoard,
+  fetchArchivedBoards,
+  restoreBoard
 } from './actions'
 
 export interface Board {
@@ -16,12 +18,14 @@ export interface BoardState {
   isLoading: boolean
   error: Error | null
   boards: Board[]
+  archivedBoards: Board[]
 }
 
 const initialState: BoardState = {
   isLoading: false,
   error: null,
-  boards: [] as Board[]
+  boards: [] as Board[],
+  archivedBoards: [] as Board[]
 }
 
 export const boardReducer = reducerWithInitialState(initialState)
@@ -30,6 +34,12 @@ export const boardReducer = reducerWithInitialState(initialState)
    */
   .case(fetchBoards.async.started, state => {
     return { ...state, isLoading: true, boards: [] }
+  })
+  .case(fetchArchivedBoards.async.started, state => {
+    return { ...state, isLoading: true, archivedBoards: [] }
+  })
+  .case(restoreBoard.async.started, state => {
+    return { ...state, isLoading: true }
   })
   .cases(
     [
@@ -46,9 +56,12 @@ export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.failed
    */
-  .case(fetchBoards.async.failed, (state, { error }) => {
-    return { ...state, isLoading: false, error }
-  })
+  .cases(
+    [fetchBoards.async.failed, fetchArchivedBoards.async.failed],
+    (state, { error }) => {
+      return { ...state, isLoading: false, error }
+    }
+  )
   .cases(
     [
       createBoard.async.failed,
@@ -60,12 +73,18 @@ export const boardReducer = reducerWithInitialState(initialState)
       return { ...state, isLoading: false, error }
     }
   )
+  .case(restoreBoard.async.failed, (state, { error }) => {
+    return { ...state, isLoading: false, error }
+  })
 
   /**
    * async.done
    */
   .case(fetchBoards.async.done, (state, { result }) => {
     return { ...state, isLoading: false, boards: result }
+  })
+  .case(fetchArchivedBoards.async.done, (state, { result }) => {
+    return { ...state, isLoading: false, archivedBoards: result }
   })
   .cases([createBoard.async.done], (state, { result }) => {
     return {
@@ -86,17 +105,38 @@ export const boardReducer = reducerWithInitialState(initialState)
       ]
     }
   })
-  .cases(
-    [deleteBoard.async.done, archiveBoard.async.done],
-    (state, { result }) => {
-      const index = state.boards.findIndex(board => board.id === result)
-      return {
-        ...state,
-        isLoading: false,
-        boards: [
-          ...state.boards.slice(0, index),
-          ...state.boards.slice(index + 1)
-        ]
-      }
+  .cases([archiveBoard.async.done], (state, { result }) => {
+    const index = state.boards.findIndex(board => board.id === result)
+    return {
+      ...state,
+      isLoading: false,
+      boards: [
+        ...state.boards.slice(0, index),
+        ...state.boards.slice(index + 1)
+      ],
+      archivedBoards: [...state.archivedBoards.concat(state.boards[index])]
     }
-  )
+  })
+  .cases([restoreBoard.async.done], (state, { result }) => {
+    const index = state.archivedBoards.findIndex(board => board.id === result)
+    return {
+      ...state,
+      isLoading: false,
+      boards: [...state.boards.concat(state.archivedBoards[index])],
+      archivedBoards: [
+        ...state.archivedBoards.slice(0, index),
+        ...state.archivedBoards.slice(index + 1)
+      ]
+    }
+  })
+  .case(deleteBoard.async.done, (state, { result }) => {
+    const index = state.archivedBoards.findIndex(board => board.id === result)
+    return {
+      ...state,
+      isLoading: false,
+      archivedBoards: [
+        ...state.archivedBoards.slice(0, index),
+        ...state.archivedBoards.slice(index + 1)
+      ]
+    }
+  })
