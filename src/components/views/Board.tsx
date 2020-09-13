@@ -72,9 +72,17 @@ export const Board: React.FC = () => {
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
         <>
-          <BoardTitle />
-          {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
-          <div>ここにリストを並べる</div>
+          {boardState.boards.length ? (
+            <>
+              <BoardTitle />
+              {boardState.error && (
+                <>エラーメッセージ{boardState.error.message}</>
+              )}
+              <div>ここにリストを並べる</div>
+            </>
+          ) : (
+            'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
+          )}
         </>
       )}
       <Drawer
