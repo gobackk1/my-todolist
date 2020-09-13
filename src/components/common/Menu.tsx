@@ -7,21 +7,16 @@ import { OPTION } from '@/option'
  * ボタンと中身を渡してメニューを作成するコンポーネント
  */
 export const Menu: React.FC<Props> = ({ children, render }) => {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(true)
   const menuInnerRef = React.useRef(null)
   const openButtonRef = React.useRef(null)
 
   /**
    * ボードリストの外側をクリックしたらリストを閉じる
+   * 内側と判定する要素は、js-menu-click-area で囲む
    */
-  const onClickOffMenuList = (e: Event) => {
-    if (
-      (e.target as HTMLElement).parentElement === menuInnerRef.current ||
-      (e.target as HTMLElement).parentElement === openButtonRef.current
-    ) {
-      return
-    }
-
+  const onClickOffMenuList = (e: React.MouseEvent<HTMLElement>) => {
+    if ((e.target as HTMLElement).closest('.js-menu-click-area')) return
     setIsOpen(false)
   }
   useEventListener('click', onClickOffMenuList)
@@ -58,14 +53,20 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 
   return (
     <div className={styles['menu']}>
-      {render({ ...providingProps })}
-      <div
-        id="menu-inner"
-        className={styles['menu-inner']}
-        ref={menuInnerRef}
-        style={{ display: isOpen ? 'block' : 'none' }}
-      >
-        {childrenWithProps}}
+      <div className="js-menu-click-area">
+        {render({
+          ...providingProps
+        })}
+        <div
+          className={styles['menu-inner']}
+          ref={menuInnerRef}
+          style={{
+            display: isOpen ? 'block' : 'none'
+          }}
+          data-not-closed="true"
+        >
+          {childrenWithProps}}
+        </div>
       </div>
     </div>
   )
