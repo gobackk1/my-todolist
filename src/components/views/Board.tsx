@@ -95,7 +95,11 @@ export const Board: React.FC = () => {
           </Button>
         </div>
         <div className={styles['drawer-content']}>
-          <Button onClick={onClickArchive} fullWidth>
+          <Button
+            onClick={onClickArchive}
+            fullWidth
+            className={muiStyle['archiveButton']}
+          >
             このボードをアーカイブ
           </Button>
         </div>
@@ -113,6 +117,9 @@ const useStyles = makeStyles((theme: any) => ({
       padding: 8,
       boxShadow: '2px 0px 7px 0px #c1c1c1'
     }
+  },
+  archiveButton: {
+    textDecoration: 'underline'
   }
 }))
 
