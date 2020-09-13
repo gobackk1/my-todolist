@@ -1,5 +1,4 @@
-import { asyncActionCreator, actionCreator } from '~redux/action'
-// import * as I from '@/scripts/interfaces'
+import { asyncActionCreator } from '~redux/action'
 import { store } from '~redux/store'
 import { Board } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'

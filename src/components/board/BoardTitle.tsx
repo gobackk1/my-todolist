@@ -5,16 +5,9 @@ import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { Board as IBoard } from '~redux/state/board/reducer'
 import { useParams } from 'react-router-dom'
 import { OPTION } from '@/option'
-import {
-  createBoard,
-  updateBoard,
-  deleteBoard
-} from '@/scripts/redux/state/board/actions'
+import { updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
-import { css } from 'emotion'
-import { Autorenew } from '@material-ui/icons'
-import { fontFamily } from '@material-ui/system'
 
 export const BoardTitle = () => {
   const [currentBoard, setCurrentBoard] = React.useState<IBoard | null>(
@@ -117,7 +110,7 @@ export const BoardTitle = () => {
     if (titleInputRef.current)
       return window.getComputedStyle(titleInputRef.current!)
     return null
-  }, [titleInputRef.current])
+  }, [])
 
   const resizeInput = () => {
     const span = document.createElement('span')

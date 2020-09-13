@@ -1,22 +1,15 @@
-import React, { useRef, useEffect } from 'react'
-import { Redirect, useParams, useHistory } from 'react-router-dom'
-import {
-  fetchBoards,
-  createBoard,
-  updateBoard,
-  deleteBoard,
-  archiveBoard
-} from '@/scripts/redux/state/board/actions'
+import React from 'react'
+import { useParams, useHistory } from 'react-router-dom'
+import { fetchBoards, archiveBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { LoadingSpinner } from '../common/LoadingSpinner'
-import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
+import { useSnackbarContext } from '@/scripts/hooks'
 import { css } from 'emotion/macro'
 import { BoardTitle } from '@/components'
 import { Button } from '@material-ui/core'
 
-import { Drawer, List, Divider, makeStyles } from '@material-ui/core'
-import firebase from '@/scripts/firebase'
+import { Drawer, makeStyles } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
 
 /**
@@ -49,7 +42,7 @@ export const Board: React.FC = () => {
         }
       })()
     }
-  }, [dispatch, fetchBoards, userState])
+  }, [dispatch, userState, showSnackbar])
 
   const toggleDrawer = () => {
     setOpen(!open)
@@ -89,7 +82,6 @@ export const Board: React.FC = () => {
         anchor="right"
         open={open}
         onClose={toggleDrawer}
-        keepMounted
         className={muiStyle['root']}
         variant="persistent"
       >

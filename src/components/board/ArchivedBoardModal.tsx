@@ -1,13 +1,6 @@
 import React from 'react'
 import { Modal, LoadingSpinner } from '@/components'
-import {
-  Button,
-  TextField,
-  makeStyles,
-  Theme,
-  Divider
-} from '@material-ui/core'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { Button, makeStyles, Theme } from '@material-ui/core'
 import {
   fetchArchivedBoards,
   deleteBoard,
@@ -15,8 +8,6 @@ import {
 } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
-import { OPTION } from '@/option'
-import { useHistory } from 'react-router-dom'
 import * as I from '@/scripts/interfaces'
 import { Reply, DeleteForever } from '@material-ui/icons'
 import { css } from 'emotion'
@@ -26,41 +17,32 @@ export const ArchivedBoardModal: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
-
   const muiStyles = useStyles()
-  const {
-    register,
-    handleSubmit,
-    errors,
-    formState: { isDirty, isSubmitting },
-    reset
-  } = useForm()
-
-  const dispatchFetchArchiveBoards = () => {
-    console.log('test', userState)
-    if (!userState.user) return
-    try {
-      // アーカイブしたアクションの done で、アーカイブへ移動させる
-      dispatch(fetchArchivedBoards())
-    } catch (e) {
-      // showSnackbar()
-    }
-  }
 
   const renderButton = React.useCallback(
-    props => (
-      <Button
-        {...props}
-        className={muiStyles.buttonCreate}
-        onClick={() => {
-          props.onClick()
-          dispatchFetchArchiveBoards()
-        }}
-      >
-        アーカイブ済みのボードを確認
-      </Button>
-    ),
-    [dispatchFetchArchiveBoards]
+    props => {
+      const dispatchFetchArchiveBoards = () => {
+        if (!userState.user) return
+        try {
+          dispatch(fetchArchivedBoards())
+        } catch ({ message }) {
+          showSnackbar({ message, type: 'error' })
+        }
+      }
+      return (
+        <Button
+          {...props}
+          className={muiStyles.buttonCreate}
+          onClick={() => {
+            props.onClick()
+            dispatchFetchArchiveBoards()
+          }}
+        >
+          アーカイブ済みのボードを確認
+        </Button>
+      )
+    },
+    [muiStyles.buttonCreate, dispatch, showSnackbar, userState.user]
   )
 
   const onClickDelete = async (id: string) => {

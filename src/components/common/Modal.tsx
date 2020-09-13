@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Modal as MaterialModal,
+  Modal as MuiModal,
   Backdrop,
   Fade,
   IconButton
@@ -19,7 +19,7 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
   return (
     <div>
       {render({ onClick })}
-      <MaterialModal
+      <MuiModal
         open={open}
         className={styles['modal']}
         onClose={handleClose}
@@ -28,7 +28,7 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
         BackdropProps={{
           timeout: 500
         }}
-        keepMounted={true}
+        keepMounted
       >
         <Fade in={open}>
           <div className={styles['modal-inner']}>
@@ -41,7 +41,7 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
             {children}
           </div>
         </Fade>
-      </MaterialModal>
+      </MuiModal>
     </div>
   )
 })

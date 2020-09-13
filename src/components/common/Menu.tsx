@@ -9,7 +9,7 @@ import { OPTION } from '@/option'
  * Menu コンポーネントが増えた時は、new CustomEvent('onMenuClose', { detail }) にする
  */
 export const Menu: React.FC<Props> = ({ children, render }) => {
-  const [isOpen, setIsOpen] = React.useState(true)
+  const [isOpen, setIsOpen] = React.useState(false)
   const menuInnerRef = React.useRef(null)
   const openButtonRef = React.useRef(null)
 

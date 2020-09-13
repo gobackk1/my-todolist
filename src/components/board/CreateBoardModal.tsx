@@ -34,7 +34,7 @@ export const CreateBoardModal: React.FC = () => {
         新しいボードを作成
       </Button>
     ),
-    []
+    [styles.buttonCreate]
   )
 
   const onSubmit: SubmitHandler<FormValue> = async ({ title }, e: any) => {

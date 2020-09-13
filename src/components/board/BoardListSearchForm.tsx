@@ -15,7 +15,7 @@ type Props = {
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const inputRef = React.useRef(null)
-  const { register, reset } = useForm()
+  const { reset } = useForm()
 
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.currentTarget

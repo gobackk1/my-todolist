@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
-import { AppBar, Toolbar, IconButton, Button } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
+import { AppBar, Toolbar, Button } from '@material-ui/core'
 import firebase from '@/scripts/firebase'
 import { useHistory } from 'react-router-dom'
 import { css } from 'emotion/macro'
@@ -55,7 +54,7 @@ export const AppHeader: React.FC = () => {
       })
       dispatch(setLoggingIn(false))
     }
-  }, [history, showSnackbar])
+  }, [history, showSnackbar, dispatch])
 
   return (
     <AppBar position="static">
