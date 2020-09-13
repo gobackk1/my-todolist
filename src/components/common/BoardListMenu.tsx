@@ -1,12 +1,11 @@
 import React from 'react'
-import { Menu, CreateBoardModal, ArchivedBoardModal } from '@/components'
 import {
-  Button,
-  makeStyles,
-  Theme,
-  Typography,
-  TextField
-} from '@material-ui/core'
+  Menu,
+  CreateBoardModal,
+  ArchivedBoardModal,
+  BoardListSearchForm
+} from '@/components'
+import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { Link } from 'react-router-dom'
@@ -15,13 +14,12 @@ import { css } from 'emotion/macro'
 import { useForm } from 'react-hook-form'
 import { Board } from '~redux/state/board/reducer'
 import { useEventListener } from '@/scripts/hooks'
+import { LoadingSpinner } from './LoadingSpinner'
 
-type SearchState = {
-  isSearching: boolean
-  value: string
-  result: Board[]
-}
-
+/**
+ * ボード一覧ボタンと、押した時にでるメニュー
+ * 検索時に View を出し分ける
+ */
 export const BoardListMenu: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const muiStyles = useStyles()
@@ -47,17 +45,72 @@ export const BoardListMenu: React.FC = () => {
 
   //TODO: {state.value}というタイトルのボードを作成ロジック
 
-  const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(e.currentTarget.value)
-    const { value } = e.currentTarget
-    value === ''
-      ? setState(state => ({ ...state, isSearching: false }))
-      : setState(state => ({ ...state, isSearching: true }))
-
-    const result = boardState.boards.filter(board =>
-      RegExp(value).test(board.title)
+  const SearchView: React.FC = () => {
+    return (
+      <>
+        <div>結果は{state.result.length}件です</div>
+        {state.result.length && (
+          <>
+            {state.result.map((board, i) => {
+              return (
+                <Button
+                  to={`${OPTION.PATH.BOARD}/${board.id}`}
+                  component={Link}
+                  fullWidth={true}
+                  variant="contained"
+                  className={muiStyles['button-board']}
+                  onClick={() => {
+                    document.body.click()
+                  }}
+                  defaultValue=""
+                  key={i}
+                >
+                  {board.title}
+                </Button>
+              )
+            })}
+          </>
+        )}
+        <div>
+          {state.value}
+          というタイトルのボードを作成
+        </div>
+      </>
     )
-    setState(state => ({ ...state, result, value }))
+  }
+
+  const BoardListView: React.FC = () => {
+    return (
+      <>
+        {boardState.isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
+            {boardState.boards.length ? (
+              <ul>
+                {boardState.boards.map((board, i) => {
+                  return (
+                    <div className={styles['menu-content-item']} key={i}>
+                      <Button
+                        to={`${OPTION.PATH.BOARD}/${board.id}`}
+                        component={Link}
+                        fullWidth={true}
+                        variant="contained"
+                        className={muiStyles['button-board']}
+                      >
+                        {board.title}
+                      </Button>
+                    </div>
+                  )
+                })}
+              </ul>
+            ) : (
+              <Typography variant="body1">ボードはありません</Typography>
+            )}
+          </>
+        )}
+      </>
+    )
   }
 
   return (
@@ -73,82 +126,10 @@ export const BoardListMenu: React.FC = () => {
         </Button>
       )}
     >
-      <div className={styles['menu-content']} data-not-closed="true">
-        <div className={styles['board-list']} data-not-closed="true">
-          <form>
-            <TextField
-              ref={inputRef}
-              // FIXME:
-              // inputRef={register({
-              //   required: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
-              //   maxLength: {
-              //     value: OPTION.BOARD.TITLE.MAX_LENGTH,
-              //     message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR
-              //   }
-              // })}
-              name="keyword"
-              placeholder="タイトルでボードを検索"
-              fullWidth
-              onChange={onChangeInput}
-              autoComplete="off"
-              defaultValue=""
-            />
-          </form>
-          {state.isSearching ? (
-            <>
-              <div>結果は{state.result.length}件です</div>
-              {state.result.length && (
-                <>
-                  {state.result.map((board, i) => {
-                    return (
-                      <Button
-                        to={`${OPTION.PATH.BOARD}/${board.id}`}
-                        component={Link}
-                        fullWidth={true}
-                        variant="contained"
-                        className={muiStyles['button-board']}
-                        onClick={() => {
-                          document.body.click()
-                        }}
-                        defaultValue=""
-                        key={i}
-                      >
-                        {board.title}
-                      </Button>
-                    )
-                  })}
-                </>
-              )}
-              <div>
-                {state.value}
-                というタイトルのボードを作成
-              </div>
-            </>
-          ) : (
-            <>
-              {boardState.boards.length ? (
-                <ul>
-                  {boardState.boards.map((board, i) => {
-                    return (
-                      <div className={styles['menu-content-item']} key={i}>
-                        <Button
-                          to={`${OPTION.PATH.BOARD}/${board.id}`}
-                          component={Link}
-                          fullWidth={true}
-                          variant="contained"
-                          className={muiStyles['button-board']}
-                        >
-                          {board.title}
-                        </Button>
-                      </div>
-                    )
-                  })}
-                </ul>
-              ) : (
-                <Typography variant="body1">ボードはありません</Typography>
-              )}
-            </>
-          )}
+      <div className={styles['menu-content']}>
+        <div className={styles['board-list']}>
+          <BoardListSearchForm state={state} setState={setState} />
+          {state.isSearching ? <SearchView /> : <BoardListView />}
         </div>
         <CreateBoardModal />
         <ArchivedBoardModal />
@@ -197,4 +178,10 @@ const styles = {
   'board-list': css`
     margin-bottom: 30px;
   `
+}
+
+type SearchState = {
+  isSearching: boolean
+  value: string
+  result: Board[]
 }
