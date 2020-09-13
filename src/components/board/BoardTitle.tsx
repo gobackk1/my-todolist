@@ -178,13 +178,14 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   button: {
     '&.MuiButton-root': {
+      padding: '4px 8px',
       border: '2px solid transparent',
       fontWeight: 'bold'
     }
   },
   input: {
     '&.MuiButton-outlined': {
-      padding: '6px 8px',
+      padding: '4px 8px',
       fontWeight: 'bold'
     }
   }

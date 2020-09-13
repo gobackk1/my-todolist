@@ -13,9 +13,11 @@ import { LoadingSpinner } from '../common/LoadingSpinner'
 import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { css } from 'emotion/macro'
 import { BoardTitle } from '@/components'
+import { Button } from '@material-ui/core'
 
 import { Drawer, List, Divider, makeStyles } from '@material-ui/core'
 import firebase from '@/scripts/firebase'
+import { MoreHoriz } from '@material-ui/icons'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -72,6 +74,7 @@ export const Board: React.FC = () => {
         <>
           <BoardTitle />
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
+          <div>ここにリストを並べる</div>
         </>
       )}
       <Drawer
@@ -83,11 +86,18 @@ export const Board: React.FC = () => {
         variant="persistent"
       >
         <div className={styles['drawer-button']}>
-          <button onClick={toggleDrawer}>ボードメニュー</button>
+          <Button
+            onClick={toggleDrawer}
+            variant="contained"
+            startIcon={<MoreHoriz />}
+          >
+            ボードメニューを表示
+          </Button>
         </div>
         <div className={styles['drawer-content']}>
-          drawer content
-          <button onClick={onClickArchive}>ボードをアーカイブ</button>
+          <Button onClick={onClickArchive} fullWidth>
+            このボードをアーカイブ
+          </Button>
         </div>
       </Drawer>
     </div>
@@ -97,8 +107,11 @@ export const Board: React.FC = () => {
 const useStyles = makeStyles((theme: any) => ({
   root: {
     '& .MuiDrawer-paper': {
+      width: 300,
       overflow: 'visible',
-      top: 64
+      top: 64,
+      padding: 8,
+      boxShadow: '2px 0px 7px 0px #c1c1c1'
     }
   }
 }))
@@ -106,9 +119,11 @@ const useStyles = makeStyles((theme: any) => ({
 const styles = {
   root: css`
     padding: 10px;
+    position: relative;
   `,
   'drawer-button': css`
-    transform: translateX(-100px);
+    position: absolute;
+    left: -76%;
     visibility: visible;
   `,
   'drawer-content': css``

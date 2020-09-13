@@ -156,7 +156,14 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
   },
   buttonBoard: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    textAlign: 'left',
+    '& .MuiButton-label': {
+      display: 'block',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
   }
 }))
 
