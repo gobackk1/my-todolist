@@ -21,6 +21,21 @@ const theme = createMuiTheme({
   typography: {
     button: {
       textTransform: 'none'
+    },
+    h2: {
+      fontSize: 24
+    },
+    h3: {
+      fontSize: 20
+    },
+    h4: {
+      fontSize: 17
+    },
+    h5: {
+      fontSize: 14
+    },
+    h6: {
+      fontSize: 11
     }
   }
 })
