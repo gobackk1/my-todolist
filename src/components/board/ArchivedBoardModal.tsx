@@ -35,8 +35,6 @@ export const ArchivedBoardModal: React.FC = () => {
     formState: { isDirty, isSubmitting },
     reset
   } = useForm()
-  const history = useHistory()
-  console.log('test', userState)
 
   const dispatchFetchArchiveBoards = () => {
     console.log('test', userState)

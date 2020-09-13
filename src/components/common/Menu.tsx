@@ -5,6 +5,8 @@ import { OPTION } from '@/option'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
+ * Menu が閉じた時に、onMenuClose イベントを発火させる
+ * Menu コンポーネントが増えた時は、new CustomEvent('onMenuClose', { detail }) にする
  */
 export const Menu: React.FC<Props> = ({ children, render }) => {
   const [isOpen, setIsOpen] = React.useState(true)
@@ -17,7 +19,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
    */
   const onClickOffMenuList = (e: React.MouseEvent<HTMLElement>) => {
     if ((e.target as HTMLElement).closest('.js-menu-click-area')) return
-    setIsOpen(false)
+    toggleMenu(false)
   }
   useEventListener('click', onClickOffMenuList)
 
@@ -26,30 +28,23 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
    */
   const providingProps = {
     onClick: () => {
-      setIsOpen(!isOpen)
+      toggleMenu()
     },
     ref: openButtonRef
   }
 
-  const handleClose = () => {
-    setIsOpen(false)
-  }
-
-  /**
-   * children からこのコンポーネントを閉じる為に、handleClose を提供する
-   */
-  const childrenWithProps = React.Children.map(children, child => {
-    switch (typeof child) {
-      case 'string':
-        return child
-      case 'object':
-        return React.cloneElement(child as any, {
-          handleClose
-        })
-      default:
-        return null
+  const toggleMenu = (status?: boolean) => {
+    // NOTE: 省略した時は toggle
+    if (typeof status === 'undefined') {
+      if (isOpen) window.dispatchEvent(new CustomEvent('onMenuClose'))
+      setIsOpen(!isOpen)
     }
-  })
+
+    if (typeof status === 'boolean') {
+      if (!status) window.dispatchEvent(new CustomEvent('onMenuClose'))
+      setIsOpen(status)
+    }
+  }
 
   return (
     <div className={styles['menu']}>
@@ -65,7 +60,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
           }}
           data-not-closed="true"
         >
-          {childrenWithProps}}
+          {children}}}
         </div>
       </div>
     </div>

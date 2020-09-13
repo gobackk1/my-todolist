@@ -33,8 +33,8 @@ export const BoardTitle = () => {
   /**
    * ボードタイトル変更 input 以外をクリックしたら、編集終了してタイトルを表示
    */
-  useEventListener('click', (e: Event) => {
-    if ((e.target as HTMLElement) === titleInputRef.current) return
+  useEventListener('click', (e: React.MouseEvent<HTMLElement>) => {
+    if ((e.target as HTMLElement).closest('.js-title-area')) return
     if (isEditing) setEditing(false)
   })
 
@@ -138,31 +138,35 @@ export const BoardTitle = () => {
     titleInputRef.current!.style.width = `${spanWidth + 4}px`
   }
 
-  return currentBoard ? (
-    <div className={styles['root']}>
-      <BoardTitleButton
-        onClick={onClickTitle}
-        style={{
-          display: isEditing ? 'none' : 'block'
-        }}
-        className={styles['button']}
-      >
-        {currentBoard.title}
-      </BoardTitleButton>
-      <input
-        name="title"
-        type="text"
-        ref={titleInputRef}
-        onBlur={onBlurTitleInput}
-        onKeyDown={onKeyDownTitleInput}
-        onChange={onChange}
-        className={`MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-outlined ${styles['input']}`}
-        style={{
-          display: isEditing ? 'block' : 'none'
-        }}
-      />
+  return (
+    <div className="js-title-area">
+      {currentBoard ? (
+        <div className={styles['root']}>
+          <BoardTitleButton
+            onClick={onClickTitle}
+            style={{
+              display: isEditing ? 'none' : 'block'
+            }}
+            className={styles['button']}
+          >
+            {currentBoard.title}
+          </BoardTitleButton>
+          <input
+            name="title"
+            type="text"
+            ref={titleInputRef}
+            onBlur={onBlurTitleInput}
+            onKeyDown={onKeyDownTitleInput}
+            onChange={onChange}
+            className={`MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-outlined ${styles['input']}`}
+            style={{
+              display: isEditing ? 'block' : 'none'
+            }}
+          />
+        </div>
+      ) : null}
     </div>
-  ) : null
+  )
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
