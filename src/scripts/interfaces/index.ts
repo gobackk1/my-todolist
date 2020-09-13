@@ -1,3 +1,3 @@
-export * from './modules/AuthContext'
+export * from './modules/ReduxState'
 export * from './modules/SnackPack'
 export * from './modules/User'

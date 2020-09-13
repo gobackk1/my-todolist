@@ -72,7 +72,8 @@ function getWebpackAliases(options = {}) {
 
   if (path.relative(paths.appPath, baseUrlResolved) === '') {
     return {
-      '@': paths.appSrc
+      '@': paths.appSrc,
+      '~redux': paths.appSrcRedux
     }
   }
 }

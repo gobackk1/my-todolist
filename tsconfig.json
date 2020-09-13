@@ -16,7 +16,8 @@
     "jsx": "react",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "~redux/*": ["src/scripts/redux/*"]
     }
   },
   "include": ["src"]
