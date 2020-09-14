@@ -1,6 +1,7 @@
 import React from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { fetchBoards, archiveBoard } from '@/scripts/redux/state/board/actions'
+import { fetchList } from '@/scripts/redux/state/list/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { LoadingSpinner } from '../common/LoadingSpinner'
@@ -8,9 +9,10 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { css } from 'emotion/macro'
 import { BoardTitle } from '@/components'
 import { Button } from '@material-ui/core'
-
 import { Drawer, makeStyles } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
+import { createList } from '~redux/state/list/actions'
+import { OPTION } from '@/option'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -18,13 +20,26 @@ import { MoreHoriz } from '@material-ui/icons'
 export const Board: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
+  const listState = useSelector((state: I.ReduxState) => state.list)
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const [open, setOpen] = React.useState(false)
+
   const muiStyle = useStyles()
   const history = useHistory()
+  const { boardId } = useParams<any>()
 
-  const params = useParams<any>()
+  React.useEffect(() => {
+    ;(async () => {
+      if (!userState.user) return
+
+      try {
+        await dispatch(fetchList({ boardId }))
+      } catch ({ message }) {
+        showSnackbar({ message, type: 'error' })
+      }
+    })()
+  }, [userState, dispatch, fetchList, showSnackbar, boardId])
 
   /**
    * ユーザーがログインしていたら、ボード一覧を取得
@@ -49,15 +64,32 @@ export const Board: React.FC = () => {
   }
 
   const onClickArchive = async () => {
-    if (!params.boardId) return
+    if (!boardId) return
     if (!window.confirm('ボードをアーカイブしてもよろしいですか？')) return
     try {
-      await dispatch(archiveBoard({ id: params.boardId }))
+      await dispatch(
+        archiveBoard({
+          id: boardId
+        })
+      )
       setOpen(false)
       history.push('/boards')
     } catch ({ message }) {
-      showSnackbar({ message, type: 'error' })
+      showSnackbar({
+        message,
+        type: 'error'
+      })
     }
+  }
+
+  const onClick = () => {
+    if (boardId)
+      dispatch(
+        createList({
+          title: 'new card',
+          boardId
+        })
+      )
   }
 
   return (
@@ -69,9 +101,18 @@ export const Board: React.FC = () => {
             <>
               <BoardTitle />
               {boardState.error && (
-                <>エラーメッセージ{boardState.error.message}</>
+                <>
+                  エラーメッセージ
+                  {boardState.error.message}
+                </>
               )}
               <div>ここにリストを並べる</div>
+              <button onClick={onClick}>create list</button>
+              {boardId &&
+                listState.boards[boardId] &&
+                listState.boards[boardId].lists.map((list, i) => {
+                  return <div key={i}>{list.title}</div>
+                })}
             </>
           ) : (
             'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'

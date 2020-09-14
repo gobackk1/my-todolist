@@ -110,12 +110,16 @@ export const BoardTitle = () => {
     if (titleInputRef.current)
       return window.getComputedStyle(titleInputRef.current!)
     return null
-  }, [])
+    /**
+     * FIXME:
+     * react-hooks/exhaustive-deps で不必要な依存とされる
+     * titleInputRef.current を取り除くと、inputStyles が常に null になる
+     */
+  }, [titleInputRef.current])
 
   const resizeInput = () => {
     const span = document.createElement('span')
     if (!inputStyles) return
-
     span.innerHTML = titleInputRef.current!.value
     span.style.padding = inputStyles.padding
     span.style.fontFamily = inputStyles.fontFamily

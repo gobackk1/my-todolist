@@ -101,6 +101,9 @@ export const BoardListMenu: React.FC = () => {
                         fullWidth={true}
                         variant="contained"
                         className={muiStyles['button-board']}
+                        onClick={() => {
+                          document.body.click()
+                        }}
                       >
                         {board.title}
                       </Button>

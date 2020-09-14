@@ -17,13 +17,17 @@ export interface Board {
 export interface BoardState {
   isLoading: boolean
   error: Error | null
+  //NOTE: ユーザーが選択中の ボードID。ユーザーがボードを選択していない時は null
+  // いらないかも
+  currentBoardId: string | null
   boards: Board[]
   archivedBoards: Board[]
 }
 
 const initialState: BoardState = {
-  isLoading: false,
+  isLoading: true,
   error: null,
+  currentBoardId: null,
   boards: [] as Board[],
   archivedBoards: [] as Board[]
 }
