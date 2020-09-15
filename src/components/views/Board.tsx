@@ -6,13 +6,11 @@ import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { useSnackbarContext } from '@/scripts/hooks'
-import { css } from 'emotion/macro'
+import css from '@emotion/css/macro'
 import { BoardTitle } from '@/components'
-import { Button } from '@material-ui/core'
-import { Drawer, makeStyles } from '@material-ui/core'
+import { Drawer, makeStyles, Button, Theme } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
 import { createList } from '~redux/state/list/actions'
-import { OPTION } from '@/option'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -93,21 +91,24 @@ export const Board: React.FC = () => {
   }
 
   return (
-    <div className={styles['root']}>
+    <div css={styles['board']}>
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
         <>
           {boardState.boards.length ? (
             <>
-              <BoardTitle />
+              <div css={styles['board-header']}>
+                <BoardTitle />
+              </div>
               {boardState.error && (
                 <>
                   エラーメッセージ
                   {boardState.error.message}
                 </>
               )}
-              <div>ここにリストを並べる</div>
-              <button onClick={onClick}>create list</button>
+              <Button onClick={onClick} css={styles['test']}>
+                create list
+              </Button>
               {boardId &&
                 listState.boards[boardId] &&
                 listState.boards[boardId].lists.map((list, i) => {
@@ -126,7 +127,7 @@ export const Board: React.FC = () => {
         className={muiStyle['root']}
         variant="persistent"
       >
-        <div className={styles['drawer-button']}>
+        <div css={styles['drawer-button']}>
           <Button
             onClick={toggleDrawer}
             variant="contained"
@@ -135,7 +136,7 @@ export const Board: React.FC = () => {
             ボードメニューを表示
           </Button>
         </div>
-        <div className={styles['drawer-content']}>
+        <div css={styles['drawer-content']}>
           <Button
             onClick={onClickArchive}
             fullWidth
@@ -165,14 +166,24 @@ const useStyles = makeStyles((theme: any) => ({
 }))
 
 const styles = {
-  root: css`
+  board: css`
     padding: 10px;
     position: relative;
+  `,
+  'board-header': css`
+    margin-bottom: 10px;
   `,
   'drawer-button': css`
     position: absolute;
     left: -76%;
     visibility: visible;
   `,
-  'drawer-content': css``
+  'drawer-content': css``,
+  test: (theme: Theme) => {
+    console.log(theme, 'theme')
+    return css`
+      font-weight: bold;
+      margin: ${theme.spacing(1)}px;
+    `
+  }
 }

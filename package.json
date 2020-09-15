@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/core": "7.9.0",
+    "@emotion/babel-preset-css-prop": "^10.0.27",
     "@emotion/core": "^10.0.35",
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
@@ -23,6 +24,7 @@
     "babel-eslint": "10.1.0",
     "babel-jest": "^24.9.0",
     "babel-loader": "8.1.0",
+    "babel-plugin-emotion": "^10.0.33",
     "babel-plugin-named-asset-import": "^0.3.6",
     "babel-preset-react-app": "^9.1.2",
     "camelcase": "^5.3.1",
@@ -31,6 +33,7 @@
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "emotion": "^10.0.27",
+    "emotion-theming": "^10.0.27",
     "eslint": "^6.6.0",
     "eslint-config-react-app": "^5.2.1",
     "eslint-loader": "3.0.3",
@@ -157,7 +160,25 @@
   },
   "babel": {
     "presets": [
-      "react-app"
-    ]
+      "react-app",
+      "@emotion/babel-preset-css-prop"
+    ],
+    "env": {
+      "production": {
+        "plugins": [
+          "emotion"
+        ]
+      },
+      "development": {
+        "plugins": [
+          [
+            "emotion",
+            {
+              "sourceMap": true
+            }
+          ]
+        ]
+      }
+    }
   }
 }

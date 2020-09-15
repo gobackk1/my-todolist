@@ -13,6 +13,7 @@ import { OPTION } from '@/option'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from '~redux/store'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider as EmotionThemeProvider } from 'emotion-theming'
 
 /**
  * Material-UI のグローバルに適用するスタイル
@@ -55,25 +56,27 @@ export const globalStyle = css`
 export const App: React.FC = () => {
   return (
     <MuiThemeProvider theme={theme}>
-      <Global styles={globalStyle} />
-      <BrowserRouter>
-        <ReduxProvider store={store}>
-          <Authentication>
-            <SnackbarProvider
-              autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
-              position={OPTION.SNACKBAR.POSITION}
-            >
-              <AppHeader />
-              <Switch>
-                <Route
-                  path={`${OPTION.PATH.BOARD}/:boardId?`}
-                  component={Board}
-                />
-              </Switch>
-            </SnackbarProvider>
-          </Authentication>
-        </ReduxProvider>
-      </BrowserRouter>
+      <EmotionThemeProvider theme={theme}>
+        <Global styles={globalStyle} />
+        <BrowserRouter>
+          <ReduxProvider store={store}>
+            <Authentication>
+              <SnackbarProvider
+                autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
+                position={OPTION.SNACKBAR.POSITION}
+              >
+                <AppHeader />
+                <Switch>
+                  <Route
+                    path={`${OPTION.PATH.BOARD}/:boardId?`}
+                    component={Board}
+                  />
+                </Switch>
+              </SnackbarProvider>
+            </Authentication>
+          </ReduxProvider>
+        </BrowserRouter>
+      </EmotionThemeProvider>
     </MuiThemeProvider>
   )
 }
