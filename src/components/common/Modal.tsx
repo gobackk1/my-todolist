@@ -8,7 +8,7 @@ import {
 import { css } from '@emotion/core'
 import { Close } from '@material-ui/icons'
 
-export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
+export const Modal: React.FC<Props> = ({ children, render }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = (e: any, reason: any) => {
@@ -44,7 +44,7 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
       </MuiModal>
     </div>
   )
-})
+}
 
 const styles = {
   modal: css`

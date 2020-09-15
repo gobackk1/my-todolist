@@ -2,10 +2,10 @@ import React from 'react'
 
 export const useEventListener = (
   eventName: string,
-  handler: any,
+  handler: () => void,
   element: HTMLElement | (Window & typeof globalThis) = window
-) => {
-  const savedHandler = React.useRef<EventListener>(() => {})
+): void => {
+  const savedHandler = React.useRef<EventListener>(handler)
 
   React.useEffect(() => {
     savedHandler.current = handler

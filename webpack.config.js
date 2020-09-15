@@ -12,7 +12,7 @@ module.exports = (env, argv) => {
     entry: './src/index.tsx',
     output: {
       filename: 'bundle.min.js',
-      path: resolveApp('build'),
+      path: isProduction ? resolveApp('build') : undefined,
       publicPath: '/'
     },
     module: {
@@ -34,7 +34,8 @@ module.exports = (env, argv) => {
         {
           test: /\.tsx?$/,
           loader: 'eslint-loader',
-          exclude: [/node_modules/, '**/*.(spec|test).*'],
+          exclude: /node_modules/,
+          include: resolveApp(`src`),
           options: {
             eslintPath: 'eslint'
           }
@@ -43,7 +44,19 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: resolveApp('public/index.html')
+        template: resolveApp('public/index.html'),
+        minify: {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          keepClosingSlash: true,
+          minifyJS: true,
+          minifyCSS: true,
+          minifyURLs: true
+        }
       }),
       new Dotenv()
     ],

@@ -1,4 +1,4 @@
-import { initialState } from '../reducer'
+import { initialState } from '~redux/state/board/reducer'
 
 describe('testがかけるか確認', () => {
   test('check', () => {

@@ -12,7 +12,7 @@ import {
 export interface Board {
   id: string
   title: string
-  list: any[]
+  list: { title: string }[]
 }
 export interface BoardState {
   isLoading: boolean

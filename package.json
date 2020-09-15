@@ -78,47 +78,6 @@
   "eslintIgnore": [
     ".eslintrc.json"
   ],
-  "eslintConfig": {
-    "extends": [
-      "plugin:react-hooks/recommended"
-    ],
-    "plugins": [
-      "react",
-      "react-hooks",
-      "@typescript-eslint"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "sourceType": "module",
-      "project": "tsconfig.json"
-    },
-    "rules": {
-      "no-console": "off",
-      "semi": "off"
-    },
-    "settings": {
-      "import/resolver": {
-        "alias": {
-          "map": [
-            [
-              "@",
-              "./src"
-            ],
-            [
-              "~redux",
-              "./src/scripts/redux"
-            ]
-          ],
-          "extensions": [
-            ".ts",
-            ".js",
-            ".tsx",
-            ".json"
-          ]
-        }
-      }
-    }
-  },
   "browserslist": {
     "production": [
       ">0.2%",
