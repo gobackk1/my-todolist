@@ -130,6 +130,11 @@
     ]
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.jest.json"
+      }
+    },
     "transform": {
       "^.+\\.(js|jsx|mjs)$": "babel-jest",
       "^.+\\.(ts|tsx)$": "ts-jest"
@@ -142,13 +147,16 @@
       "/node_modules/"
     ],
     "moduleFileExtensions": [
-      ".ts",
-      ".tsx",
-      ".js",
-      ".json"
+      "ts",
+      "tsx",
+      "js",
+      "json"
     ],
     "moduleNameMapper": {
-      "@(components|helper|redux|config|modules|style)?/(.*)": "<rootDir>/src/$1/$2"
-    }
+      "@/(.*)$": "<rootDir>/src/$1",
+      "~redux(.*)$": "<rootDir>/src/scripts/redux/$1"
+    },
+    "snapshotSerializers": ["enzyme-to-json/serializer"],
+    "setupFilesAfterEnv": ["<rootDir>/src/setupEnzyme.ts"]
   }
 }

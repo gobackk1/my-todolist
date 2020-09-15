@@ -21,7 +21,7 @@ export interface BoardState {
   archivedBoards: Board[]
 }
 
-const initialState: BoardState = {
+export const initialState: BoardState = {
   isLoading: false,
   error: null,
   boards: [] as Board[],

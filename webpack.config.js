@@ -34,7 +34,7 @@ module.exports = (env, argv) => {
         {
           test: /\.tsx?$/,
           loader: 'eslint-loader',
-          exclude: /node_modules/,
+          exclude: [/node_modules/, '**/*.(spec|test).*'],
           options: {
             eslintPath: 'eslint'
           }
