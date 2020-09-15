@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import firebase from '@/scripts/firebase'
+import firebase from 'firebase'
 import { useMountedRef } from '@/scripts/hooks'
 import { setLoginUser, setLoggingIn } from '@/scripts/redux/state/user/actions'
 import { useDispatch } from 'react-redux'

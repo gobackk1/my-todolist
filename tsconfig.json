@@ -18,7 +18,8 @@
     "paths": {
       "@/*": ["src/*"],
       "~redux/*": ["src/scripts/redux/*"]
-    }
+    },
+    "types": ["jest", "node"]
   },
   "include": ["src"]
 }
