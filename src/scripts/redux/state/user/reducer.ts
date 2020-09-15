@@ -1,6 +1,6 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 import { setLoginUser, setLoggingIn } from './actions'
-import firebase from '@/scripts/firebase'
+import firebase from 'firebase'
 
 export interface UserState {
   isLoggingIn: boolean

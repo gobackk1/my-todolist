@@ -8,14 +8,13 @@ import {
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/interfaces'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
-import { css } from 'emotion/macro'
+import { css } from '@emotion/core'
 import { Board } from '~redux/state/board/reducer'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { createBoard } from '@/scripts/redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
-import { useHistory } from 'react-router-dom'
 
 /**
  * ボード一覧ボタンと、押した時にでるメニュー
@@ -94,7 +93,7 @@ export const BoardListMenu: React.FC = () => {
               <ul>
                 {boardState.boards.map((board, i) => {
                   return (
-                    <div className={styles['menu-content-item']} key={i}>
+                    <div css={styles['menu-content-item']} key={i}>
                       <Button
                         to={`${OPTION.PATH.BOARD}/${board.id}`}
                         component={Link}
@@ -130,8 +129,8 @@ export const BoardListMenu: React.FC = () => {
         </Button>
       )}
     >
-      <div className={styles['menu-content']}>
-        <div className={styles['board-list']}>
+      <div css={styles['menu-content']}>
+        <div css={styles['board-list']}>
           <BoardListSearchForm state={state} setState={setState} />
           {state.isSearching ? <SearchView /> : <BoardListView />}
         </div>

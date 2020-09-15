@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "strict": false
+  },
+  "baseUrl": "./",
+  "paths": {
+    "@/*": ["src/*"],
+    "~redux/*": ["src/scripts/redux/*"]
+  }
+}

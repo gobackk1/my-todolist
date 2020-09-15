@@ -5,10 +5,10 @@ import {
   Fade,
   IconButton
 } from '@material-ui/core'
-import { css } from 'emotion/macro'
+import { css } from '@emotion/core'
 import { Close } from '@material-ui/icons'
 
-export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
+export const Modal: React.FC<Props> = ({ children, render }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
   const handleClose = (e: any, reason: any) => {
@@ -21,7 +21,7 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
       {render({ onClick })}
       <MuiModal
         open={open}
-        className={styles['modal']}
+        css={styles['modal']}
         onClose={handleClose}
         closeAfterTransition
         BackdropComponent={Backdrop}
@@ -31,8 +31,8 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
         keepMounted
       >
         <Fade in={open}>
-          <div className={styles['modal-inner']}>
-            <div className={styles['modal-inner-header']}>
+          <div css={styles['modal-inner']}>
+            <div css={styles['modal-inner-header']}>
               {/* HACK: <BoardListMenu> からノードウォーキングで参照されている */}
               <IconButton size="small" onClick={handleClose as any}>
                 <Close />
@@ -44,7 +44,7 @@ export const Modal: React.FC<Props> = React.memo(({ children, render }) => {
       </MuiModal>
     </div>
   )
-})
+}
 
 const styles = {
   modal: css`

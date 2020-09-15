@@ -1,5 +1,5 @@
 import { actionCreator } from '~redux/action'
-import firebase from '@/scripts/firebase'
+import firebase from 'firebase'
 
 export const setLoginUser = actionCreator<firebase.User | null>(
   'SET_LOGIN_USER'

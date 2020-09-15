@@ -3,7 +3,7 @@ import { store } from '~redux/store'
 import { Board } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
-import firebase from '@/scripts/firebase'
+import firebase from 'firebase'
 
 /**
  * サーバーからボードを取得する

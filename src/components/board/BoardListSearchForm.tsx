@@ -1,5 +1,5 @@
 import React from 'react'
-import { css } from 'emotion'
+import { css } from '@emotion/core'
 import { TextField } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/interfaces'
@@ -42,7 +42,7 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   })
 
   return (
-    <form className={styles['search']}>
+    <form css={styles['search']}>
       <TextField
         ref={inputRef}
         // FIXME:

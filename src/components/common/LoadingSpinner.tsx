@@ -1,9 +1,9 @@
 import React from 'react'
-import { css } from 'emotion/macro'
+import { css } from '@emotion/core'
 
 export const LoadingSpinner: React.FC = () => (
-  <div className={styles['spinner']}>
-    <div className={styles['spinner-inner']}></div>
+  <div css={styles['spinner']}>
+    <div css={styles['spinner-inner']}></div>
   </div>
 )
 

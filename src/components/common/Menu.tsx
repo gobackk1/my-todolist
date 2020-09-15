@@ -1,5 +1,5 @@
 import React from 'react'
-import { css } from 'emotion/macro'
+import { css } from '@emotion/core'
 import { useEventListener } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 
@@ -47,20 +47,20 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   }
 
   return (
-    <div className={styles['menu']}>
+    <div css={styles['menu']}>
       <div className="js-menu-click-area">
         {render({
           ...providingProps
         })}
         <div
-          className={styles['menu-inner']}
+          css={styles['menu-inner']}
           ref={menuInnerRef}
           style={{
             display: isOpen ? 'block' : 'none'
           }}
           data-not-closed="true"
         >
-          {children}}}
+          {children}
         </div>
       </div>
     </div>

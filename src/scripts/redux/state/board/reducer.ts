@@ -12,7 +12,7 @@ import {
 export interface Board {
   id: string
   title: string
-  list: any[]
+  list: { title: string }[]
 }
 export interface BoardState {
   isLoading: boolean
@@ -21,7 +21,7 @@ export interface BoardState {
   archivedBoards: Board[]
 }
 
-const initialState: BoardState = {
+export const initialState: BoardState = {
   isLoading: false,
   error: null,
   boards: [] as Board[],

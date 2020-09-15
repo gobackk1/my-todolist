@@ -10,7 +10,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
 import * as I from '@/scripts/interfaces'
 import { Reply, DeleteForever } from '@material-ui/icons'
-import { css } from 'emotion'
+import { css } from '@emotion/core'
 
 export const ArchivedBoardModal: React.FC = () => {
   const dispatch = useDispatch()
@@ -81,16 +81,16 @@ export const ArchivedBoardModal: React.FC = () => {
 
   return (
     <Modal render={renderButton}>
-      <div className={styles['modal-inner']}>
-        <div className={styles['modal-title']}>アーカイブ済みボード</div>
+      <div css={styles['modal-inner']}>
+        <div css={styles['modal-title']}>アーカイブ済みボード</div>
         {boardState.isLoading && <LoadingSpinner />}
         {!boardState.isLoading && (
           <>
             {boardState.archivedBoards.length ? (
               <ul>
                 {boardState.archivedBoards.map((board, i) => (
-                  <li className={styles['archived-board']} key={i}>
-                    <div className={styles['archived-board-title']}>
+                  <li css={styles['archived-board']} key={i}>
+                    <div css={styles['archived-board-title']}>
                       {board.title}
                     </div>
                     <Button
