@@ -7,7 +7,7 @@ import * as I from '@/scripts/interfaces'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { useSnackbarContext } from '@/scripts/hooks'
 import css from '@emotion/css/macro'
-import { BoardTitle } from '@/components'
+import { BoardTitle, CardList } from '@/components'
 import { Drawer, makeStyles, Button, Theme } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
 import { createList } from '~redux/state/list/actions'
@@ -106,14 +106,17 @@ export const Board: React.FC = () => {
                   {boardState.error.message}
                 </>
               )}
-              <Button onClick={onClick} css={styles['test']}>
-                create list
-              </Button>
-              {boardId &&
-                listState.boards[boardId] &&
-                listState.boards[boardId].lists.map((list, i) => {
-                  return <div key={i}>{list.title}</div>
-                })}
+              <ul css={styles['card-list-container']}>
+                {boardId &&
+                  listState.boards[boardId] &&
+                  listState.boards[boardId].lists.map((list, i) => {
+                    return (
+                      <li key={i}>
+                        <CardList list={list} />
+                      </li>
+                    )
+                  })}
+              </ul>
             </>
           ) : (
             'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
@@ -170,8 +173,11 @@ const styles = {
     padding: 10px;
     position: relative;
   `,
-  'board-header': css`
-    margin-bottom: 10px;
+  'board-header': (theme: Theme) => css`
+    margin-bottom: ${theme.spacing(1)}px;
+  `,
+  'card-list-container': css`
+    display: flex;
   `,
   'drawer-button': css`
     position: absolute;

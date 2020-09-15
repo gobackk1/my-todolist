@@ -13,12 +13,13 @@ import { OPTION } from '@/option'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from '~redux/store'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import { Theme } from '@material-ui/core'
 import { ThemeProvider as EmotionThemeProvider } from 'emotion-theming'
 
 /**
- * Material-UI のグローバルに適用するスタイル
+ * Material-UI, emotion に渡す theme オブジェクト
  */
-const theme = createMuiTheme({
+const theme: Theme = createMuiTheme({
   typography: {
     button: {
       textTransform: 'none'
