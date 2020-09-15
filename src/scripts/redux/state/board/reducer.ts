@@ -12,22 +12,18 @@ import {
 export interface Board {
   id: string
   title: string
-  list: any[]
+  list: { title: string }[]
 }
 export interface BoardState {
   isLoading: boolean
   error: Error | null
-  //NOTE: ユーザーが選択中の ボードID。ユーザーがボードを選択していない時は null
-  // いらないかも
-  currentBoardId: string | null
   boards: Board[]
   archivedBoards: Board[]
 }
 
-const initialState: BoardState = {
-  isLoading: true,
+export const initialState: BoardState = {
+  isLoading: false,
   error: null,
-  currentBoardId: null,
   boards: [] as Board[],
   archivedBoards: [] as Board[]
 }

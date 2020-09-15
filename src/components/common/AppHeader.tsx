@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react'
 import { AppBar, Toolbar, Button } from '@material-ui/core'
-import firebase from '@/scripts/firebase'
+import firebase from 'firebase'
 import { useHistory } from 'react-router-dom'
-import { css } from 'emotion/macro'
+import { css } from '@emotion/core'
 import { LoadingSpinner, Modal, BoardListMenu } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
@@ -63,7 +63,7 @@ export const AppHeader: React.FC = () => {
         {/* <IconButton edge="start" color="inherit" aria-label="menu">
           <MenuIcon />
         </IconButton> */}
-        <h1 className={styles['h1']}>Pacrello</h1>
+        <h1 css={styles['h1']}>Pacrello</h1>
         {userState.isLoggingIn && <LoadingSpinner />}
         {!userState.isLoggingIn && (
           <>
@@ -75,7 +75,7 @@ export const AppHeader: React.FC = () => {
                   </Button>
                 )}
               >
-                <div className={styles['modal-title']}>ログイン</div>
+                <div css={styles['modal-title']}>ログイン</div>
                 <button onClick={onClick} type="button">
                   Google アカウントでログイン
                 </button>

@@ -1,0 +1,40 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["react", "react-hooks", "@typescript-eslint"],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "project": "tsconfig.json"
+  },
+  "rules": {
+    "no-console": "off",
+    "semi": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    // typescript なので
+    "react/prop-types": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-extra-semi": "off"
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          ["@", "./src"],
+          ["~redux", "./src/scripts/redux"]
+        ],
+        "extensions": [".ts", ".js", ".tsx", ".json"]
+      }
+    }
+  }
+}
