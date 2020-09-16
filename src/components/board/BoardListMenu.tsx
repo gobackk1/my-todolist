@@ -7,7 +7,7 @@ import {
 } from '@/components'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
 import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 import { Link, useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { css } from '@emotion/core'

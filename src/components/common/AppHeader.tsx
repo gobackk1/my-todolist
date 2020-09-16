@@ -8,7 +8,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
 import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 
 const provider = new firebase.auth.GoogleAuthProvider()
 

@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
 import { SnackbarContext } from '@/scripts/context'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 // import { TransitionProps } from '@material-ui/core/transitions'
 
 export const SnackbarProvider: React.FC<Props> = ({

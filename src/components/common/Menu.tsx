@@ -1,7 +1,7 @@
 import React from 'react'
 import { css } from '@emotion/core'
 import { useEventListener } from '@/scripts/hooks'
-import { OPTION } from '@/option'
+import * as T from '@/scripts/model/type'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
@@ -68,9 +68,9 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 }
 
 const styles = {
-  menu: css`
+  menu: (theme: T.GlobalTheme) => css`
     position: relative;
-    z-index: ${OPTION.ELEVATION.MENU};
+    z-index: ${theme.zIndex.menu};
   `,
   'menu-inner': css`
     position: absolute;

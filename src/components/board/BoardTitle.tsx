@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 
 export const BoardTitle = () => {
   const [currentBoard, setCurrentBoard] = React.useState<IBoard | null>(

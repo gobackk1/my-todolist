@@ -8,7 +8,7 @@ import {
 } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 import { Reply, DeleteForever } from '@material-ui/icons'
 import { css } from '@emotion/core'
 

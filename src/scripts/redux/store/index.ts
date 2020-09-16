@@ -4,7 +4,7 @@ import { boardReducer } from '~redux/state/board/reducer'
 import { userReducer } from '~redux/state/user/reducer'
 import { listReducer } from '~redux/state/list/reducer'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 
 const enhancer =
   process.env.NODE_ENV === 'development'
