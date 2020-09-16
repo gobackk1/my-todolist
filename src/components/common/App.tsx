@@ -56,10 +56,17 @@ const theme = createMuiTheme({
 /**
  * Material-UI の Theme とマージする
  */
-const appTheme = {
+export type AppTheme = {
   zIndex: {
-    menu: 10
+    [i: string]: number
   }
+  borderRadius: (value: number) => number
+}
+const appTheme: AppTheme = {
+  zIndex: {
+    menu: 5
+  },
+  borderRadius: (value: number) => value * 5
 }
 
 /**
