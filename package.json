@@ -5,7 +5,8 @@
   "scripts": {
     "test": "npx jest",
     "start": "npx webpack-dev-server --open --hot --mode development",
-    "build": "npx webpack --mode production"
+    "build": "npx webpack --mode production",
+    "deploy": "npx firebase deploy"
   },
   "repository": {
     "type": "git",
