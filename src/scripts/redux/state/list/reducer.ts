@@ -1,4 +1,4 @@
-import { createList, fetchList } from './actions'
+import { createList, fetchList, deleteList } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
 export interface Card {
@@ -32,11 +32,18 @@ const initialState: ListState = {
 }
 
 export const listReducer = reducerWithInitialState(initialState)
-  .cases([createList.async.started, fetchList.async.started], state => {
-    return { ...state, isLoading: true }
-  })
   .cases(
-    [createList.async.failed, fetchList.async.failed],
+    [
+      createList.async.started,
+      fetchList.async.started,
+      deleteList.async.started
+    ],
+    state => {
+      return { ...state, isLoading: true }
+    }
+  )
+  .cases(
+    [createList.async.failed, fetchList.async.failed, deleteList.async.failed],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
     }
@@ -62,5 +69,20 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: { [boardId]: { lists: result } }
+    }
+  })
+  .case(deleteList.async.done, (state, { result }) => {
+    const targetLists = state.boards[result.boardId].lists
+    const index = targetLists.findIndex(list => list.id === result.id)
+    return {
+      ...state,
+      boards: {
+        [result.boardId]: {
+          lists: [
+            ...targetLists.slice(0, index),
+            ...targetLists.slice(index + 1)
+          ]
+        }
+      }
     }
   })

@@ -42,7 +42,7 @@ export const fetchList = asyncActionCreator<{ boardId: string }, any, Error>(
 
 export const createList = asyncActionCreator<
   Pick<List, 'title'> & { boardId: string },
-  any,
+  List,
   Error
 >('CREATE_LIST', async params => {
   const { user }: UserState = store.getState().user
@@ -55,6 +55,30 @@ export const createList = asyncActionCreator<
         .add({ ...params })
 
       return { ...params, id, cards: [] }
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})
+
+export const deleteList = asyncActionCreator<
+  Pick<List, 'id'> & { boardId: string },
+  Pick<List, 'id'> & { boardId: string },
+  Error
+>('DELETE_LIST', async ({ id, boardId }) => {
+  const { user }: UserState = store.getState().user
+
+  if (user && user.uid) {
+    try {
+      await firebase
+        .firestore()
+        .collection(`users/${user.uid}/lists`)
+        .doc(id)
+        .delete()
+
+      return { id, boardId }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
