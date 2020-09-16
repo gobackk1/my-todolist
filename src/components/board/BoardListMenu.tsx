@@ -188,7 +188,6 @@ const styles = {
     color: #000;
     padding: 20px;
     width: 300px;
-    box-shadow: 2px 2px 13px 0px #6f6f6f;
   `,
   'menu-content-item': css`
     margin-bottom: 15px;
