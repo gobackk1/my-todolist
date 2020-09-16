@@ -1,6 +1,6 @@
 import React from 'react'
 import { List } from '~redux/state/list/reducer'
-import css from '@emotion/css/macro'
+import { css } from '@emotion/core'
 import { Theme } from '@material-ui/core'
 
 export const CardList: React.FC<Props> = ({ list }) => {

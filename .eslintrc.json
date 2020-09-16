@@ -19,12 +19,11 @@
   "rules": {
     "no-console": "off",
     "semi": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
     // typescript なので
     "react/prop-types": "off",
     "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-extra-semi": "off"
+    "@typescript-eslint/no-extra-semi": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   },
   "settings": {
     "import/resolver": {

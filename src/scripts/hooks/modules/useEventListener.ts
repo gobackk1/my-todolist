@@ -2,7 +2,7 @@ import React from 'react'
 
 export const useEventListener = (
   eventName: string,
-  handler: () => void,
+  handler: (e: any) => void,
   element: HTMLElement | (Window & typeof globalThis) = window
 ): void => {
   const savedHandler = React.useRef<EventListener>(handler)
