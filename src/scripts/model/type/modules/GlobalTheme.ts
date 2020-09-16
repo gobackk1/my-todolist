@@ -1,8 +1,4 @@
 import { Theme } from '@material-ui/core'
+import { AppTheme } from '@/components/common/App'
 
-type AppTheme = {
-  zIndex: {
-    [i: string]: number
-  }
-}
 export type GlobalTheme = Theme & AppTheme
