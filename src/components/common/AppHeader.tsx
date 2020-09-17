@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { AppBar, Toolbar, Button } from '@material-ui/core'
+import { AppBar, Toolbar, Button, makeStyles } from '@material-ui/core'
 import firebase from 'firebase'
 import { useHistory } from 'react-router-dom'
 import { css } from '@emotion/core'
@@ -17,6 +17,7 @@ export const AppHeader: React.FC = () => {
   const history = useHistory()
   const userState = useSelector((state: I.ReduxState) => state.user)
   const dispatch = useDispatch()
+  const muiStyles = useStyles()
 
   const onClick = useCallback(async () => {
     dispatch(setLoggingIn(true))
@@ -57,7 +58,7 @@ export const AppHeader: React.FC = () => {
   }, [history, showSnackbar, dispatch])
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" className={muiStyles['root']}>
       <Toolbar>
         <BoardListMenu />
         {/* <IconButton edge="start" color="inherit" aria-label="menu">
@@ -98,6 +99,13 @@ export const AppHeader: React.FC = () => {
     </AppBar>
   )
 }
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    position: 'relative',
+    zIndex: theme.zIndex.appHeader
+  }
+}))
 
 const styles = {
   h1: css`

@@ -7,6 +7,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { Button } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
+import * as I from '@/scripts/model/interface'
 
 export const BoardDrawer: React.FC = () => {
   const [open, setOpen] = React.useState(false)
@@ -33,6 +34,7 @@ export const BoardDrawer: React.FC = () => {
       })
     }
   }
+
   return (
     <Drawer
       anchor="right"
