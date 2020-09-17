@@ -11,7 +11,7 @@ import { Close } from '@material-ui/icons'
 export const Modal: React.FC<Props> = ({ children, render }) => {
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
-  const handleClose = (e: any, reason: any) => {
+  const handleClose = () => {
     setOpen(false)
   }
   const onClick = () => handleOpen()

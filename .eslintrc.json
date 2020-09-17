@@ -16,12 +16,14 @@
     "project": "tsconfig.json"
   },
   "rules": {
+    // webpack で drop_console するので
     "no-console": "off",
+    // semi は フォーマッターに任せるので
     "semi": "off",
+    "@typescript-eslint/no-extra-semi": "off",
     // typescript なので
     "react/prop-types": "off",
-    "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-extra-semi": "off",
+    // ジェネリクスの any は許可
     "@typescript-eslint/no-explicit-any": "off"
   },
   "settings": {

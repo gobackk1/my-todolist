@@ -1,11 +1,11 @@
 import { useContext } from 'react'
-import { SnackbarContext } from '@/scripts/context'
+import * as Snackbar from '@/scripts/context'
 
 /**
  * ポップアップ表示に使うメソッドを提供するカスタムフック
  * SnackbarContext を利用するシンタックスシュガー
  */
-export const useSnackbarContext = () => {
-  const { showSnackbar, closeSnackbar } = useContext(SnackbarContext)
+export const useSnackbarContext = (): Snackbar.ContextType => {
+  const { showSnackbar, closeSnackbar } = useContext(Snackbar.Context)
   return { showSnackbar, closeSnackbar }
 }

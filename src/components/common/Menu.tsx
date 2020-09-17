@@ -27,7 +27,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   /**
    * 他のメニューが開いたら、このメニューを閉じる
    */
-  const onMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
+  const onMenuOpen = () => {
     toggleMenu(false)
   }
   useEventListener('onMenuOpen', onMenuOpen)

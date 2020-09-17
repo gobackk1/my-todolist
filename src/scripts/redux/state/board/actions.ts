@@ -11,7 +11,7 @@ import firebase from 'firebase'
  */
 export const fetchBoards = asyncActionCreator<void, Board[], Error>(
   'FETCH_BOARDS',
-  async params => {
+  async () => {
     const { user }: UserState = store.getState().user
     const boards: Board[] = []
 
@@ -72,7 +72,7 @@ export const updateBoard = asyncActionCreator<
   Pick<Board, 'title' | 'id'>,
   any,
   Error
->('UPDATE_BOARD', async ({ id, title }, dispatch) => {
+>('UPDATE_BOARD', async ({ id, title }) => {
   const { user }: UserState = store.getState().user
 
   if (user && user.uid) {
@@ -223,7 +223,7 @@ export const restoreBoard = asyncActionCreator<
  */
 export const fetchArchivedBoards = asyncActionCreator<void, Board[], Error>(
   'FETCH_ARCHIVED_BOARDS',
-  async params => {
+  async () => {
     const { user }: UserState = store.getState().user
     const boards: Board[] = []
     if (user && user.uid) {

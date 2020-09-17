@@ -1,6 +1,6 @@
 import React from 'react'
-import { useParams, useHistory } from 'react-router-dom'
-import { fetchBoards, archiveBoard } from '@/scripts/redux/state/board/actions'
+import { useParams } from 'react-router-dom'
+import { fetchBoards } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { LoadingSpinner, CardList } from '@/components'
@@ -31,7 +31,7 @@ export const Board: React.FC = () => {
         showSnackbar({ message, type: 'error' })
       }
     })()
-  }, [userState, dispatch, fetchList, showSnackbar, boardId])
+  }, [userState, dispatch, showSnackbar, boardId])
 
   /**
    * ユーザーがログインしていたら、ボード一覧を取得

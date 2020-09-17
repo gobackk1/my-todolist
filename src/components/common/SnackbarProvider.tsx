@@ -1,12 +1,12 @@
 import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react'
 import {
-  Snackbar,
+  Snackbar as MuiSnackbar,
   SnackbarCloseReason,
   SnackbarOrigin
   // Slide
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
-import { SnackbarContext } from '@/scripts/context'
+import * as Snackbar from '@/scripts/context'
 import * as I from '@/scripts/model/interface'
 // import { TransitionProps } from '@material-ui/core/transitions'
 
@@ -65,7 +65,7 @@ export const SnackbarProvider: React.FC<Props> = ({
 
   return (
     <>
-      <Snackbar
+      <MuiSnackbar
         key={messageInfo ? messageInfo.key : undefined}
         anchorOrigin={position}
         open={open}
@@ -79,10 +79,10 @@ export const SnackbarProvider: React.FC<Props> = ({
         <Alert severity={messageInfo ? messageInfo.type : undefined}>
           {messageInfo ? messageInfo.message : undefined}
         </Alert>
-      </Snackbar>
-      <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
+      </MuiSnackbar>
+      <Snackbar.Context.Provider value={{ showSnackbar, closeSnackbar }}>
         {children}
-      </SnackbarContext.Provider>
+      </Snackbar.Context.Provider>
     </>
   )
 }

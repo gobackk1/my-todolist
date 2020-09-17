@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux'
 /**
  * ログイン状態の保持・監視
  */
-export const useAuth = () => {
+export const useAuth = (): void => {
   const isMounted = useMountedRef()
   const dispatch = useDispatch()
 

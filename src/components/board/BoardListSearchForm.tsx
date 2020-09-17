@@ -14,22 +14,34 @@ type Props = {
 
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
+  //NOTE: inputRef はアンマウントしないので
+  /* eslint @typescript-eslint/no-non-null-assertion: off */
   const inputRef = React.useRef(null)
   const { reset } = useForm()
 
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.currentTarget
     value === ''
-      ? setState(state => ({ ...state, isSearching: false }))
-      : setState(state => ({ ...state, isSearching: true }))
+      ? setState(state => ({
+          ...state,
+          isSearching: false
+        }))
+      : setState(state => ({
+          ...state,
+          isSearching: true
+        }))
 
     const result = boardState.boards.filter(board =>
       RegExp(value).test(board.title)
     )
-    setState(state => ({ ...state, result, value }))
+    setState(state => ({
+      ...state,
+      result,
+      value
+    }))
   }
 
-  useEventListener('onMenuClose', (e: React.MouseEvent<HTMLElement>) => {
+  useEventListener('onMenuClose', () => {
     reset()
     /**
      * HACK: <TextField inputRef={register} /> だと、defaultValueを使っていても
@@ -38,10 +50,14 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
      */
     ;((inputRef.current! as HTMLInputElement).children[0]
       .firstElementChild! as HTMLInputElement).value = ''
-    setState({ isSearching: false, value: '', result: [] })
+    setState({
+      isSearching: false,
+      value: '',
+      result: []
+    })
   })
 
-  return (
+  return state.isSearching ? (
     <form css={styles['search']}>
       <TextField
         ref={inputRef}
@@ -59,7 +75,7 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
         size="small"
       />
     </form>
-  )
+  ) : null
 }
 
 const styles = {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { withStyles, makeStyles } from '@material-ui/styles'
-import { Button, Theme } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { Board as IBoard } from '~redux/state/board/reducer'
 import { useParams } from 'react-router-dom'
@@ -9,7 +9,7 @@ import { updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 
-export const BoardTitle = () => {
+export const BoardTitle: React.FC = () => {
   const [currentBoard, setCurrentBoard] = React.useState<IBoard | null>(
     {} as IBoard
   )
@@ -17,6 +17,8 @@ export const BoardTitle = () => {
   const params = useParams<{
     boardId: string
   }>()
+  // NOTE: titleInputRef はアンマウントしないので
+  /* eslint @typescript-eslint/no-non-null-assertion: off */
   const titleInputRef = React.useRef<HTMLInputElement>(null)
   const [isEditing, setEditing] = React.useState(false)
   const { showSnackbar } = useSnackbarContext()
@@ -45,6 +47,7 @@ export const BoardTitle = () => {
 
   React.useEffect(() => {
     if (!currentBoard) return
+
     titleInputRef.current!.value = currentBoard.title
   }, [currentBoard, isEditing])
 
@@ -110,11 +113,8 @@ export const BoardTitle = () => {
     if (titleInputRef.current)
       return window.getComputedStyle(titleInputRef.current!)
     return null
-    /**
-     * FIXME:
-     * react-hooks/exhaustive-deps で不必要な依存とされる
-     * titleInputRef.current を取り除くと、inputStyles が常に null になる
-     */
+    // NOTE: titleInputRef.current を取り除くと、inputStyles が常に null になる
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [titleInputRef.current])
 
   const resizeInput = () => {
@@ -166,7 +166,7 @@ export const BoardTitle = () => {
   )
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({
   root: {
     '& .MuiButton-root': {
       minWidth: 150,
@@ -190,7 +190,7 @@ const useStyles = makeStyles((theme: Theme) => ({
       fontWeight: 'bold'
     }
   }
-}))
+})
 
 const BoardTitleButton = withStyles({
   root: {
