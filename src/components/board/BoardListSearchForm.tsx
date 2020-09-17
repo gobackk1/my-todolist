@@ -57,7 +57,7 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
     })
   })
 
-  return state.isSearching ? (
+  return (
     <form css={styles['search']}>
       <TextField
         ref={inputRef}
@@ -75,7 +75,7 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
         size="small"
       />
     </form>
-  ) : null
+  )
 }
 
 const styles = {
