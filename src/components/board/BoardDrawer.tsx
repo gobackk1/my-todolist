@@ -2,7 +2,7 @@ import React from 'react'
 import { Drawer, makeStyles } from '@material-ui/core'
 import { archiveBoard } from '@/scripts/redux/state/board/actions'
 import { useDispatch } from 'react-redux'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams, useHistory, Link, Route, Switch } from 'react-router-dom'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { Button } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
@@ -15,25 +15,6 @@ export const BoardDrawer: React.FC = () => {
     setOpen(!open)
   }
   const muiStyle = useStyles()
-  const history = useHistory()
-  const dispatch = useDispatch()
-  const { boardId } = useParams<I.UrlParams>()
-  const { showSnackbar } = useSnackbarContext()
-
-  const onClickArchive = async () => {
-    if (!boardId) return
-    if (!window.confirm('ボードをアーカイブしてもよろしいですか？')) return
-    try {
-      await dispatch(archiveBoard({ id: boardId }))
-      setOpen(false)
-      history.push('/boards')
-    } catch ({ message }) {
-      showSnackbar({
-        message,
-        type: 'error'
-      })
-    }
-  }
 
   return (
     <Drawer
@@ -52,16 +33,69 @@ export const BoardDrawer: React.FC = () => {
           ボードメニューを表示
         </Button>
       </div>
-      <div css={styles['drawer-content']}>
-        <Button
-          onClick={onClickArchive}
-          fullWidth
-          className={muiStyle['archiveButton']}
-        >
-          このボードをアーカイブ
-        </Button>
-      </div>
+      <Switch>
+        <Route
+          path="/boards/:boardId/archivedItem"
+          render={() => <DrawerArchivedItem setOpen={setOpen} />}
+        />
+        <Route
+          path="/boards/:boardId/"
+          render={() => <DrawerRoot setOpen={setOpen} />}
+          exact
+        />
+      </Switch>
     </Drawer>
+  )
+}
+
+const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
+  setOpen
+}) => {
+  const muiStyle = useStyles()
+  const history = useHistory()
+  const dispatch = useDispatch()
+  const { showSnackbar } = useSnackbarContext()
+  const { boardId } = useParams<I.UrlParams>()
+
+  const onClickArchive = async () => {
+    if (!boardId) return
+    if (!window.confirm('ボードをアーカイブしてもよろしいですか？')) return
+    try {
+      await dispatch(archiveBoard({ id: boardId }))
+      setOpen(false)
+      history.push('/boards')
+    } catch ({ message }) {
+      showSnackbar({
+        message,
+        type: 'error'
+      })
+    }
+  }
+
+  return (
+    <div css={styles['drawer-content']}>
+      <Button
+        onClick={onClickArchive}
+        fullWidth
+        className={muiStyle['archiveButton']}
+      >
+        このボードをアーカイブ
+      </Button>
+      <Button to={`/boards/${boardId}/archivedItem`} component={Link}>
+        アーカイブしたアイテム
+      </Button>
+    </div>
+  )
+}
+
+const DrawerArchivedItem: React.FC<{ setOpen: React.Dispatch<any> }> = () => {
+  const { boardId } = useParams<I.UrlParams>()
+
+  return (
+    <div>
+      archived item
+      <Link to={`/boards/${boardId}`}>back</Link>
+    </div>
   )
 }
 
