@@ -1,4 +1,4 @@
-import { createList, fetchList, deleteList } from './actions'
+import { createList, fetchList, deleteList, archiveList } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
 export interface Card {
@@ -17,6 +17,7 @@ export interface ListState {
   boards: {
     [i: string]: {
       lists: List[]
+      archivedLists: List[]
     }
   }
 }
@@ -26,7 +27,8 @@ const initialState: ListState = {
   error: null,
   boards: {
     '': {
-      lists: []
+      lists: [],
+      archivedLists: []
     }
   }
 }
@@ -36,14 +38,20 @@ export const listReducer = reducerWithInitialState(initialState)
     [
       createList.async.started,
       fetchList.async.started,
-      deleteList.async.started
+      deleteList.async.started,
+      archiveList.async.started
     ],
     state => {
       return { ...state, isLoading: true }
     }
   )
   .cases(
-    [createList.async.failed, fetchList.async.failed, deleteList.async.failed],
+    [
+      createList.async.failed,
+      fetchList.async.failed,
+      deleteList.async.failed,
+      archiveList.async.failed
+    ],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
     }
@@ -60,7 +68,7 @@ export const listReducer = reducerWithInitialState(initialState)
     return {
       ...state,
       isLoading: false,
-      boards: { [boardId]: { lists: lists.concat(result) } }
+      boards: { [boardId]: { lists: lists.concat(result), archivedLists: [] } }
     }
   })
   .cases([fetchList.async.done], (state, { params, result }) => {
@@ -71,11 +79,30 @@ export const listReducer = reducerWithInitialState(initialState)
       boards: { [boardId]: { lists: result } }
     }
   })
+  .case(archiveList.async.done, (state, { result }) => {
+    const targetLists = state.boards[result.boardId].lists
+    const archivedLists = state.boards[result.boardId].archivedLists
+    const index = targetLists.findIndex(list => list.id === result.id)
+    return {
+      ...state,
+      isLoading: false,
+      boards: {
+        [result.boardId]: {
+          lists: [
+            ...targetLists.slice(0, index),
+            ...targetLists.slice(index + 1)
+          ],
+          archivedLists: [...archivedLists.concat(targetLists[index])]
+        }
+      }
+    }
+  })
   .case(deleteList.async.done, (state, { result }) => {
     const targetLists = state.boards[result.boardId].lists
     const index = targetLists.findIndex(list => list.id === result.id)
     return {
       ...state,
+      isLoading: false,
       boards: {
         [result.boardId]: {
           lists: [

@@ -13,7 +13,7 @@ import { Menu } from '@/components'
 import * as T from '@/scripts/model/type'
 import * as I from '@/scripts/model/interface'
 import { useDispatch } from 'react-redux'
-import { deleteList } from '~redux/state/list/actions'
+import { archiveList } from '~redux/state/list/actions'
 import { useParams } from 'react-router'
 import { useSnackbarContext } from '@/scripts/hooks'
 
@@ -25,7 +25,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
 
   const onClickDelete = async () => {
     try {
-      dispatch(deleteList({ id: list.id, boardId }))
+      dispatch(archiveList({ id: list.id, boardId }))
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
     }
@@ -49,7 +49,9 @@ export const CardList: React.FC<Props> = ({ list }) => {
             )}
           >
             <div css={styles['card-list-menu']}>
-              <Button onClick={onClickDelete}>リストを削除する</Button>
+              <Button onClick={onClickDelete} fullWidth>
+                リストをアーカイブする
+              </Button>
             </div>
           </Menu>
         </div>
