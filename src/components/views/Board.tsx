@@ -23,14 +23,15 @@ export const Board: React.FC = () => {
   const { boardId } = useParams<I.UrlParams>()
 
   React.useEffect(() => {
-    ;(async () => {
-      if (!userState.user) return
-      try {
-        await dispatch(fetchList({ boardId }))
-      } catch ({ message }) {
-        showSnackbar({ message, type: 'error' })
-      }
-    })()
+    if (userState.user && userState.user.uid) {
+      ;(async () => {
+        try {
+          await dispatch(fetchList({ boardId }))
+        } catch ({ message }) {
+          showSnackbar({ message, type: 'error' })
+        }
+      })()
+    }
   }, [userState, dispatch, showSnackbar, boardId])
 
   /**
@@ -101,5 +102,6 @@ const styles = {
   `,
   'card-list-container': css`
     display: flex;
+    flex-wrap: wrap;
   `
 }

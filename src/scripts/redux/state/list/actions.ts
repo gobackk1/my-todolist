@@ -5,40 +5,84 @@ import { OPTION } from '@/option'
 import { List } from './reducer'
 import { UserState } from '~redux/state/user/reducer'
 
-export const fetchList = asyncActionCreator<{ boardId: string }, any, Error>(
-  'FETCH_LIST',
-  async ({ boardId }) => {
-    const { user }: UserState = store.getState().user
-    let lists: any[] = []
+export const fetchList = asyncActionCreator<
+  Pick<List, 'boardId'>,
+  List[][],
+  Error
+>('FETCH_LIST', async ({ boardId }) => {
+  const { user }: UserState = store.getState().user
+  let lists: List[] = []
+  let archivedLists: List[] = []
 
-    if (user && user.uid) {
-      try {
-        const listsReference = await firebase
-          .firestore()
-          .collection(`users/${user.uid}/lists`)
+  if (user && user.uid) {
+    try {
+      const [listsReference, archivedListsReference] = await Promise.all([
+        firebase.firestore().collection(`users/${user.uid}/lists`),
+        firebase.firestore().collection(`users/${user.uid}/archivedLists`)
+      ])
 
-        const snapshot = await listsReference
-          .where('boardId', '==', boardId)
-          .get()
+      const [snapshot, archivedSnapshot] = await Promise.all([
+        listsReference.where('boardId', '==', boardId).get(),
+        archivedListsReference.where('boardId', '==', boardId).get()
+      ])
 
-        if (snapshot.empty) lists = []
+      if (snapshot.empty) lists = []
+      if (archivedSnapshot.empty) archivedLists = []
 
-        snapshot.forEach(doc => {
-          const { id } = doc
-          const { title } = doc.data()
-
-          lists.push({ boardId, id, title, cards: [] })
-        })
-      } catch (e) {
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-
-      return lists
-    } else {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+      snapshot.forEach(doc => {
+        const { id } = doc
+        const { title } = doc.data()
+        lists.push({ boardId, id, title })
+      })
+      archivedSnapshot.forEach(doc => {
+        const { id } = doc
+        const { title } = doc.data()
+        archivedLists.push({ boardId, id, title })
+      })
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
+
+    return [lists, archivedLists]
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
   }
-)
+})
+
+export const fetchArchivedList = asyncActionCreator<
+  Pick<List, 'boardId'>,
+  List[][],
+  Error
+>('FETCH_ARCHIVED_LIST', async ({ boardId }) => {
+  const { user }: UserState = store.getState().user
+  let lists: List[] = []
+
+  if (user && user.uid) {
+    try {
+      const listsReference = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/archivedLists`)
+
+      const snapshot = await listsReference
+        .where('boardId', '==', boardId)
+        .get()
+
+      if (snapshot.empty) lists = []
+
+      snapshot.forEach(doc => {
+        const { id } = doc
+        const { title, boardId } = doc.data()
+        lists.push({ id, title, boardId })
+      })
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+
+    return [lists]
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})
 
 export const createList = asyncActionCreator<
   Pick<List, 'title'> & { boardId: string },

@@ -1,19 +1,18 @@
 import React from 'react'
 import { Drawer, makeStyles } from '@material-ui/core'
 import { archiveBoard } from '@/scripts/redux/state/board/actions'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useHistory, Link, Route, Switch } from 'react-router-dom'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { Button } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import * as I from '@/scripts/model/interface'
+import { fetchArchivedList } from '~redux/state/list/actions'
 
 export const BoardDrawer: React.FC = () => {
   const [open, setOpen] = React.useState(false)
-  const toggleDrawer = () => {
-    setOpen(!open)
-  }
+  const toggleDrawer = () => setOpen(!open)
   const muiStyle = useStyles()
 
   return (
@@ -36,7 +35,7 @@ export const BoardDrawer: React.FC = () => {
       <Switch>
         <Route
           path="/boards/:boardId/archivedItem"
-          render={() => <DrawerArchivedItem setOpen={setOpen} />}
+          render={() => <DrawerArchivedItem open={open} setOpen={setOpen} />}
         />
         <Route
           path="/boards/:boardId/"
@@ -88,13 +87,41 @@ const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
   )
 }
 
-const DrawerArchivedItem: React.FC<{ setOpen: React.Dispatch<any> }> = () => {
+const DrawerArchivedItem: React.FC<{
+  open: boolean
+  setOpen: React.Dispatch<any>
+}> = ({ open, setOpen }) => {
   const { boardId } = useParams<I.UrlParams>()
+  const dispatch = useDispatch()
+  const { showSnackbar } = useSnackbarContext()
+  const { user } = useSelector((state: I.ReduxState) => state.user)
+  const listState = useSelector((state: I.ReduxState) => state.list)
+
+  React.useEffect(() => {
+    if (!(user && user.uid) || !open) return
+    ;(async () => {
+      try {
+        await dispatch(fetchArchivedList({ boardId }))
+      } catch ({ message }) {
+        showSnackbar({ message, type: 'error' })
+      }
+    })()
+  }, [dispatch, showSnackbar, user, boardId, open])
 
   return (
     <div>
       archived item
       <Link to={`/boards/${boardId}`}>back</Link>
+      {listState.isLoading ? (
+        'loading'
+      ) : (
+        <>
+          {listState.boards[boardId].archivedLists &&
+            listState.boards[boardId].archivedLists.map((list, i) => (
+              <div key={i}>{list.title}</div>
+            ))}
+        </>
+      )}
     </div>
   )
 }

@@ -1,4 +1,10 @@
-import { createList, fetchList, deleteList, archiveList } from './actions'
+import {
+  createList,
+  fetchList,
+  deleteList,
+  archiveList,
+  fetchArchivedList
+} from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
 export interface Card {
@@ -39,7 +45,8 @@ export const listReducer = reducerWithInitialState(initialState)
       createList.async.started,
       fetchList.async.started,
       deleteList.async.started,
-      archiveList.async.started
+      archiveList.async.started,
+      fetchArchivedList.async.started
     ],
     state => {
       return { ...state, isLoading: true }
@@ -50,7 +57,8 @@ export const listReducer = reducerWithInitialState(initialState)
       createList.async.failed,
       fetchList.async.failed,
       deleteList.async.failed,
-      archiveList.async.failed
+      archiveList.async.failed,
+      fetchArchivedList.async.failed
     ],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
@@ -60,7 +68,7 @@ export const listReducer = reducerWithInitialState(initialState)
     const { boardId } = params
 
     if (!(boardId in state.boards)) {
-      state.boards[boardId] = { lists: [] }
+      state.boards[params.boardId] = { lists: [] }
     }
 
     const lists = state.boards[params.boardId].lists
@@ -68,15 +76,22 @@ export const listReducer = reducerWithInitialState(initialState)
     return {
       ...state,
       isLoading: false,
-      boards: { [boardId]: { lists: lists.concat(result), archivedLists: [] } }
+      boards: {
+        [boardId]: { lists: lists.concat(result), archivedLists: [] }
+      }
     }
   })
   .cases([fetchList.async.done], (state, { params, result }) => {
-    const { boardId } = params
+    const [lists, archivedLists] = result
     return {
       ...state,
       isLoading: false,
-      boards: { [boardId]: { lists: result } }
+      boards: {
+        [params.boardId]: {
+          lists,
+          archivedLists
+        }
+      }
     }
   })
   .case(archiveList.async.done, (state, { result }) => {
@@ -109,6 +124,20 @@ export const listReducer = reducerWithInitialState(initialState)
             ...targetLists.slice(0, index),
             ...targetLists.slice(index + 1)
           ]
+        }
+      }
+    }
+  })
+  .case(fetchArchivedList.async.done, (state, { params, result }) => {
+    const [archivedLists] = result
+    const { lists } = state.boards[params.boardId]
+    return {
+      ...state,
+      isLoading: false,
+      boards: {
+        [params.boardId]: {
+          archivedLists,
+          lists
         }
       }
     }
