@@ -155,6 +155,54 @@ export const archiveList = asyncActionCreator<
   }
 })
 
+export const restoreList = asyncActionCreator<
+  Pick<List, 'id'> & { boardId: string },
+  Pick<List, 'id'> & { boardId: string },
+  Error
+>('RESTORE_LIST', async ({ id, boardId }) => {
+  const { user }: UserState = store.getState().user
+
+  if (user && user.uid) {
+    let documentReference: firebase.firestore.DocumentReference
+
+    // NOTE: まずリファレンスを取得する
+    try {
+      documentReference = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/archivedLists/`)
+        .doc(id)
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+
+    /**
+     * リファレンス取得後、
+     * 1. document 読み取り
+     * 2. archivedBoards collection に追加
+     * 3. boards から削除
+     */
+    try {
+      await firebase.firestore().runTransaction(async t => {
+        const doc = await t.get(documentReference)
+        const archivedList = doc.data()
+        if (!archivedList || !user) return
+
+        await firebase
+          .firestore()
+          .collection(`users/${user.uid}/lists/`)
+          .add(archivedList)
+
+        await documentReference.delete()
+      })
+      return { id, boardId }
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})
+
 export const deleteList = asyncActionCreator<
   Pick<List, 'id'> & { boardId: string },
   Pick<List, 'id'> & { boardId: string },

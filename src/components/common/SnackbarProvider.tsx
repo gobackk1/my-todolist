@@ -2,7 +2,8 @@ import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react'
 import {
   Snackbar as MuiSnackbar,
   SnackbarCloseReason,
-  SnackbarOrigin
+  SnackbarOrigin,
+  makeStyles
   // Slide
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
@@ -91,3 +92,9 @@ type Props = {
   autoHideDuration: number
   position: SnackbarOrigin
 }
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    zIndex: theme.zIndex.snackbar
+  }
+}))

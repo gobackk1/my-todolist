@@ -3,7 +3,8 @@ import {
   fetchList,
   deleteList,
   archiveList,
-  fetchArchivedList
+  fetchArchivedList,
+  restoreList
 } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
@@ -46,7 +47,8 @@ export const listReducer = reducerWithInitialState(initialState)
       fetchList.async.started,
       deleteList.async.started,
       archiveList.async.started,
-      fetchArchivedList.async.started
+      fetchArchivedList.async.started,
+      restoreList.async.started
     ],
     state => {
       return { ...state, isLoading: true }
@@ -58,7 +60,8 @@ export const listReducer = reducerWithInitialState(initialState)
       fetchList.async.failed,
       deleteList.async.failed,
       archiveList.async.failed,
-      fetchArchivedList.async.failed
+      fetchArchivedList.async.failed,
+      restoreList.async.failed
     ],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
@@ -138,6 +141,24 @@ export const listReducer = reducerWithInitialState(initialState)
         [params.boardId]: {
           archivedLists,
           lists
+        }
+      }
+    }
+  })
+  .case(restoreList.async.done, (state, { params, result }) => {
+    const targetLists = state.boards[result.boardId].archivedLists
+    const lists = state.boards[result.boardId].lists
+    const index = targetLists.findIndex(list => list.id === result.id)
+    return {
+      ...state,
+      isLoading: false,
+      boards: {
+        [result.boardId]: {
+          lists: [...lists.concat(targetLists[index])],
+          archivedLists: [
+            ...targetLists.slice(0, index),
+            ...targetLists.slice(index + 1)
+          ]
         }
       }
     }
