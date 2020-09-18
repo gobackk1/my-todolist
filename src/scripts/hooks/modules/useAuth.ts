@@ -27,5 +27,5 @@ export const useAuth = (): void => {
         history.push('/')
       }
     })
-  }, [isMounted, dispatch])
+  }, [isMounted, dispatch, history])
 }

@@ -101,8 +101,8 @@ type Props = {
   position: SnackbarOrigin
 }
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    zIndex: theme.zIndex.snackbar
-  }
-}))
+// const useStyles = makeStyles(theme => ({
+//   root: {
+//     zIndex: theme.zIndex.snackbar
+//   }
+// }))

@@ -32,7 +32,7 @@ export const Board: React.FC = () => {
         }
       })()
     }
-  }, [userState, dispatch, showSnackbar, boardId])
+  }, [userState, dispatch, showSnackbar, boardId, listState.error])
 
   /**
    * ユーザーがログインしていたら、ボード一覧を取得

@@ -20,7 +20,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 export const CardList: React.FC<Props> = ({ list }) => {
   const muiStyles = useStyles()
   const dispatch = useDispatch()
-  const { boardId } = useParams<I.UrlParams>()
+  // const { boardId } = useParams<I.UrlParams>()
   const { showSnackbar } = useSnackbarContext()
   const { user, list: listState } = useStore().getState()
 
