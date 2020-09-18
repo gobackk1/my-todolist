@@ -12,7 +12,7 @@ import { MoreHoriz } from '@material-ui/icons'
 import { Menu } from '@/components'
 import * as T from '@/scripts/model/type'
 import * as I from '@/scripts/model/interface'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useStore } from 'react-redux'
 import { archiveList } from '~redux/state/list/actions'
 import { useParams } from 'react-router'
 import { useSnackbarContext } from '@/scripts/hooks'
@@ -22,10 +22,13 @@ export const CardList: React.FC<Props> = ({ list }) => {
   const dispatch = useDispatch()
   const { boardId } = useParams<I.UrlParams>()
   const { showSnackbar } = useSnackbarContext()
+  const { user, list: listState } = useStore().getState()
 
-  const onClickDelete = async () => {
+  const onClickArchive = async () => {
+    if (!user || listState.error) return
+
     try {
-      dispatch(archiveList({ id: list.id, boardId }))
+      await dispatch(archiveList(list))
       dispatchEvent(new CustomEvent('onMenuArchived'))
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
@@ -50,7 +53,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
             )}
           >
             <div css={styles['card-list-menu']}>
-              <Button onClick={onClickDelete} fullWidth>
+              <Button onClick={onClickArchive} fullWidth>
                 リストをアーカイブする
               </Button>
             </div>

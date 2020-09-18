@@ -21,6 +21,9 @@ export const SnackbarProvider: React.FC<Props> = ({
   const [messageInfo, setMessageInfo] = useState<I.SnackPack | undefined>(
     undefined
   )
+  const [autoHideSeconds, setAutoHideSeconds] = useState<number | null>(
+    autoHideDuration
+  )
 
   useEffect(() => {
     if (snackPack.length && !messageInfo) {
@@ -50,6 +53,11 @@ export const SnackbarProvider: React.FC<Props> = ({
       ...prev,
       { message, type, key: new Date().getTime() }
     ])
+
+    // NOTE: error 発生時は画面操作ができなくなるため、フィードバックを常に表示しておく
+    type === 'error'
+      ? setAutoHideSeconds(null)
+      : setAutoHideSeconds(autoHideDuration)
   }
 
   const closeSnackbar = (
@@ -70,7 +78,7 @@ export const SnackbarProvider: React.FC<Props> = ({
         key={messageInfo ? messageInfo.key : undefined}
         anchorOrigin={position}
         open={open}
-        autoHideDuration={autoHideDuration}
+        autoHideDuration={autoHideSeconds}
         onExited={handleExited}
         onClose={closeSnackbar}
         // message={messageInfo ? messageInfo.message : undefined}

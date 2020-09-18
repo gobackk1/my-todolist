@@ -4,7 +4,7 @@ import { Button, TextField, makeStyles, Theme } from '@material-ui/core'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { createBoard } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useStore } from 'react-redux'
 import { OPTION } from '@/option'
 import { useHistory } from 'react-router-dom'
 
@@ -21,6 +21,7 @@ export const CreateBoardModal: React.FC = () => {
     reset
   } = useForm()
   const history = useHistory()
+  const { user, board } = useStore().getState()
 
   const renderButton = React.useCallback(
     props => (
@@ -38,6 +39,8 @@ export const CreateBoardModal: React.FC = () => {
   )
 
   const onSubmit: SubmitHandler<FormValue> = async ({ title }, e: any) => {
+    if (!user || board.error) return
+
     e.target.previousSibling.children[0].click()
 
     try {

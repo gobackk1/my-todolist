@@ -6,7 +6,7 @@ import { Board as IBoard } from '~redux/state/board/reducer'
 import { useParams } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { updateBoard } from '@/scripts/redux/state/board/actions'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch, useStore } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 
 export const BoardTitle: React.FC = () => {
@@ -24,6 +24,7 @@ export const BoardTitle: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
   const styles = useStyles()
+  const { user, board } = useStore().getState()
 
   /**
    * ボードタイトル変更 input 以外をクリックしたら、編集終了してタイトルを表示
@@ -52,6 +53,8 @@ export const BoardTitle: React.FC = () => {
   }, [currentBoard, isEditing])
 
   const updateBoardTitle = async (e: any) => {
+    if (!user || board.error) return
+
     if (!currentBoard) return
 
     const title = e.target.value

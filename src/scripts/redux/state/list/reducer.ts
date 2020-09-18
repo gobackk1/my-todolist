@@ -4,7 +4,9 @@ import {
   deleteList,
   archiveList,
   fetchArchivedList,
-  restoreList
+  restoreList,
+  moveToArchivedList,
+  moveToList
 } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
@@ -97,22 +99,10 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
-  .case(archiveList.async.done, (state, { result }) => {
-    const targetLists = state.boards[result.boardId].lists
-    const archivedLists = state.boards[result.boardId].archivedLists
-    const index = targetLists.findIndex(list => list.id === result.id)
+  .case(archiveList.async.done, state => {
     return {
       ...state,
-      isLoading: false,
-      boards: {
-        [result.boardId]: {
-          lists: [
-            ...targetLists.slice(0, index),
-            ...targetLists.slice(index + 1)
-          ],
-          archivedLists: [...archivedLists.concat(targetLists[index])]
-        }
-      }
+      isLoading: false
     }
   })
   .case(deleteList.async.done, (state, { result }) => {
@@ -161,6 +151,37 @@ export const listReducer = reducerWithInitialState(initialState)
             ...targetLists.slice(0, index),
             ...targetLists.slice(index + 1)
           ]
+        }
+      }
+    }
+  })
+  .case(moveToList, (state, params) => {
+    const { archivedLists, lists } = state.boards[params.boardId]
+    const index = archivedLists.findIndex(list => list.id === params.id)
+
+    return {
+      ...state,
+      boards: {
+        [params.boardId]: {
+          lists: lists.concat(params),
+          archivedLists: [
+            ...archivedLists.slice(0, index),
+            ...archivedLists.slice(index + 1)
+          ]
+        }
+      }
+    }
+  })
+  .case(moveToArchivedList, (state, params) => {
+    const { archivedLists, lists } = state.boards[params.boardId]
+    const index = lists.findIndex(list => list.id === params.id)
+
+    return {
+      ...state,
+      boards: {
+        [params.boardId]: {
+          archivedLists: archivedLists.concat(params),
+          lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
         }
       }
     }

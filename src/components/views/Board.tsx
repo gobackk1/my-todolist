@@ -23,7 +23,7 @@ export const Board: React.FC = () => {
   const { boardId } = useParams<I.UrlParams>()
 
   React.useEffect(() => {
-    if (userState.user && userState.user.uid) {
+    if (userState.user && userState.user.uid && !listState.error) {
       ;(async () => {
         try {
           await dispatch(fetchList({ boardId }))
@@ -38,7 +38,7 @@ export const Board: React.FC = () => {
    * ユーザーがログインしていたら、ボード一覧を取得
    */
   React.useEffect(() => {
-    if (userState.user && userState.user.uid) {
+    if (userState.user && userState.user.uid && !boardState.error) {
       ;(async () => {
         try {
           await dispatch(fetchBoards())
@@ -50,9 +50,10 @@ export const Board: React.FC = () => {
         }
       })()
     }
-  }, [dispatch, userState, showSnackbar])
+  }, [dispatch, userState, showSnackbar, boardState.error])
 
   const onClick = () => {
+    if (!userState.user || listState.error) return
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
   }
 

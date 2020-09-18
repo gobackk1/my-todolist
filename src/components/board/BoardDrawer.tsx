@@ -1,7 +1,7 @@
 import React from 'react'
 import { Drawer, makeStyles, Paper } from '@material-ui/core'
 import { archiveBoard } from '@/scripts/redux/state/board/actions'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector, useStore } from 'react-redux'
 import { useParams, useHistory, Link, Route, Switch } from 'react-router-dom'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { Button } from '@material-ui/core'
@@ -62,9 +62,12 @@ const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const { boardId } = useParams<I.UrlParams>()
+  const store = useStore()
+  const { user, board } = store.getState()
 
   const onClickArchive = async () => {
-    if (!boardId) return
+    if (!boardId || !user || board.error) return
+
     if (!window.confirm('ボードをアーカイブしてもよろしいですか？')) return
     try {
       await dispatch(archiveBoard({ id: boardId }))
@@ -105,7 +108,7 @@ const DrawerArchivedItem: React.FC<{
   const listState = useSelector((state: I.ReduxState) => state.list)
 
   React.useEffect(() => {
-    if (!(user && user.uid) || !open) return
+    if (!(user && user.uid) || !open || listState.error) return
     ;(async () => {
       try {
         await dispatch(fetchArchivedList({ boardId }))
@@ -113,9 +116,11 @@ const DrawerArchivedItem: React.FC<{
         showSnackbar({ message, type: 'error' })
       }
     })()
-  }, [dispatch, showSnackbar, user, boardId, open])
+  }, [dispatch, showSnackbar, user, boardId, open, listState.error])
 
   const onClick = async (id: string): Promise<void> => {
+    if (!user || listState.error) return
+
     try {
       await dispatch(restoreList({ boardId, id }))
     } catch ({ message }) {
@@ -124,6 +129,8 @@ const DrawerArchivedItem: React.FC<{
   }
 
   const onClickDelete = async (id: string): Promise<void> => {
+    if (!user || listState.error) return
+
     try {
       await dispatch(deleteList({ boardId, id }))
     } catch ({ message }) {
