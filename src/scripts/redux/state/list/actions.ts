@@ -214,7 +214,7 @@ export const deleteList = asyncActionCreator<
     try {
       await firebase
         .firestore()
-        .collection(`users/${user.uid}/lists`)
+        .collection(`users/${user.uid}/archivedLists`)
         .doc(id)
         .delete()
 

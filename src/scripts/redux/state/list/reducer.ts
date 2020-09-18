@@ -116,17 +116,19 @@ export const listReducer = reducerWithInitialState(initialState)
     }
   })
   .case(deleteList.async.done, (state, { result }) => {
-    const targetLists = state.boards[result.boardId].lists
+    const targetLists = state.boards[result.boardId].archivedLists
+    const lists = state.boards[result.boardId].lists
     const index = targetLists.findIndex(list => list.id === result.id)
     return {
       ...state,
       isLoading: false,
       boards: {
         [result.boardId]: {
-          lists: [
+          archivedLists: [
             ...targetLists.slice(0, index),
             ...targetLists.slice(index + 1)
-          ]
+          ],
+          lists
         }
       }
     }

@@ -26,6 +26,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
   const onClickDelete = async () => {
     try {
       dispatch(archiveList({ id: list.id, boardId }))
+      dispatchEvent(new CustomEvent('onMenuArchived'))
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
     }

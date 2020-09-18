@@ -9,7 +9,11 @@ import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import * as I from '@/scripts/model/interface'
 import * as T from '@/scripts/model/type'
-import { fetchArchivedList, restoreList } from '~redux/state/list/actions'
+import {
+  fetchArchivedList,
+  restoreList,
+  deleteList
+} from '~redux/state/list/actions'
 
 export const BoardDrawer: React.FC = () => {
   const [open, setOpen] = React.useState(false)
@@ -100,14 +104,6 @@ const DrawerArchivedItem: React.FC<{
   const { user } = useSelector((state: I.ReduxState) => state.user)
   const listState = useSelector((state: I.ReduxState) => state.list)
 
-  const onClick = async (id: string): Promise<void> => {
-    try {
-      await dispatch(restoreList({ boardId, id }))
-    } catch ({ message }) {
-      showSnackbar({ message, type: 'error' })
-    }
-  }
-
   React.useEffect(() => {
     if (!(user && user.uid) || !open) return
     ;(async () => {
@@ -118,6 +114,22 @@ const DrawerArchivedItem: React.FC<{
       }
     })()
   }, [dispatch, showSnackbar, user, boardId, open])
+
+  const onClick = async (id: string): Promise<void> => {
+    try {
+      await dispatch(restoreList({ boardId, id }))
+    } catch ({ message }) {
+      showSnackbar({ message, type: 'error' })
+    }
+  }
+
+  const onClickDelete = async (id: string): Promise<void> => {
+    try {
+      await dispatch(deleteList({ boardId, id }))
+    } catch ({ message }) {
+      showSnackbar({ message, type: 'error' })
+    }
+  }
 
   return (
     <div>
@@ -138,6 +150,7 @@ const DrawerArchivedItem: React.FC<{
                 >
                   復元
                 </button>
+                <button onClick={() => onClickDelete(list.id)}>削除</button>
               </div>
             ))}
         </>

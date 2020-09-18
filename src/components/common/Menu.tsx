@@ -31,6 +31,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
     toggleMenu(false)
   }
   useEventListener('onMenuOpen', onMenuOpen)
+  useEventListener('onMenuArchived', onMenuOpen)
 
   /**
    * render に渡ってきたボタンに props を付与する
