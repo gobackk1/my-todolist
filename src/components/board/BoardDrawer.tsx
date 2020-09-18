@@ -14,6 +14,7 @@ import {
   restoreList,
   deleteList
 } from '~redux/state/list/actions'
+import { List } from '~redux/state/list/reducer'
 
 export const BoardDrawer: React.FC = () => {
   const [open, setOpen] = React.useState(false)
@@ -118,11 +119,15 @@ const DrawerArchivedItem: React.FC<{
     })()
   }, [dispatch, showSnackbar, user, boardId, open, listState.error])
 
-  const onClick = async (id: string): Promise<void> => {
+  const onClick = async ({ id, title }: List): Promise<void> => {
     if (!user || listState.error) return
 
     try {
       await dispatch(restoreList({ boardId, id }))
+      showSnackbar({
+        message: `アーカイブされた「${title}」を戻しました。`,
+        type: 'info'
+      })
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
     }
@@ -152,7 +157,7 @@ const DrawerArchivedItem: React.FC<{
                 {list.title}
                 <button
                   onClick={() => {
-                    onClick(list.id)
+                    onClick(list)
                   }}
                 >
                   復元
