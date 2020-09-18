@@ -1,5 +1,5 @@
 import React from 'react'
-import { Drawer, makeStyles } from '@material-ui/core'
+import { Drawer, makeStyles, Paper } from '@material-ui/core'
 import { archiveBoard } from '@/scripts/redux/state/board/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useHistory, Link, Route, Switch } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { Button } from '@material-ui/core'
 import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import * as I from '@/scripts/model/interface'
+import * as T from '@/scripts/model/type'
 import { fetchArchivedList } from '~redux/state/list/actions'
 
 export const BoardDrawer: React.FC = () => {
@@ -23,26 +24,28 @@ export const BoardDrawer: React.FC = () => {
       className={muiStyle['root']}
       variant="persistent"
     >
-      <div css={styles['drawer-button']}>
-        <Button
-          onClick={toggleDrawer}
-          variant="contained"
-          startIcon={<MoreHoriz />}
-        >
-          ボードメニューを表示
-        </Button>
-      </div>
-      <Switch>
-        <Route
-          path="/boards/:boardId/archivedItem"
-          render={() => <DrawerArchivedItem open={open} setOpen={setOpen} />}
-        />
-        <Route
-          path="/boards/:boardId/"
-          render={() => <DrawerRoot setOpen={setOpen} />}
-          exact
-        />
-      </Switch>
+      <Paper elevation={5}>
+        <div css={styles['drawer-button']}>
+          <Button
+            onClick={toggleDrawer}
+            variant="contained"
+            startIcon={<MoreHoriz />}
+          >
+            ボードメニューを表示
+          </Button>
+        </div>
+        <Switch>
+          <Route
+            path="/boards/:boardId/archivedItem"
+            render={() => <DrawerArchivedItem open={open} setOpen={setOpen} />}
+          />
+          <Route
+            path="/boards/:boardId/"
+            render={() => <DrawerRoot setOpen={setOpen} />}
+            exact
+          />
+        </Switch>
+      </Paper>
     </Drawer>
   )
 }
@@ -80,7 +83,7 @@ const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
       >
         このボードをアーカイブ
       </Button>
-      <Button to={`/boards/${boardId}/archivedItem`} component={Link}>
+      <Button to={`/boards/${boardId}/archivedItem`} component={Link} fullWidth>
         アーカイブしたアイテム
       </Button>
     </div>
@@ -126,14 +129,17 @@ const DrawerArchivedItem: React.FC<{
   )
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: T.GlobalTheme) => ({
   root: {
+    position: 'relative',
+    zIndex: theme.zIndex.boardDrawer,
     '& .MuiDrawer-paper': {
       width: 300,
       overflow: 'visible',
-      top: 64,
-      padding: 8,
-      boxShadow: '2px 0px 7px 0px #c1c1c1'
+      top: 64
+    },
+    '& .MuiPaper-root': {
+      height: '100%'
     }
   },
   archiveButton: {
@@ -144,6 +150,7 @@ const useStyles = makeStyles(() => ({
 const styles = {
   'drawer-button': css`
     position: absolute;
+    top: 8px;
     left: -76%;
     visibility: visible;
   `,

@@ -65,6 +65,7 @@ export type AppTheme = {
 const appTheme: AppTheme = {
   zIndex: {
     appHeader: 10,
+    boardDrawer: 10,
     menu: 5
   },
   borderRadius: (value: number) => value * 5
