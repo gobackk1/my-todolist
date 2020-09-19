@@ -15,8 +15,6 @@ const selector = {
   buttonLogin: '#btn-login',
   buttonLoginWithGoogle: '#btn-login-with-google',
   buttonLogout: '#btn-logout',
-  //NOTE: 「Google にログイン アカウントの選択」別のアカウントを使用ボタン
-  useAnotherAddress: 'form section ul li:last-child',
   addressInput: 'form section input[type="email"]',
   passwordInput: 'form section input[type="password"]'
 }
@@ -41,16 +39,12 @@ describe('E2Eテスト', () => {
     jest.setTimeout(30000)
   })
 
-  // beforeEach(async () => {
-  //   buttonLogin =
-  // })
-
-  // test('TOPページアクセス時、ログインボタンが表示されること', async () => {
-  //   const buttonText = await (
-  //     await buttonLogin.getProperty('textContent')
-  //   ).jsonValue()
-  //   expect(buttonText).toContain(TEXT.BUTTON.LOGIN)
-  // })
+  test('TOPページアクセス時、ログインボタンが表示されること', async () => {
+    const buttonText = await (
+      await buttonLogin.getProperty('textContent')
+    ).jsonValue()
+    expect(buttonText).toContain(TEXT.BUTTON.LOGIN)
+  })
 
   test('ログイン成功時、ログイン後画面のログアウトボタンが表示されること', async () => {
     await page.click(selector.buttonLogin)

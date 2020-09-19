@@ -23,6 +23,6 @@
     "types": ["jest", "node"],
     "typeRoots": ["types"]
   },
-  "include": ["src"],
+  "include": ["src", "test/e2e/test.e2e.ts", "e2e/test.e2e.ts"],
   "exclude": ["node_modules"]
 }

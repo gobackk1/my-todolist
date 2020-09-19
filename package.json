@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "npx jest --runInBand --detectOpenHandles",
+    "test:unit": "npx jest -c ./test/unit/jest.config.json --runInBand --detectOpenHandles",
+    "test:e2e": "npx jest -c ./test/e2e/jest.config.json",
     "start": "tsc && npx webpack-dev-server --open --hot --mode development",
     "build": "tsc && npx webpack --mode production",
     "deploy": "npx firebase deploy"
@@ -94,43 +95,6 @@
     ],
     "development": [
       "last 1 versions"
-    ]
-  },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "tsConfig": "tsconfig.jest.json"
-      }
-    },
-    "globalSetup": "./e2e/setup.js",
-    "globalTeardown": "./e2e/teardown.js",
-    "testEnvironment": "./e2e/puppeteer_environment.js",
-    "transform": {
-      "^.+\\.(js|jsx|mjs)$": "babel-jest",
-      "^.+\\.(ts|tsx)$": "ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(xxxx.*?\\.js$))"
-    ],
-    "testRegex": "(/test/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ],
-    "moduleNameMapper": {
-      "@/(.*)$": "<rootDir>/src/$1",
-      "~redux(.*)$": "<rootDir>/src/scripts/redux/$1"
-    },
-    "snapshotSerializers": [
-      "enzyme-to-json/serializer"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupEnzyme.ts"
     ]
   }
 }
