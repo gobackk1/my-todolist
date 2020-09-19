@@ -32,7 +32,13 @@ export const Board: React.FC = () => {
         }
       })()
     }
-  }, [userState, dispatch, showSnackbar, boardId, listState.error])
+    /**
+     * NOTE:
+     * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
+     * showSnackbar を配列に加えない
+     */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [userState, dispatch, boardId, listState.error])
 
   /**
    * ユーザーがログインしていたら、ボード一覧を取得
@@ -50,7 +56,13 @@ export const Board: React.FC = () => {
         }
       })()
     }
-  }, [dispatch, userState, showSnackbar, boardState.error])
+    /**
+     * NOTE:
+     * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
+     * showSnackbar を配列に加えない
+     */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [dispatch, userState, boardState.error])
 
   const onClick = () => {
     if (!userState.user || listState.error) return
