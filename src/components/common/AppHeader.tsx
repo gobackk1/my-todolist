@@ -77,7 +77,7 @@ export const AppHeader: React.FC = () => {
                 )}
               >
                 <div css={styles['modal-title']}>ログイン</div>
-                <button onClick={onClick} type="button">
+                <button onClick={onClick} type="button" id="btn-login">
                   Google アカウントでログイン
                 </button>
               </Modal>

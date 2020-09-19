@@ -82,7 +82,9 @@
     "redux-thunk": "^2.3.0"
   },
   "eslintIgnore": [
-    ".eslintrc.json"
+    ".eslintrc.json",
+    "./e2e",
+    "*.spec.js"
   ],
   "browserslist": {
     "production": [

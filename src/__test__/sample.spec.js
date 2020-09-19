@@ -2,8 +2,9 @@ describe('puppeteer test', () => {
   let page
   beforeAll(async () => {
     page = await global.__BROWSER__.newPage()
+    await page.setViewport({ width: 1440, height: 900 })
     await page.goto('http://localhost:8080', {
-      waitUntil: 'networkidle2'
+      waitUntil: 'domcontentloaded'
     })
   }, 5000)
 
@@ -12,7 +13,7 @@ describe('puppeteer test', () => {
   })
 
   it('google text', async () => {
-    const text = await page.evaluate(() => document.body.textContent)
-    expect(text).toContain('google')
+    const buttonLogin = await page.$('#btn-login')
+    expect(buttonLogin.textContent).toContain('google')
   })
 })
