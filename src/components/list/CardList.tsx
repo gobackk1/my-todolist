@@ -3,7 +3,6 @@ import { List } from '~redux/state/list/reducer'
 import { css } from '@emotion/core'
 import { IconButton, Button, Typography, Paper } from '@material-ui/core'
 import { withStyles, makeStyles } from '@material-ui/styles'
-
 import { MoreHoriz } from '@material-ui/icons'
 import { Menu, ChangeableTitle } from '@/components'
 import * as T from '@/scripts/model/type'
@@ -14,7 +13,6 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
 import { useParams } from 'react-router-dom'
-import { useEventListener } from '@/scripts/hooks'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const muiStyles = useStyles()
@@ -22,8 +20,6 @@ export const CardList: React.FC<Props> = ({ list }) => {
   const { boardId } = useParams<I.UrlParams>()
   const { showSnackbar } = useSnackbarContext()
   const { user, list: listState } = useStore().getState()
-  const titleInputRef = React.useRef<HTMLTextAreaElement>(null)
-  const [isEditing, setEditing] = React.useState(false)
 
   const onClickArchive = async () => {
     if (!user || listState.error) return
@@ -71,19 +67,6 @@ export const CardList: React.FC<Props> = ({ list }) => {
       })
     }
   }
-
-  /**
-   * ボードタイトル変更 input 以外をクリックしたら、編集終了してタイトルを表示
-   */
-  useEventListener(
-    'click',
-    (e: React.MouseEvent<HTMLElement>) => {
-      console.log('eventlistner')
-      if ((e.target as HTMLTextAreaElement).closest('.js-title-area')) return
-      if (isEditing) setEditing(false)
-    },
-    titleInputRef.current ? titleInputRef.current : undefined
-  )
 
   return (
     <Paper elevation={1} className={muiStyles['paper']}>

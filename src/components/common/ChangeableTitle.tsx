@@ -29,12 +29,12 @@ export const ChangeableTitle: React.FC<Props> = ({
   useEventListener(
     'click',
     (e: React.MouseEvent<HTMLElement>) => {
-      console.log('eventlistner')
       if ((e.target as HTMLElement).closest('.js-title-area')) return
       if (isEditing) setEditing(false)
     },
     titleRef.current ? titleRef.current : undefined
   )
+
   const onBlurTitle = async (e: React.FocusEvent<TitleElement>) => {
     await updateTitle(e, () => setEditing(false))
   }
