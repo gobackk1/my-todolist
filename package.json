@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "npx jest",
+    "test": "npx jest --runInBand --detectOpenHandles",
     "start": "tsc && npx webpack-dev-server --open --hot --mode development",
     "build": "tsc && npx webpack --mode production",
     "deploy": "npx firebase deploy"
@@ -99,7 +99,7 @@
   "jest": {
     "globals": {
       "ts-jest": {
-        "tsConfigFile": "tsconfig.jest.json"
+        "tsConfig": "tsconfig.jest.json"
       }
     },
     "globalSetup": "./e2e/setup.js",
