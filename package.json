@@ -55,6 +55,9 @@
     "firebase": "^7.20.0",
     "html-webpack-plugin": "^4.4.1",
     "jest": "^26.4.2",
+    "jest-environment-node": "^26.3.0",
+    "jest-puppeteer": "^4.4.0",
+    "mkdirp": "^1.0.4",
     "redux-devtools-extension": "^2.13.8",
     "terser-webpack-plugin": "^4.2.0",
     "ts-jest": "^26.3.0",
@@ -69,6 +72,7 @@
   "dependencies": {
     "@emotion/core": "^10.0.35",
     "emotion-theming": "^10.0.27",
+    "puppeteer": "^5.3.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.8.2",
@@ -96,6 +100,9 @@
         "tsConfigFile": "tsconfig.jest.json"
       }
     },
+    "globalSetup": "./e2e/setup.js",
+    "globalTeardown": "./e2e/teardown.js",
+    "testEnvironment": "./e2e/puppeteer_environment.js",
     "transform": {
       "^.+\\.(js|jsx|mjs)$": "babel-jest",
       "^.+\\.(ts|tsx)$": "ts-jest"
