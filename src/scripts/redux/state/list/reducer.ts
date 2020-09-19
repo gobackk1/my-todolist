@@ -6,7 +6,8 @@ import {
   fetchArchivedList,
   restoreList,
   moveToArchivedList,
-  moveToList
+  moveToList,
+  updateList
 } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
@@ -50,7 +51,8 @@ export const listReducer = reducerWithInitialState(initialState)
       deleteList.async.started,
       archiveList.async.started,
       fetchArchivedList.async.started,
-      restoreList.async.started
+      restoreList.async.started,
+      updateList.async.started
     ],
     state => {
       return { ...state, isLoading: true }
@@ -63,7 +65,8 @@ export const listReducer = reducerWithInitialState(initialState)
       deleteList.async.failed,
       archiveList.async.failed,
       fetchArchivedList.async.failed,
-      restoreList.async.failed
+      restoreList.async.failed,
+      updateList.async.failed
     ],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
@@ -158,7 +161,6 @@ export const listReducer = reducerWithInitialState(initialState)
   .case(moveToList, (state, params) => {
     const { archivedLists, lists } = state.boards[params.boardId]
     const index = archivedLists.findIndex(list => list.id === params.id)
-
     return {
       ...state,
       boards: {
@@ -175,13 +177,25 @@ export const listReducer = reducerWithInitialState(initialState)
   .case(moveToArchivedList, (state, params) => {
     const { archivedLists, lists } = state.boards[params.boardId]
     const index = lists.findIndex(list => list.id === params.id)
-
     return {
       ...state,
       boards: {
         [params.boardId]: {
           archivedLists: archivedLists.concat(params),
           lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
+        }
+      }
+    }
+  })
+  .case(updateList.async.done, (state, { result }) => {
+    const { archivedLists, lists } = state.boards[result.boardId]
+    const index = lists.findIndex(list => list.id === result.id)
+    return {
+      ...state,
+      boards: {
+        [result.boardId]: {
+          archivedLists,
+          lists: [...lists.slice(0, index), result, ...lists.slice(index + 1)]
         }
       }
     }

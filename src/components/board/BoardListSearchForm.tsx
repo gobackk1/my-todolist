@@ -13,7 +13,6 @@ type Props = {
 }
 
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
-  console.log(state)
   const boardState = useSelector((state: I.ReduxState) => state.board)
   //NOTE: inputRef はアンマウントしないので
   /* eslint @typescript-eslint/no-non-null-assertion: off */

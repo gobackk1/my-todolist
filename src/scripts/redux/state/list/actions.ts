@@ -215,5 +215,29 @@ export const deleteList = asyncActionCreator<
   }
 })
 
+export const updateList = asyncActionCreator<
+  Pick<List, 'title' | 'id' | 'boardId'>,
+  Pick<List, 'title' | 'id' | 'boardId'>,
+  Error
+>('UPDATE_LIST', async ({ id, title, boardId }) => {
+  const { user }: UserState = store.getState().user
+
+  if (user && user.uid) {
+    try {
+      const documentReference = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/lists`)
+        .doc(id)
+
+      documentReference.set({ title }, { merge: true })
+      return { id, title, boardId }
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})
+
 export const moveToList = actionCreator<List>('MOVE_TO_LIST')
 export const moveToArchivedList = actionCreator<List>('MOVE_TO_ARCHIVED_LIST')

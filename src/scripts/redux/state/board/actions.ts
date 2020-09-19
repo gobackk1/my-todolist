@@ -70,7 +70,7 @@ export const createBoard = asyncActionCreator<
  */
 export const updateBoard = asyncActionCreator<
   Pick<Board, 'title' | 'id'>,
-  any,
+  Pick<Board, 'title' | 'id'>,
   Error
 >('UPDATE_BOARD', async ({ id, title }) => {
   const { user }: UserState = store.getState().user

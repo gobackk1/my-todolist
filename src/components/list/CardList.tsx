@@ -1,28 +1,29 @@
 import React from 'react'
 import { List } from '~redux/state/list/reducer'
 import { css } from '@emotion/core'
-import {
-  IconButton,
-  makeStyles,
-  Button,
-  Typography,
-  Paper
-} from '@material-ui/core'
+import { IconButton, Button, Typography, Paper } from '@material-ui/core'
+import { withStyles, makeStyles } from '@material-ui/styles'
+
 import { MoreHoriz } from '@material-ui/icons'
-import { Menu } from '@/components'
+import { Menu, ChangeableTitle } from '@/components'
 import * as T from '@/scripts/model/type'
 import * as I from '@/scripts/model/interface'
 import { useDispatch, useStore } from 'react-redux'
 import { archiveList } from '~redux/state/list/actions'
-import { useParams } from 'react-router'
 import { useSnackbarContext } from '@/scripts/hooks'
+import { OPTION } from '@/option'
+import { updateList } from '~redux/state/list/actions'
+import { useParams } from 'react-router-dom'
+import { useEventListener } from '@/scripts/hooks'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const muiStyles = useStyles()
   const dispatch = useDispatch()
-  // const { boardId } = useParams<I.UrlParams>()
+  const { boardId } = useParams<I.UrlParams>()
   const { showSnackbar } = useSnackbarContext()
   const { user, list: listState } = useStore().getState()
+  const titleInputRef = React.useRef<HTMLTextAreaElement>(null)
+  const [isEditing, setEditing] = React.useState(false)
 
   const onClickArchive = async () => {
     if (!user || listState.error) return
@@ -35,12 +36,66 @@ export const CardList: React.FC<Props> = ({ list }) => {
     }
   }
 
+  const updateTitle = async (
+    e: React.FocusEvent<any> | React.KeyboardEvent<any>,
+    setEditing: React.Dispatch<any>
+  ) => {
+    if (!user || listState.error) return
+
+    const title = e.currentTarget.value
+    setEditing(false)
+
+    if (title === list.title) return
+
+    if (title.length > 50) {
+      // TODO: リストタイトルのバリデーション
+      // showSnackbar({
+      //   message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR,
+      //   type: 'error'
+      // })
+      // return
+    } else if (!title.length) {
+      showSnackbar({
+        message: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
+        type: 'error'
+      })
+      return
+    }
+
+    try {
+      await dispatch(updateList({ title, id: list.id, boardId }))
+    } catch (e) {
+      showSnackbar({
+        message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+        type: 'error'
+      })
+    }
+  }
+
+  /**
+   * ボードタイトル変更 input 以外をクリックしたら、編集終了してタイトルを表示
+   */
+  useEventListener(
+    'click',
+    (e: React.MouseEvent<HTMLElement>) => {
+      console.log('eventlistner')
+      if ((e.target as HTMLTextAreaElement).closest('.js-title-area')) return
+      if (isEditing) setEditing(false)
+    },
+    titleInputRef.current ? titleInputRef.current : undefined
+  )
+
   return (
     <Paper elevation={1} className={muiStyles['paper']}>
       <div css={styles['card-list']}>
         <div css={styles['card-list-header']}>
           <div css={styles['card-list-title']}>
-            <Typography variant="subtitle1">{list.title}</Typography>
+            <ChangeableTitle
+              title={list.title}
+              updateTitle={updateTitle}
+              component="textarea"
+              width={200}
+            />
           </div>
           <Menu
             render={props => (
@@ -83,6 +138,7 @@ const styles = {
     display: flex;
     align-items: center;
     font-size: 18px;
+    width: 200px;
   `,
   'card-list-menu': (theme: T.GlobalTheme) => css`
     background: #ffffff;
@@ -93,7 +149,38 @@ const styles = {
   'card-list-footer': css``
 }
 
+type Props = {
+  list: List
+}
+const BoardTitleButton = withStyles({
+  root: {
+    backgroundColor: '#dedede'
+  }
+})(Button)
 const useStyles = makeStyles(theme => ({
+  root: {
+    '& .MuiButton-root': {
+      minWidth: 150,
+      width: 'auto',
+      maxWidth: 'none',
+      textAlign: 'left',
+      textTransform: 'none',
+      borderWidth: 2
+    }
+  },
+  button: {
+    '&.MuiButton-root': {
+      padding: '4px 8px',
+      border: '2px solid transparent',
+      fontWeight: 'bold'
+    }
+  },
+  input: {
+    '&.MuiButton-outlined': {
+      padding: '4px 8px',
+      fontWeight: 'bold'
+    }
+  },
   'card-list-menu-button': {
     padding: 5,
     borderRadius: 0
@@ -105,7 +192,3 @@ const useStyles = makeStyles(theme => ({
     }
   }
 }))
-
-type Props = {
-  list: List
-}
