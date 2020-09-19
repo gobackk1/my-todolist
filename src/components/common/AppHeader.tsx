@@ -105,13 +105,17 @@ export const AppHeader: React.FC = () => {
                 )}
               >
                 <div css={styles['modal-title']}>{TEXT.BUTTON.LOGIN}</div>
-                <button onClick={onClick} type="button">
+                <button
+                  onClick={onClick}
+                  type="button"
+                  id="btn-login-with-google"
+                >
                   {TEXT.BUTTON.LOGIN_WITH_GOOGLE_AUTH}
                 </button>
               </Modal>
             ) : (
               <>
-                <Button color="inherit" onClick={onClickLogout}>
+                <Button color="inherit" onClick={onClickLogout} id="btn-logout">
                   {TEXT.BUTTON.LOGOUT}
                 </Button>
                 <img
