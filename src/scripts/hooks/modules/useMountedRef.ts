@@ -7,7 +7,7 @@ import { useRef, useEffect } from 'react'
  *   setState(...)
  * }
  */
-export const useMountedRef = () => {
+export const useMountedRef = (): React.MutableRefObject<boolean> => {
   const ref = useRef(false)
 
   useEffect(() => {

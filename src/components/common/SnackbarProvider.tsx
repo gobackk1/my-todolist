@@ -1,13 +1,14 @@
 import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react'
 import {
-  Snackbar,
+  Snackbar as MuiSnackbar,
   SnackbarCloseReason,
-  SnackbarOrigin
+  SnackbarOrigin,
+  makeStyles
   // Slide
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
-import { SnackbarContext } from '@/scripts/context'
-import * as I from '@/scripts/interfaces'
+import * as Snackbar from '@/scripts/context'
+import * as I from '@/scripts/model/interface'
 // import { TransitionProps } from '@material-ui/core/transitions'
 
 export const SnackbarProvider: React.FC<Props> = ({
@@ -19,6 +20,9 @@ export const SnackbarProvider: React.FC<Props> = ({
   const [open, setOpen] = useState(false)
   const [messageInfo, setMessageInfo] = useState<I.SnackPack | undefined>(
     undefined
+  )
+  const [autoHideSeconds, setAutoHideSeconds] = useState<number | null>(
+    autoHideDuration
   )
 
   useEffect(() => {
@@ -49,6 +53,11 @@ export const SnackbarProvider: React.FC<Props> = ({
       ...prev,
       { message, type, key: new Date().getTime() }
     ])
+
+    // NOTE: error 発生時は画面操作ができなくなるため、フィードバックを常に表示しておく
+    type === 'error'
+      ? setAutoHideSeconds(null)
+      : setAutoHideSeconds(autoHideDuration)
   }
 
   const closeSnackbar = (
@@ -65,11 +74,11 @@ export const SnackbarProvider: React.FC<Props> = ({
 
   return (
     <>
-      <Snackbar
+      <MuiSnackbar
         key={messageInfo ? messageInfo.key : undefined}
         anchorOrigin={position}
         open={open}
-        autoHideDuration={autoHideDuration}
+        autoHideDuration={autoHideSeconds}
         onExited={handleExited}
         onClose={closeSnackbar}
         // message={messageInfo ? messageInfo.message : undefined}
@@ -79,10 +88,10 @@ export const SnackbarProvider: React.FC<Props> = ({
         <Alert severity={messageInfo ? messageInfo.type : undefined}>
           {messageInfo ? messageInfo.message : undefined}
         </Alert>
-      </Snackbar>
-      <SnackbarContext.Provider value={{ showSnackbar, closeSnackbar }}>
+      </MuiSnackbar>
+      <Snackbar.Context.Provider value={{ showSnackbar, closeSnackbar }}>
         {children}
-      </SnackbarContext.Provider>
+      </Snackbar.Context.Provider>
     </>
   )
 }
@@ -91,3 +100,9 @@ type Props = {
   autoHideDuration: number
   position: SnackbarOrigin
 }
+
+// const useStyles = makeStyles(theme => ({
+//   root: {
+//     zIndex: theme.zIndex.snackbar
+//   }
+// }))

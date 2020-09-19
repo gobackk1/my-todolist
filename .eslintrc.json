@@ -3,7 +3,6 @@
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "plugins": ["react", "react-hooks", "@typescript-eslint"],
@@ -17,14 +16,15 @@
     "project": "tsconfig.json"
   },
   "rules": {
+    // webpack で drop_console するので
     "no-console": "off",
+    // semi は フォーマッターに任せるので
     "semi": "off",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
+    "@typescript-eslint/no-extra-semi": "off",
     // typescript なので
     "react/prop-types": "off",
-    "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-extra-semi": "off"
+    // ジェネリクスの any は許可
+    "@typescript-eslint/no-explicit-any": "off"
   },
   "settings": {
     "import/resolver": {

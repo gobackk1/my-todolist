@@ -8,7 +8,7 @@ import {
 } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 import { Reply, DeleteForever } from '@material-ui/icons'
 import { css } from '@emotion/core'
 
@@ -22,7 +22,7 @@ export const ArchivedBoardModal: React.FC = () => {
   const renderButton = React.useCallback(
     props => {
       const dispatchFetchArchiveBoards = () => {
-        if (!userState.user) return
+        if (!userState.user || boardState.error) return
         try {
           dispatch(fetchArchivedBoards())
         } catch ({ message }) {
@@ -42,10 +42,12 @@ export const ArchivedBoardModal: React.FC = () => {
         </Button>
       )
     },
-    [muiStyles.buttonCreate, dispatch, showSnackbar, userState.user]
+    [muiStyles.buttonCreate, dispatch, showSnackbar, userState.user, boardState]
   )
 
   const onClickDelete = async (id: string) => {
+    if (!userState.user || boardState.error) return
+
     if (
       !window.confirm(
         '本当にボードを削除しても良いですか？ボードを再び開くことが出来なくなります'
@@ -61,6 +63,8 @@ export const ArchivedBoardModal: React.FC = () => {
   }
 
   const onClickRestore = (e: any, id: string, title: string) => {
+    if (!userState.user || boardState.error) return
+
     try {
       dispatch(restoreBoard({ id }))
       showSnackbar({
@@ -75,7 +79,10 @@ export const ArchivedBoardModal: React.FC = () => {
           if (backdrop) backdrop.click()
         })
     } catch ({ message }) {
-      showSnackbar({ message, type: 'error' })
+      showSnackbar({
+        message,
+        type: 'error'
+      })
     }
   }
 

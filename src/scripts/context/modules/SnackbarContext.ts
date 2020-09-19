@@ -1,8 +1,8 @@
 import { createContext, SyntheticEvent } from 'react'
 import { SnackbarCloseReason } from '@material-ui/core'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 
-type TSnackbarContext = {
+export type ContextType = {
   showSnackbar: ({ message, type }: I.SnackPack) => void
   closeSnackbar: (
     event: SyntheticEvent<any, Event>,
@@ -10,7 +10,7 @@ type TSnackbarContext = {
   ) => void
 }
 
-export const SnackbarContext = createContext<TSnackbarContext>({
-  showSnackbar: () => {},
-  closeSnackbar: () => {}
+export const Context = createContext<ContextType>({
+  showSnackbar: () => undefined,
+  closeSnackbar: () => undefined
 })

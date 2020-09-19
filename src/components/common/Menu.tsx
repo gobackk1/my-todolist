@@ -1,7 +1,8 @@
 import React from 'react'
 import { css } from '@emotion/core'
 import { useEventListener } from '@/scripts/hooks'
-import { OPTION } from '@/option'
+import * as T from '@/scripts/model/type'
+import { Paper } from '@material-ui/core'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
@@ -24,6 +25,15 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   useEventListener('click', onClickOffMenuList)
 
   /**
+   * 他のメニューが開いたら、このメニューを閉じる
+   */
+  const onMenuOpen = () => {
+    toggleMenu(false)
+  }
+  useEventListener('onMenuOpen', onMenuOpen)
+  useEventListener('onMenuArchived', onMenuOpen)
+
+  /**
    * render に渡ってきたボタンに props を付与する
    */
   const providingProps = {
@@ -36,12 +46,16 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   const toggleMenu = (status?: boolean) => {
     // NOTE: 省略した時は toggle
     if (typeof status === 'undefined') {
-      if (isOpen) window.dispatchEvent(new CustomEvent('onMenuClose'))
+      isOpen
+        ? dispatchEvent(new CustomEvent('onMenuClose'))
+        : dispatchEvent(new CustomEvent('onMenuOpen'))
       setIsOpen(!isOpen)
     }
 
     if (typeof status === 'boolean') {
-      if (!status) window.dispatchEvent(new CustomEvent('onMenuClose'))
+      status
+        ? dispatchEvent(new CustomEvent('onMenuOpen'))
+        : dispatchEvent(new CustomEvent('onMenuClose'))
       setIsOpen(status)
     }
   }
@@ -60,7 +74,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
           }}
           data-not-closed="true"
         >
-          {children}
+          <Paper elevation={5}>{children}</Paper>
         </div>
       </div>
     </div>
@@ -68,9 +82,9 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 }
 
 const styles = {
-  menu: css`
+  menu: (theme: T.GlobalTheme) => css`
     position: relative;
-    z-index: ${OPTION.ELEVATION.MENU};
+    z-index: ${theme.zIndex.menu};
   `,
   'menu-inner': css`
     position: absolute;

@@ -2,7 +2,7 @@ import React from 'react'
 import { css } from '@emotion/core'
 import { TextField } from '@material-ui/core'
 import { useSelector } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import * as I from '@/scripts/model/interface'
 import { Board } from '~redux/state/board/reducer'
 import { useEventListener } from '@/scripts/hooks'
 import { useForm } from 'react-hook-form'
@@ -14,22 +14,34 @@ type Props = {
 
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
+  //NOTE: inputRef はアンマウントしないので
+  /* eslint @typescript-eslint/no-non-null-assertion: off */
   const inputRef = React.useRef(null)
   const { reset } = useForm()
 
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.currentTarget
     value === ''
-      ? setState(state => ({ ...state, isSearching: false }))
-      : setState(state => ({ ...state, isSearching: true }))
+      ? setState(state => ({
+          ...state,
+          isSearching: false
+        }))
+      : setState(state => ({
+          ...state,
+          isSearching: true
+        }))
 
     const result = boardState.boards.filter(board =>
       RegExp(value).test(board.title)
     )
-    setState(state => ({ ...state, result, value }))
+    setState(state => ({
+      ...state,
+      result,
+      value
+    }))
   }
 
-  useEventListener('onMenuClose', (e: React.MouseEvent<HTMLElement>) => {
+  useEventListener('onMenuClose', () => {
     reset()
     /**
      * HACK: <TextField inputRef={register} /> だと、defaultValueを使っていても
@@ -38,7 +50,11 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
      */
     ;((inputRef.current! as HTMLInputElement).children[0]
       .firstElementChild! as HTMLInputElement).value = ''
-    setState({ isSearching: false, value: '', result: [] })
+    setState({
+      isSearching: false,
+      value: '',
+      result: []
+    })
   })
 
   return (

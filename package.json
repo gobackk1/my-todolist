@@ -5,7 +5,8 @@
   "scripts": {
     "test": "npx jest",
     "start": "npx webpack-dev-server --open --hot --mode development",
-    "build": "npx webpack --mode production"
+    "build": "npx webpack --mode production",
+    "deploy": "npx firebase deploy"
   },
   "repository": {
     "type": "git",
@@ -67,6 +68,7 @@
   },
   "dependencies": {
     "@emotion/core": "^10.0.35",
+    "emotion-theming": "^10.0.27",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-hook-form": "^6.8.2",
@@ -115,7 +117,11 @@
       "@/(.*)$": "<rootDir>/src/$1",
       "~redux(.*)$": "<rootDir>/src/scripts/redux/$1"
     },
-    "snapshotSerializers": ["enzyme-to-json/serializer"],
-    "setupFilesAfterEnv": ["<rootDir>/src/setupEnzyme.ts"]
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupEnzyme.ts"
+    ]
   }
 }

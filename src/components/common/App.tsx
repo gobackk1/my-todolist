@@ -12,11 +12,12 @@ import { OPTION } from '@/option'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from '~redux/store'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider as EmotionThemeProvider } from 'emotion-theming'
 import firebase from 'firebase'
 import 'firebase/firestore'
 import 'firebase/auth'
 
-const firebaseConfig = {
+firebase.initializeApp({
   apiKey: process.env.API_KEY,
   authDomain: process.env.AUTH_DOMAIN,
   databaseURL: process.env.DATABASE_URL,
@@ -24,9 +25,7 @@ const firebaseConfig = {
   storageBucket: process.env.STORAGE_BUCKET,
   messagingSenderId: process.env.MESSAGING_SENDER_ID,
   appId: process.env.APP_ID
-}
-
-firebase.initializeApp(firebaseConfig)
+})
 
 /**
  * Material-UI のグローバルに適用するスタイル
@@ -55,6 +54,25 @@ const theme = createMuiTheme({
 })
 
 /**
+ * Material-UI の Theme とマージする
+ */
+export type AppTheme = {
+  zIndex: {
+    [i: string]: number
+  }
+  borderRadius: (value: number) => number
+}
+const appTheme: AppTheme = {
+  zIndex: {
+    snackbar: 20,
+    appHeader: 10,
+    boardDrawer: 10,
+    menu: 5
+  },
+  borderRadius: (value: number) => value * 5
+}
+
+/**
  * このプロダクトのグローバルに適用するスタイル
  */
 export const globalStyle = css`
@@ -68,26 +86,28 @@ export const globalStyle = css`
  */
 export const App: React.FC = () => {
   return (
-    <MuiThemeProvider theme={theme}>
-      <Global styles={globalStyle} />
-      <BrowserRouter>
-        <ReduxProvider store={store}>
-          <Authentication>
-            <SnackbarProvider
-              autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
-              position={OPTION.SNACKBAR.POSITION}
-            >
-              <AppHeader />
-              <Switch>
-                <Route
-                  path={`${OPTION.PATH.BOARD}/:boardId?`}
-                  component={Board}
-                />
-              </Switch>
-            </SnackbarProvider>
-          </Authentication>
-        </ReduxProvider>
-      </BrowserRouter>
+    <MuiThemeProvider theme={{ ...theme, ...appTheme }}>
+      <EmotionThemeProvider theme={{ ...theme, ...appTheme }}>
+        <Global styles={globalStyle} />
+        <BrowserRouter>
+          <ReduxProvider store={store}>
+            <Authentication>
+              <SnackbarProvider
+                autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
+                position={OPTION.SNACKBAR.POSITION}
+              >
+                <AppHeader />
+                <Switch>
+                  <Route
+                    path={`${OPTION.PATH.BOARD}/:boardId?`}
+                    component={Board}
+                  />
+                </Switch>
+              </SnackbarProvider>
+            </Authentication>
+          </ReduxProvider>
+        </BrowserRouter>
+      </EmotionThemeProvider>
     </MuiThemeProvider>
   )
 }

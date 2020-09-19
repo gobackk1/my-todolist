@@ -6,8 +6,8 @@ import {
   BoardListSearchForm
 } from '@/components'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
-import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/interfaces'
+import { useSelector, useDispatch, useStore } from 'react-redux'
+import * as I from '@/scripts/model/interface'
 import { Link, useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { css } from '@emotion/core'
@@ -31,8 +31,11 @@ export const BoardListMenu: React.FC = () => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const history = useHistory()
+  const { user, board } = useStore().getState()
 
   const onClickCreate = async (title: string) => {
+    if (!user || board.error) return
+
     try {
       const { id }: any = await dispatch(createBoard({ title }))
       document.body.click()
@@ -100,6 +103,9 @@ export const BoardListMenu: React.FC = () => {
                         fullWidth={true}
                         variant="contained"
                         className={muiStyles['button-board']}
+                        onClick={() => {
+                          document.body.click()
+                        }}
                       >
                         {board.title}
                       </Button>
@@ -185,7 +191,6 @@ const styles = {
     color: #000;
     padding: 20px;
     width: 300px;
-    box-shadow: 2px 2px 13px 0px #6f6f6f;
   `,
   'menu-content-item': css`
     margin-bottom: 15px;
