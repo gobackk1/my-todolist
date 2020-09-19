@@ -104,14 +104,16 @@ export const AppHeader: React.FC = () => {
                   </Button>
                 )}
               >
-                <div css={styles['modal-title']}>{TEXT.BUTTON.LOGIN}</div>
-                <button
-                  onClick={onClick}
-                  type="button"
-                  id="btn-login-with-google"
-                >
-                  {TEXT.BUTTON.LOGIN_WITH_GOOGLE_AUTH}
-                </button>
+                <div id="modal-login">
+                  <div css={styles['modal-title']}>{TEXT.BUTTON.LOGIN}</div>
+                  <button
+                    onClick={onClick}
+                    type="button"
+                    id="btn-login-with-google"
+                  >
+                    {TEXT.BUTTON.LOGIN_WITH_GOOGLE_AUTH}
+                  </button>
+                </div>
               </Modal>
             ) : (
               <>
@@ -122,6 +124,7 @@ export const AppHeader: React.FC = () => {
                   src={userState.user.photoURL as string}
                   alt={userState.user.displayName as string}
                   width="40"
+                  id="img-user-photo"
                 />
               </>
             )}
