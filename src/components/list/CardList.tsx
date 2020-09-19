@@ -140,7 +140,7 @@ const BoardTitleButton = withStyles({
     backgroundColor: '#dedede'
   }
 })(Button)
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme: T.GlobalTheme) => ({
   root: {
     '& .MuiButton-root': {
       minWidth: 150,

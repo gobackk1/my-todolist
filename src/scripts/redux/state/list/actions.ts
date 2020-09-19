@@ -107,7 +107,7 @@ export const createList = asyncActionCreator<
   }
 })
 
-export const archiveList = asyncActionCreator<List, void, Error>(
+export const archiveList = asyncActionCreator<List, List | undefined, Error>(
   'ARCHIVE_LIST',
   async (list, dispatch) => {
     const { user }: UserState = store.getState().user
@@ -134,12 +134,12 @@ export const archiveList = asyncActionCreator<List, void, Error>(
           .add(archivedList),
         await documentReference.delete()
       ])
-
-      return
     } catch (e) {
       dispatch(moveToList(list))
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
+
+    return list
   }
 )
 

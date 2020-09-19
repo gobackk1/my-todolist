@@ -8,7 +8,9 @@ const mkdirp = require('mkdirp')
 
 module.exports = async function() {
   console.log(chalk.green('Setup Puppeteer'))
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({
+    headless: false
+  })
   global.__BROWSER__ = browser
 
   mkdirp.sync(DIR)

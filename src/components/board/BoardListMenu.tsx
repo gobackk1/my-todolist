@@ -33,7 +33,7 @@ export const BoardListMenu: React.FC = () => {
   const history = useHistory()
   const { user, board } = useStore().getState()
 
-  const onClickCreate = async (title: string) => {
+  const onClickCreate = async ({ title }: Pick<Board, 'title'>) => {
     if (!user || board.error) return
 
     try {
@@ -75,7 +75,7 @@ export const BoardListMenu: React.FC = () => {
         {/* NOTE: サーバーからも検索するのであればここに表示 */}
         <Button
           onClick={() => {
-            onClickCreate(state.value)
+            onClickCreate({ title: state.value })
           }}
           className={muiStyles['create-board-button']}
         >

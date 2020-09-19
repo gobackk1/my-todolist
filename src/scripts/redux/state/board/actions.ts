@@ -9,33 +9,33 @@ import firebase from 'firebase'
  * サーバーからボードを取得する
  * state.boards をクリアしてから、新しく取得したボードを state.boards 割り当てる
  */
-export const fetchBoards = asyncActionCreator<void, Board[], Error>(
+export const fetchBoards = asyncActionCreator<any, Board[], Error>(
   'FETCH_BOARDS',
   async () => {
     const { user }: UserState = store.getState().user
-    const boards: Board[] = []
+    const boards: Board[] = [] as Board[]
 
     if (user && user.uid) {
-      try {
-        const snapshot = await firebase
-          .firestore()
-          .collection(`users/${user.uid}/boards`)
-          .get()
+      // try {
+      const snapshot = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/boards`)
+        .get()
 
-        snapshot.forEach(doc => {
-          const { id } = doc
-          const { title } = doc.data()
+      snapshot.forEach(doc => {
+        const { id } = doc
+        const { title } = doc.data()
 
-          boards.push({ id, title, list: [] })
-        })
-      } catch (e) {
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-
-      return boards
+        boards.push({ id, title })
+      })
+      // } catch (e) {
+      //   throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+      // }
     } else {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
+
+    return boards
   }
 )
 
@@ -44,7 +44,7 @@ export const fetchBoards = asyncActionCreator<void, Board[], Error>(
  */
 export const createBoard = asyncActionCreator<
   Pick<Board, 'title'>,
-  Pick<Board, 'title' | 'id' | 'list'>,
+  Pick<Board, 'title' | 'id'>,
   Error
 >('CREATE_BOARD', async ({ title }) => {
   const { user }: UserState = store.getState().user
@@ -56,7 +56,7 @@ export const createBoard = asyncActionCreator<
         .collection(`users/${user.uid}/boards`)
         .add({ title })
 
-      return { title, id, list: [] }
+      return { title, id }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
@@ -68,30 +68,29 @@ export const createBoard = asyncActionCreator<
 /**
  * ボードをアップデートする
  */
-export const updateBoard = asyncActionCreator<
-  Pick<Board, 'title' | 'id'>,
-  Pick<Board, 'title' | 'id'>,
-  Error
->('UPDATE_BOARD', async ({ id, title }) => {
-  const { user }: UserState = store.getState().user
+export const updateBoard = asyncActionCreator<Board, Board, Error>(
+  'UPDATE_BOARD',
+  async ({ id, title }) => {
+    const { user }: UserState = store.getState().user
 
-  if (user && user.uid) {
-    try {
-      const documentReference: any = await firebase
-        .firestore()
-        .collection(`users/${user.uid}/boards`)
-        .doc(id)
+    if (user && user.uid) {
+      try {
+        const documentReference: any = await firebase
+          .firestore()
+          .collection(`users/${user.uid}/boards`)
+          .doc(id)
 
-      documentReference.set({ title }, { merge: true })
-      //リストは board.data().list で
-      return { id, title }
-    } catch (e) {
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+        documentReference.set({ title }, { merge: true })
+        //リストは board.data().list で
+        return { id, title }
+      } catch (e) {
+        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+      }
+    } else {
+      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
-  } else {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
   }
-})
+)
 
 /**
  * ボードを削除する
@@ -236,7 +235,7 @@ export const fetchArchivedBoards = asyncActionCreator<void, Board[], Error>(
         snapshot.forEach(doc => {
           const { id } = doc
           const { title } = doc.data()
-          boards.push({ id, title, list: [] })
+          boards.push({ id, title })
         })
       } catch (e) {
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)

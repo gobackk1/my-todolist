@@ -9,8 +9,34 @@ import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
+import * as T from '@/scripts/model/type'
 
-const provider = new firebase.auth.GoogleAuthProvider()
+export const TEXT = {
+  BUTTON: {
+    LOGIN: 'ログイン',
+    LOGIN_WITH_GOOGLE_AUTH: 'Google アカウントでログイン',
+    LOGOUT: 'ログアウト'
+  }
+} as const
+
+const useStyles = makeStyles((theme: T.GlobalTheme) => ({
+  root: {
+    position: 'relative',
+    zIndex: theme.zIndex.appHeader
+  }
+}))
+
+const styles = {
+  h1: css`
+    flex-grow: 1;
+    text-align: center;
+  `,
+  'modal-title': css`
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  `
+}
 
 export const AppHeader: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
@@ -22,13 +48,15 @@ export const AppHeader: React.FC = () => {
   const onClick = useCallback(async () => {
     dispatch(setLoggingIn(true))
     try {
-      await firebase.auth().signInWithPopup(provider)
+      await firebase
+        .auth()
+        .signInWithPopup(new firebase.auth.GoogleAuthProvider())
       showSnackbar({
         message: OPTION.MESSAGE.LOGIN.SUCCESS,
         type: 'success'
       })
       dispatch(setLoggingIn(false))
-      history.push('/boards')
+      history.push(OPTION.PATH.BOARD)
     } catch (e) {
       showSnackbar({
         message: OPTION.MESSAGE.LOGIN.ERROR,
@@ -71,20 +99,20 @@ export const AppHeader: React.FC = () => {
             {userState.user === null ? (
               <Modal
                 render={props => (
-                  <Button color="inherit" {...props}>
-                    ログイン
+                  <Button color="inherit" {...props} id="btn-login">
+                    {TEXT.BUTTON.LOGIN}
                   </Button>
                 )}
               >
-                <div css={styles['modal-title']}>ログイン</div>
-                <button onClick={onClick} type="button" id="btn-login">
-                  Google アカウントでログイン
+                <div css={styles['modal-title']}>{TEXT.BUTTON.LOGIN}</div>
+                <button onClick={onClick} type="button">
+                  {TEXT.BUTTON.LOGIN_WITH_GOOGLE_AUTH}
                 </button>
               </Modal>
             ) : (
               <>
                 <Button color="inherit" onClick={onClickLogout}>
-                  Logout
+                  {TEXT.BUTTON.LOGOUT}
                 </Button>
                 <img
                   src={userState.user.photoURL as string}
@@ -98,23 +126,4 @@ export const AppHeader: React.FC = () => {
       </Toolbar>
     </AppBar>
   )
-}
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    position: 'relative',
-    zIndex: theme.zIndex.appHeader
-  }
-}))
-
-const styles = {
-  h1: css`
-    flex-grow: 1;
-    text-align: center;
-  `,
-  'modal-title': css`
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
-  `
 }

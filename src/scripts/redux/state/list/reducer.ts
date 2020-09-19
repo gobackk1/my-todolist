@@ -68,7 +68,7 @@ export const listReducer = reducerWithInitialState(initialState)
       restoreList.async.failed,
       updateList.async.failed
     ],
-    (state, { error }) => {
+    (state, { error }: any) => {
       return { ...state, isLoading: false, error }
     }
   )
@@ -76,7 +76,7 @@ export const listReducer = reducerWithInitialState(initialState)
     const { boardId } = params
 
     if (!(boardId in state.boards)) {
-      state.boards[params.boardId] = { lists: [] }
+      state.boards[params.boardId] = { lists: [], archivedLists: [] }
     }
 
     const lists = state.boards[params.boardId].lists

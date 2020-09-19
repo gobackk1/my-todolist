@@ -15,11 +15,14 @@
     "noEmit": true,
     "jsx": "react",
     "baseUrl": "./",
+    "noImplicitAny": false,
     "paths": {
       "@/*": ["src/*"],
       "~redux/*": ["src/scripts/redux/*"]
     },
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "typeRoots": ["types"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }
