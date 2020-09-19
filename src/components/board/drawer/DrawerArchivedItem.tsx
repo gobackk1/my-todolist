@@ -14,7 +14,6 @@ export const DrawerArchivedItem: React.FC<{
   open: boolean
   setOpen: React.Dispatch<any>
 }> = ({ open, setOpen }) => {
-  console.log(setOpen)
   const { boardId } = useParams<I.UrlParams>()
   const { user, list: listState } = useStore().getState()
   const dispatch = useDispatch()
@@ -47,6 +46,12 @@ export const DrawerArchivedItem: React.FC<{
 
   const onClickDelete = async (id: string): Promise<void> => {
     if (!user || listState.error) return
+    if (
+      !confirm(
+        '本当にリストを削除しても良いですか？リストを再び開くことが出来なくなります'
+      )
+    )
+      return
 
     try {
       await dispatch(deleteList({ boardId, id }))
