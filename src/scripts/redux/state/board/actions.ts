@@ -16,21 +16,21 @@ export const fetchBoards = asyncActionCreator<any, Board[], Error>(
     const boards: Board[] = [] as Board[]
 
     if (user && user.uid) {
-      // try {
-      const snapshot = await firebase
-        .firestore()
-        .collection(`users/${user.uid}/boards`)
-        .get()
+      try {
+        const snapshot = await firebase
+          .firestore()
+          .collection(`users/${user.uid}/boards`)
+          .get()
 
-      snapshot.forEach(doc => {
-        const { id } = doc
-        const { title } = doc.data()
+        snapshot.forEach(doc => {
+          const { id } = doc
+          const { title } = doc.data()
 
-        boards.push({ id, title })
-      })
-      // } catch (e) {
-      //   throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      // }
+          boards.push({ id, title })
+        })
+      } catch (e) {
+        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+      }
     } else {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }

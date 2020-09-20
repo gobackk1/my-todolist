@@ -23,11 +23,12 @@ export const Board: React.FC = () => {
   const { boardId } = useParams<I.UrlParams>()
 
   React.useEffect(() => {
-    if (userState.user && userState.user.uid && !listState.error) {
+    if (userState.user && userState.user.uid && !listState.error && boardId) {
       ;(async () => {
         try {
           await dispatch(fetchList({ boardId }))
         } catch ({ message }) {
+          console.log('check')
           showSnackbar({ message, type: 'error' })
         }
       })()
@@ -38,7 +39,7 @@ export const Board: React.FC = () => {
      * showSnackbar を配列に加えない
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [userState, dispatch, boardId, listState.error])
+  }, [userState, dispatch, boardId, listState.error, boardId])
 
   /**
    * ユーザーがログインしていたら、ボード一覧を取得

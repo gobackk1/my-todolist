@@ -1,4 +1,5 @@
 import { TEXT } from '@/components/common/AppHeader'
+import { OPTION } from '@/option'
 import {
   test,
   describe,
@@ -24,7 +25,8 @@ const selector = {
   passwordInput: 'form section input[type="password"]',
   modalLogin: '#modal-login',
   imgUserPhoto: '#img-user-photo',
-  menuBoardList: '#menu-board-list'
+  menuBoardList: '#menu-board-list',
+  snackbarRoot: '.MuiSnackbar-root'
 }
 
 const localhost = 'http://localhost:8080'
@@ -72,9 +74,9 @@ describe('E2Eテスト', () => {
       expect(modalVisibility).toBe('hidden')
     })
 
-    test.skip('ログインボタンを押すと、モーダルが開くこと', async () => {
-      // NOTE: ログインのテストで担保
-    })
+    // test.skip('ログインボタンを押すと、モーダルが開くこと', async () => {
+    //   NOTE: ログインのテストで担保
+    // })
 
     test('モーダルの閉じるボタンを押すと、モーダルが閉じること', async () => {
       await page.click(selector.buttonLogin)
@@ -112,16 +114,20 @@ describe('E2Eテスト', () => {
   })
 
   describe('ログインのテスト', () => {
-    test('ログイン成功時、ログイン後画面のログアウトボタンが表示されること', async () => {
+    test.only('ログイン可能かつログイン後のフィードバックが正しいこと', async () => {
       await page.click(selector.buttonLogin)
-      await page.waitForSelector(selector.buttonLoginWithGoogle)
+      const buttonLoginWithGoogle = await page.waitForSelector(
+        selector.buttonLoginWithGoogle
+      )
+
       // signInWithPopup によってログイン用ページが開く
       const [newPage] = await Promise.all([
         (global as any).__BROWSER__
           .waitForTarget(t => t.opener() === page.target())
           .then(t => t.page()),
-        await page.click(selector.buttonLoginWithGoogle)
+        await buttonLoginWithGoogle.click()
       ])
+
       // アドレス入力
       await (newPage as any).waitForSelector(selector.addressInput)
       await (newPage as any).type(selector.addressInput, GOOGLE_ADDRESS, {
@@ -131,6 +137,7 @@ describe('E2Eテスト', () => {
         "//button[contains(.,'次へ')]"
       )
       if (button1) await button1.click()
+
       // パスワード入力
       await (newPage as any).waitForSelector(selector.passwordInput, {
         visible: true
@@ -142,39 +149,40 @@ describe('E2Eテスト', () => {
         "//button[contains(.,'次へ')]"
       )
       if (button2) await button2.click()
+
       // web アプリがログイン後の画面へ遷移する
-      await page.waitForSelector(selector.buttonLogout)
+      const snackbar = await page.waitForSelector(selector.snackbarRoot)
+      const snackbarText = await snackbar.evaluate(node => {
+        return node.innerText
+      })
+
       const buttonLogout = await page.$(
         selector.buttonLogout + ' span:first-child'
       )
       const buttonText = await (
         await buttonLogout.getProperty('textContent')
       ).jsonValue()
-      expect(buttonText).toContain(TEXT.BUTTON.LOGOUT)
-    })
 
-    test('ログイン後、ユーザーのプロフィール画像がヘッダーに表示されていること', async () => {
       const imageSrc = await page.evaluate(selector => {
         const img = document.querySelector(selector.imgUserPhoto)
         return img.src
       }, selector)
 
+      expect(buttonLoginWithGoogle).not.toBe(null)
+      expect(buttonText).toContain(TEXT.BUTTON.LOGOUT)
+      expect(snackbarText).toBe(OPTION.MESSAGE.LOGIN.SUCCESS)
       expect(imageSrc).toContain('https://')
-    })
-
-    test('ログイン後、{TODO}へ遷移していること', () => {
-      //TODO
-    })
-    test('ログイン後、ログインしたフィードバックが出ること', () => {
-      //TODO
+      expect(page.url()).toContain(OPTION.PATH.BOARD)
     })
   })
 
   describe('ログイン状態でボードやリストを操作するテスト', () => {
-    //TODO
+    //TODO ここは別ファイルへ切り出しかも
   })
 
   describe('ログアウトのテスト', () => {
-    //TODO
+    test('ログアウトしたフィードバックが表示されること', async () => {
+      //TODO
+    })
   })
 })
