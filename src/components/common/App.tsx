@@ -2,6 +2,7 @@ import React from 'react'
 import {
   AppHeader,
   Board,
+  HOME,
   SnackbarProvider,
   Authentication
 } from '@/components'
@@ -102,6 +103,7 @@ export const App: React.FC = () => {
                     path={`${OPTION.PATH.BOARD}/:boardId?`}
                     component={Board}
                   />
+                  <Route path="/" component={HOME} />
                 </Switch>
               </SnackbarProvider>
             </Authentication>
