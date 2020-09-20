@@ -71,7 +71,7 @@ export const Board: React.FC = () => {
   }
 
   return (
-    <div css={styles['root']}>
+    <div css={styles['root']} id="board">
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
         <>

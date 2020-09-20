@@ -9,55 +9,38 @@ import {
   beforeEach,
   jest
 } from '@jest/globals'
-
-/**
- * TODOで検索すると積みタスクがわかる
- */
+import { selector, localhost } from './util/testOption'
+import loginToGoogle from './util/loginToGoogle'
 
 require('dotenv').config()
 
-const selector = {
-  buttonLogin: '#btn-login',
-  buttonLoginWithGoogle: '#btn-login-with-google',
-  buttonLogout: '#btn-logout',
-  buttonModalClose: '.btn-modal-close',
-  addressInput: 'form section input[type="email"]',
-  passwordInput: 'form section input[type="password"]',
-  modalLogin: '#modal-login',
-  imgUserPhoto: '#img-user-photo',
-  menuBoardList: '#menu-board-list',
-  snackbarRoot: '.MuiSnackbar-root'
-}
+export const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
 
-const localhost = 'http://localhost:8080'
-
-const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
-
-// TODO 今後 board.e2e.ts / list.e2e.ts / auth.e2e.ts 等に分割する
 describe('E2Eテスト', () => {
   let page: any
-  let buttonLogin
-
   beforeAll(async () => {
     page = await (global as any).__BROWSER__.newPage()
-    await page.setViewport({ width: 1440, height: 900 })
-    await page.goto(localhost, {
-      waitUntil: 'networkidle2'
+    await page.setViewport({
+      width: 1440,
+      height: 900
     })
-    await page.waitForSelector('h1')
-    buttonLogin = await page.$(selector.buttonLogin + ' span:first-child')
+    await page.goto(localhost)
+    await page.waitForNavigation()
   })
 
   beforeEach(() => {
-    jest.setTimeout(30000)
+    jest.setTimeout(60000)
   })
 
   afterAll(async () => {
     await page.close()
   })
 
-  describe('ログイン前のテスト', () => {
+  describe('ログインのテスト', () => {
     test('TOPページアクセス時、ログインボタンが表示されること', async () => {
+      const buttonLogin = await page.$(
+        selector.buttonLogin + ' span:first-child'
+      )
       const buttonText = await (
         await buttonLogin.getProperty('textContent')
       ).jsonValue()
@@ -111,44 +94,9 @@ describe('E2Eテスト', () => {
       const menuButton = await page.$(selector.menuBoardList)
       expect(menuButton).toBe(null)
     })
-  })
 
-  describe('ログインのテスト', () => {
-    test.only('ログイン可能かつログイン後のフィードバックが正しいこと', async () => {
-      await page.click(selector.buttonLogin)
-      const buttonLoginWithGoogle = await page.waitForSelector(
-        selector.buttonLoginWithGoogle
-      )
-
-      // signInWithPopup によってログイン用ページが開く
-      const [newPage] = await Promise.all([
-        (global as any).__BROWSER__
-          .waitForTarget(t => t.opener() === page.target())
-          .then(t => t.page()),
-        await buttonLoginWithGoogle.click()
-      ])
-
-      // アドレス入力
-      await (newPage as any).waitForSelector(selector.addressInput)
-      await (newPage as any).type(selector.addressInput, GOOGLE_ADDRESS, {
-        delay: 0
-      })
-      const [button1] = await (newPage as any).$x(
-        "//button[contains(.,'次へ')]"
-      )
-      if (button1) await button1.click()
-
-      // パスワード入力
-      await (newPage as any).waitForSelector(selector.passwordInput, {
-        visible: true
-      })
-      await (newPage as any).type(selector.passwordInput, GOOGLE_PASSWORD, {
-        delay: 0
-      })
-      const [button2] = await (newPage as any).$x(
-        "//button[contains(.,'次へ')]"
-      )
-      if (button2) await button2.click()
+    test('ログイン可能かつログイン後のフィードバックが正しいこと', async () => {
+      await loginToGoogle(page)
 
       // web アプリがログイン後の画面へ遷移する
       const snackbar = await page.waitForSelector(selector.snackbarRoot)
@@ -168,7 +116,6 @@ describe('E2Eテスト', () => {
         return img.src
       }, selector)
 
-      expect(buttonLoginWithGoogle).not.toBe(null)
       expect(buttonText).toContain(TEXT.BUTTON.LOGOUT)
       expect(snackbarText).toBe(OPTION.MESSAGE.LOGIN.SUCCESS)
       expect(imageSrc).toContain('https://')
@@ -176,13 +123,16 @@ describe('E2Eテスト', () => {
     })
   })
 
-  describe('ログイン状態でボードやリストを操作するテスト', () => {
-    //TODO ここは別ファイルへ切り出しかも
-  })
-
-  describe('ログアウトのテスト', () => {
-    test('ログアウトしたフィードバックが表示されること', async () => {
-      //TODO
+  describe('ボード操作のテスト', () => {
+    test('ボードのテキストのテスト', async () => {
+      // await loginToGoogle(page)
+      // await page.waitForNavigation({ waitUntil: 'load' })
+      await page.waitForSelector(selector.board)
+      const html = await page.evaluate(selector => {
+        const el = document.querySelector(selector.board)
+        return el
+      }, selector)
+      console.log(html)
     })
   })
 })

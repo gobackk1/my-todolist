@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test:unit": "npx jest -c ./test/unit/jest.config.json --runInBand --detectOpenHandles",
-    "test:e2e": "npx jest -c ./test/e2e/jest.config.json",
+    "test:e2e": "npx jest -c ./test/e2e/jest.config.json --runInBand --detectOpenHandles",
     "start": "tsc && npx webpack-dev-server --open --hot --mode development",
     "build": "tsc && npx webpack --mode production",
     "deploy": "npx firebase deploy"
