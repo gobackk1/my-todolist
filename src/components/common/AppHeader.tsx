@@ -88,7 +88,7 @@ export const AppHeader: React.FC = () => {
   return (
     <AppBar position="static" className={muiStyles['root']}>
       <Toolbar>
-        <BoardListMenu />
+        {userState.user && <BoardListMenu />}
         {/* <IconButton edge="start" color="inherit" aria-label="menu">
           <MenuIcon />
         </IconButton> */}
