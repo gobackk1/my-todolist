@@ -17,9 +17,9 @@ export const CreateBoardModal: React.FC = () => {
     register,
     handleSubmit,
     errors,
-    formState: { isDirty, isSubmitting },
+    formState: { isDirty, isSubmitting, isValid },
     reset
-  } = useForm()
+  } = useForm({ mode: 'onChange' })
   const history = useHistory()
   const { user, board } = useStore().getState()
 
@@ -31,6 +31,7 @@ export const CreateBoardModal: React.FC = () => {
         onClick={() => {
           props.onClick()
         }}
+        id="btn-create-board"
       >
         新しいボードを作成
       </Button>
@@ -61,6 +62,7 @@ export const CreateBoardModal: React.FC = () => {
         onSubmit={handleSubmit(onSubmit)}
         className={styles.root}
         autoComplete="off"
+        id="form-create-board"
       >
         <TextField
           error={!!errors.title}
@@ -86,7 +88,7 @@ export const CreateBoardModal: React.FC = () => {
         <Button
           type="submit"
           variant="outlined"
-          disabled={!isDirty || isSubmitting}
+          disabled={!isDirty || isSubmitting || !isValid}
         >
           ボードを作成
         </Button>
