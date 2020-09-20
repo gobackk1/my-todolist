@@ -63,7 +63,7 @@ export const Board: React.FC = () => {
      * showSnackbar を配列に加えない
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [dispatch, userState, boardState.error])
+  }, [dispatch, userState.user, boardState.error])
 
   const onClick = () => {
     if (!userState.user || listState.error) return
