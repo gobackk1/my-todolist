@@ -32,41 +32,52 @@ export const CardList: React.FC<Props> = ({ list }) => {
     }
   }
 
-  const updateTitle = async (
-    e: React.FocusEvent<any> | React.KeyboardEvent<any>,
-    setEditing: React.Dispatch<any>
-  ) => {
-    if (!user || listState.error) return
+  const updateTitle = React.useCallback(
+    async (
+      e: React.FocusEvent<any> | React.KeyboardEvent<any>,
+      setEditing: React.Dispatch<any>
+    ) => {
+      if (!user || listState.error) return
 
-    const title = e.currentTarget.value
-    setEditing(false)
+      const title = e.currentTarget.value
+      setEditing(false)
 
-    if (title === list.title) return
+      if (title === list.title) return
 
-    if (title.length > 50) {
-      // TODO: リストタイトルのバリデーション
-      // showSnackbar({
-      //   message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR,
-      //   type: 'error'
-      // })
-      // return
-    } else if (!title.length) {
-      showSnackbar({
-        message: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
-        type: 'error'
-      })
-      return
-    }
+      if (title.length > 50) {
+        // TODO: リストタイトルのバリデーション
+        // showSnackbar({
+        //   message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR,
+        //   type: 'error'
+        // })
+        // return
+      } else if (!title.length) {
+        showSnackbar({
+          message: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
+          type: 'error'
+        })
+        return
+      }
 
-    try {
-      await dispatch(updateList({ title, id: list.id, boardId }))
-    } catch (e) {
-      showSnackbar({
-        message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
-        type: 'error'
-      })
-    }
-  }
+      try {
+        await dispatch(updateList({ title, id: list.id, boardId }))
+      } catch (e) {
+        showSnackbar({
+          message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+          type: 'error'
+        })
+      }
+    },
+    [
+      boardId,
+      dispatch,
+      list.id,
+      list.title,
+      listState.error,
+      showSnackbar,
+      user
+    ]
+  )
 
   return (
     <Paper elevation={1} className={muiStyles['paper']}>
