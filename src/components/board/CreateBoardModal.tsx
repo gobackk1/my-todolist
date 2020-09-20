@@ -11,8 +11,7 @@ import { useHistory } from 'react-router-dom'
 export const CreateBoardModal: React.FC = () => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
-
-  const styles = useStyles()
+  const muiStyles = useStyles()
   const {
     register,
     handleSubmit,
@@ -27,7 +26,7 @@ export const CreateBoardModal: React.FC = () => {
     props => (
       <Button
         {...props}
-        className={styles.buttonCreate}
+        className={muiStyles.buttonCreate}
         onClick={() => {
           props.onClick()
         }}
@@ -36,7 +35,7 @@ export const CreateBoardModal: React.FC = () => {
         新しいボードを作成
       </Button>
     ),
-    [styles.buttonCreate]
+    [muiStyles.buttonCreate]
   )
 
   const onSubmit: SubmitHandler<FormValue> = async ({ title }, e: any) => {
@@ -57,10 +56,10 @@ export const CreateBoardModal: React.FC = () => {
   }
 
   return (
-    <Modal render={renderButton}>
+    <Modal render={renderButton} className={muiStyles['modal']}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className={styles.root}
+        className={muiStyles.root}
         autoComplete="off"
         id="form-create-board"
       >
@@ -108,6 +107,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     '& .MuiButton-label': {
       textDecoration: 'underline'
     }
+  },
+  modal: {
+    zIndex: theme.zIndex.modal
   }
 }))
 

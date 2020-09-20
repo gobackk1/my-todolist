@@ -24,15 +24,18 @@ export const Board: React.FC = () => {
   const { boardId } = useParams<I.UrlParams>()
 
   React.useEffect(() => {
-    if (!(userState.user && !listState.error && boardId && !boardState.error))
-      return
+    if (!(userState.user && !listState.error && !boardState.error)) return
 
     const fetchData = async () => {
       try {
-        await Promise.all([
-          await dispatch(fetchList({ boardId })),
+        if (boardId) {
+          await Promise.all([
+            await dispatch(fetchList({ boardId })),
+            await dispatch(fetchBoards())
+          ])
+        } else {
           await dispatch(fetchBoards())
-        ])
+        }
       } catch ({ message }) {
         showSnackbar({ message, type: 'error' })
       }

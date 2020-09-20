@@ -13,7 +13,11 @@ export const selector = {
   snackbarRoot: '.MuiSnackbar-root',
   board: '#board',
   formCreateBoard: '#form-create-board',
-  boardTitle: '#board-title'
+  boardTitle: '#board-title',
+  buttonOpenBoardMenu: '#btn-open-board-menu',
+  buttonArchiveBoard: '#btn-archive-board',
+  drawer: '#drawer .MuiDrawer-paper',
+  listBoardMenu: '#list-board-menu'
 }
 
 export const localhost = 'http://localhost:8080'

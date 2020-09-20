@@ -29,7 +29,7 @@ describe('E2Eテスト', () => {
   })
 
   beforeEach(() => {
-    jest.setTimeout(60000)
+    jest.setTimeout(10000)
   })
 
   afterAll(async () => {
@@ -137,6 +137,7 @@ describe('E2Eテスト', () => {
     describe('ボード作成のテスト', () => {
       test('新しいボードが作成できること', async () => {
         const newBoardTitle = 'new board'
+
         const buttonHandle = await page.$(selector.buttonMenuOpen)
         await buttonHandle.click()
         await page.waitForSelector(selector.menuBoardList, { visible: true })
@@ -155,7 +156,7 @@ describe('E2Eテスト', () => {
           const boardTitle = document.querySelector(
             selector.boardTitle + ' button span:first-child'
           )
-          return boardTitle.textContent
+          return boardTitle!.textContent
         }, selector)
 
         expect(boardTitle).toBe(newBoardTitle)
@@ -164,7 +165,7 @@ describe('E2Eテスト', () => {
         )
       })
 
-      test('ボードタイトルが、空白または51字以上の時に、ボードが作成できないこと', async () => {
+      test.skip('ボードタイトルが、空白または51字以上の時に、ボードが作成できないこと', async () => {
         const invalidTitle1 = ''
         const invalidTitle2 = 'a'.repeat(51)
 
@@ -174,7 +175,7 @@ describe('E2Eテスト', () => {
           visible: true
         })
 
-        page.click(selector.buttonCreateBoard)
+        await page.click(selector.buttonCreateBoard)
         await page.waitForSelector(selector.formCreateBoard, {
           visible: true
         })
@@ -194,7 +195,6 @@ describe('E2Eテスト', () => {
           `${selector.formCreateBoard} input[name="title"]`,
           invalidTitle2
         )
-        // 51文字の時どうなる？
         const submitDisabled2 = await page.evaluate(selector => {
           const submit = document.querySelector(
             `${selector.formCreateBoard} button[type="submit"]`
@@ -202,18 +202,57 @@ describe('E2Eテスト', () => {
           return (submit as HTMLButtonElement).disabled
         }, selector)
 
+        await page.reload()
+        await page.waitForNavigation()
+
         expect(submitDisabled1).toBe(true)
-        expect(submitDisabled2).toBe(false) // まずは落ちるテスト
+        expect(submitDisabled2).toBe(true)
+      })
+
+      test('ボードがアーカイブできること', async () => {
+        await page.click(selector.buttonMenuOpen)
+        await page.waitForSelector(selector.menuBoardList, { visible: true })
+
+        const beforeBoardLength = (await page.$$('#list-board-menu li')).length
+        await page.click(selector.buttonOpenBoardMenu)
+
+        page.on('dialog', dialog => {
+          // console.log(dialog, 'dialog')
+          dialog.accept()
+        })
+        const buttonArchive = await page.waitForSelector(
+          selector.buttonArchiveBoard,
+          {
+            visible: true
+          }
+        )
+        await buttonArchive.click()
+
+        // NOTE: ドロワーはアニメーションして閉じる&APIのレスポンス待ちなので
+        await page.waitFor(5000)
+
+        const drawerVisibility = await page.evaluate(
+          el => document.querySelector(el).style.visibility,
+          '#drawer .MuiDrawer-paper'
+        )
+
+        await page.click(selector.buttonMenuOpen)
+        await page.waitForSelector(selector.menuBoardList, {
+          visible: true
+        })
+
+        const afterBoardLength = (await page.$$('#list-board-menu li')).length
+
+        expect(drawerVisibility).toBe('hidden')
+        expect(page.url()).toBe(localhost + OPTION.PATH.BOARD)
+        expect(beforeBoardLength - afterBoardLength).toBe(1)
       })
     })
 
     describe('ボードアーカイブのテスト', () => {
-      test('ボードがアーカイブできること', () => {
-        //
-      })
-
       test('アーカイブしたボードを戻せること', () => {
         //
+        // アーカイブのボードに追加されていること
       })
     })
 
@@ -227,6 +266,10 @@ describe('E2Eテスト', () => {
       test('アーカイブしたボードを削除できること', () => {
         //
       })
+    })
+
+    describe('ボード検索のテスト', () => {
+      //
     })
   })
 })
