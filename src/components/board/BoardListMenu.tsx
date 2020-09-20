@@ -130,6 +130,7 @@ export const BoardListMenu: React.FC = () => {
           color="inherit"
           variant="contained"
           className={muiStyles['button-open']}
+          id="button-menu-open"
         >
           ボード一覧
         </Button>

@@ -124,15 +124,109 @@ describe('E2Eテスト', () => {
   })
 
   describe('ボード操作のテスト', () => {
-    test('ボードのテキストのテスト', async () => {
-      // await loginToGoogle(page)
-      // await page.waitForNavigation({ waitUntil: 'load' })
+    test('ボードの数が０の時、ボードが存在しないフィードバックすること。', async () => {
+      // 決まったらテストかく
       await page.waitForSelector(selector.board)
       const html = await page.evaluate(selector => {
         const el = document.querySelector(selector.board)
-        return el
+        return el.textContent
       }, selector)
       console.log(html)
+    })
+
+    describe('ボード作成のテスト', () => {
+      test('新しいボードが作成できること', async () => {
+        const newBoardTitle = 'new board'
+        const buttonHandle = await page.$(selector.buttonMenuOpen)
+        await buttonHandle.click()
+        await page.waitForSelector(selector.menuBoardList, { visible: true })
+
+        page.click(selector.buttonCreateBoard)
+        await page.waitForSelector(selector.formCreateBoard, { visible: true })
+
+        await page.type(
+          `${selector.formCreateBoard} input[name="title"]`,
+          newBoardTitle
+        )
+        await page.click(`${selector.formCreateBoard} button[type="submit"]`)
+        await page.waitForNavigation()
+
+        const boardTitle = await page.evaluate(selector => {
+          const boardTitle = document.querySelector(
+            selector.boardTitle + ' button span:first-child'
+          )
+          return boardTitle.textContent
+        }, selector)
+
+        expect(boardTitle).toBe(newBoardTitle)
+        expect(page.url()).toMatch(
+          RegExp(localhost + OPTION.PATH.BOARD + '/.*')
+        )
+      })
+
+      test('ボードタイトルが、空白または51字以上の時に、ボードが作成できないこと', async () => {
+        const invalidTitle1 = ''
+        const invalidTitle2 = 'a'.repeat(51)
+
+        const buttonHandle = await page.$(selector.buttonMenuOpen)
+        await buttonHandle.click()
+        await page.waitForSelector(selector.menuBoardList, {
+          visible: true
+        })
+
+        page.click(selector.buttonCreateBoard)
+        await page.waitForSelector(selector.formCreateBoard, {
+          visible: true
+        })
+
+        await page.type(
+          `${selector.formCreateBoard} input[name="title"]`,
+          invalidTitle1
+        )
+        const submitDisabled1 = await page.evaluate(selector => {
+          const submit = document.querySelector(
+            `${selector.formCreateBoard} button[type="submit"]`
+          )
+          return (submit as HTMLButtonElement).disabled
+        }, selector)
+
+        await page.type(
+          `${selector.formCreateBoard} input[name="title"]`,
+          invalidTitle2
+        )
+        // 51文字の時どうなる？
+        const submitDisabled2 = await page.evaluate(selector => {
+          const submit = document.querySelector(
+            `${selector.formCreateBoard} button[type="submit"]`
+          )
+          return (submit as HTMLButtonElement).disabled
+        }, selector)
+
+        expect(submitDisabled1).toBe(true)
+        expect(submitDisabled2).toBe(false) // まずは落ちるテスト
+      })
+    })
+
+    describe('ボードアーカイブのテスト', () => {
+      test('ボードがアーカイブできること', () => {
+        //
+      })
+
+      test('アーカイブしたボードを戻せること', () => {
+        //
+      })
+    })
+
+    describe('ボード更新のテスト', () => {
+      test('ボードタイトルが更新できること', () => {
+        //
+      })
+    })
+
+    describe('ボード削除のテスト', () => {
+      test('アーカイブしたボードを削除できること', () => {
+        //
+      })
     })
   })
 })

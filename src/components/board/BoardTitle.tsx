@@ -70,7 +70,7 @@ export const BoardTitle: React.FC = () => {
   }, [boardId, boardState, setCurrentBoard])
 
   return (
-    <div className="js-title-area">
+    <div className="js-title-area" id="board-title">
       {currentBoard ? (
         <ChangeableTitle
           title={currentBoard.title}
