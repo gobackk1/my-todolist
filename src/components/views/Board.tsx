@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Route } from 'react-router-dom'
 import { fetchBoards } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
@@ -10,6 +10,7 @@ import { BoardTitle, BoardDrawer } from '@/components'
 import { Button } from '@material-ui/core'
 import { Theme } from '@material-ui/core'
 import { fetchList, createList } from '@/scripts/redux/state/list/actions'
+import { OPTION } from '@/option'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -23,47 +24,27 @@ export const Board: React.FC = () => {
   const { boardId } = useParams<I.UrlParams>()
 
   React.useEffect(() => {
-    if (userState.user && userState.user.uid && !listState.error && boardId) {
-      ;(async () => {
-        try {
-          await dispatch(fetchList({ boardId }))
-        } catch ({ message }) {
-          console.log('check')
-          showSnackbar({ message, type: 'error' })
-        }
-      })()
-    }
-    /**
-     * NOTE:
-     * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
-     * showSnackbar を配列に加えない
-     */
-    /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [userState, dispatch, boardId, listState.error, boardId])
+    if (!(userState.user && !listState.error && boardId && !boardState.error))
+      return
 
-  /**
-   * ユーザーがログインしていたら、ボード一覧を取得
-   */
-  React.useEffect(() => {
-    if (userState.user && userState.user.uid && !boardState.error) {
-      ;(async () => {
-        try {
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          await dispatch(fetchList({ boardId })),
           await dispatch(fetchBoards())
-        } catch (e) {
-          showSnackbar({
-            message: e.message,
-            type: 'error'
-          })
-        }
-      })()
+        ])
+      } catch ({ message }) {
+        showSnackbar({ message, type: 'error' })
+      }
     }
+    fetchData()
     /**
      * NOTE:
      * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
      * showSnackbar を配列に加えない
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [dispatch, userState.user, boardState.error])
+  }, [userState.user, dispatch, boardId, listState.error, boardState.error])
 
   const onClick = () => {
     if (!userState.user || listState.error) return
@@ -75,30 +56,42 @@ export const Board: React.FC = () => {
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
         <>
-          {boardState.boards.length ? (
-            <>
-              <div css={styles['board-header']}>
-                <BoardTitle />
-              </div>
-              {boardState.error && (
-                <>エラーメッセージ{boardState.error.message}</>
-              )}
-              <Button onClick={onClick}>create list</Button>
-              <ul css={styles['card-list-container']}>
-                {boardId &&
-                  listState.boards[boardId] &&
-                  listState.boards[boardId].lists.map((list, i) => {
-                    return (
-                      <li key={i}>
-                        <CardList list={list} />
-                      </li>
-                    )
-                  })}
-              </ul>
-            </>
-          ) : (
-            'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
-          )}
+          <Route
+            path={OPTION.PATH.BOARD}
+            exact
+            render={() => <div>BoardTop</div>}
+          />
+          <Route
+            path={OPTION.PATH.BOARD + '/:boardId'}
+            render={() => (
+              <>
+                {boardState.boards.length ? (
+                  <>
+                    <div css={styles['board-header']}>
+                      <BoardTitle />
+                    </div>
+                    {boardState.error && (
+                      <>エラーメッセージ{boardState.error.message}</>
+                    )}
+                    <Button onClick={onClick}>create list</Button>
+                    <ul css={styles['card-list-container']}>
+                      {boardId &&
+                        listState.boards[boardId] &&
+                        listState.boards[boardId].lists.map((list, i) => {
+                          return (
+                            <li key={i}>
+                              <CardList list={list} />
+                            </li>
+                          )
+                        })}
+                    </ul>
+                  </>
+                ) : (
+                  'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
+                )}
+              </>
+            )}
+          />
         </>
       )}
       <BoardDrawer />
