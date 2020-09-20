@@ -68,7 +68,8 @@ const appTheme: AppTheme = {
     snackbar: 20,
     appHeader: 10,
     boardDrawer: 10,
-    menu: 5
+    menu: 5,
+    modal: 30
   },
   borderRadius: (value: number) => value * 5
 }
@@ -100,10 +101,11 @@ export const App: React.FC = () => {
                 <AppHeader />
                 <Switch>
                   <Route
-                    path={`${OPTION.PATH.BOARD}/:boardId?`}
+                    path={`${OPTION.PATH.BOARD}/:boardId`}
                     component={Board}
                   />
-                  <Route path="/" component={Home} />
+                  <Route path={OPTION.PATH.BOARD} component={Board} />
+                  <Route path="/" exact component={Home} />
                 </Switch>
               </SnackbarProvider>
             </Authentication>

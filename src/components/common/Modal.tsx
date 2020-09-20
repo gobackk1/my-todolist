@@ -8,8 +8,29 @@ import {
 import { css } from '@emotion/core'
 import { Close } from '@material-ui/icons'
 
-export const Modal: React.FC<Props> = ({ children, render }) => {
+const styles = {
+  modal: css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `,
+  'modal-inner': css`
+    background: #fff;
+    padding: 20px;
+  `,
+  'modal-inner-header': css`
+    text-align: right;
+  `
+}
+
+type Props = {
+  render: (props: any) => JSX.Element
+  className?: string
+}
+
+export const Modal: React.FC<Props> = ({ children, render, className }) => {
   const [open, setOpen] = useState(false)
+
   const handleOpen = () => setOpen(true)
   const handleClose = () => {
     setOpen(false)
@@ -29,6 +50,7 @@ export const Modal: React.FC<Props> = ({ children, render }) => {
           timeout: 500
         }}
         keepMounted
+        className={className ? className : ''}
       >
         <Fade in={open}>
           <div css={styles['modal-inner']}>
@@ -48,23 +70,4 @@ export const Modal: React.FC<Props> = ({ children, render }) => {
       </MuiModal>
     </div>
   )
-}
-
-const styles = {
-  modal: css`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `,
-  'modal-inner': css`
-    background: #fff;
-    padding: 20px;
-  `,
-  'modal-inner-header': css`
-    text-align: right;
-  `
-}
-
-type Props = {
-  render: (props: any) => JSX.Element
 }
