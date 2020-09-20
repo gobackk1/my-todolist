@@ -93,10 +93,10 @@ export const BoardListMenu: React.FC = () => {
         ) : (
           <>
             {boardState.boards.length ? (
-              <ul>
+              <ul id="list-board-menu">
                 {boardState.boards.map((board, i) => {
                   return (
-                    <div css={styles['menu-content-item']} key={i}>
+                    <li css={styles['menu-content-item']} key={i}>
                       <Button
                         to={`${OPTION.PATH.BOARD}/${board.id}`}
                         component={Link}
@@ -109,7 +109,7 @@ export const BoardListMenu: React.FC = () => {
                       >
                         {board.title}
                       </Button>
-                    </div>
+                    </li>
                   )
                 })}
               </ul>
