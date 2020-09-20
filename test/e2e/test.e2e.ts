@@ -19,11 +19,15 @@ const selector = {
   buttonLogin: '#btn-login',
   buttonLoginWithGoogle: '#btn-login-with-google',
   buttonLogout: '#btn-logout',
+  buttonModalClose: '.btn-modal-close',
   addressInput: 'form section input[type="email"]',
   passwordInput: 'form section input[type="password"]',
   modalLogin: '#modal-login',
-  imgUserPhoto: '#img-user-photo'
+  imgUserPhoto: '#img-user-photo',
+  menuBoardList: '#menu-board-list'
 }
+
+const localhost = 'http://localhost:8080'
 
 const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
 
@@ -35,7 +39,7 @@ describe('E2Eテスト', () => {
   beforeAll(async () => {
     page = await (global as any).__BROWSER__.newPage()
     await page.setViewport({ width: 1440, height: 900 })
-    await page.goto('http://localhost:8080', {
+    await page.goto(localhost, {
       waitUntil: 'networkidle2'
     })
     await page.waitForSelector('h1')
@@ -49,15 +53,16 @@ describe('E2Eテスト', () => {
   afterAll(async () => {
     await page.close()
   })
-  // test('TOPページアクセス時、ログインボタンが表示されること', async () => {
-  //   const buttonText = await (
-  //     await buttonLogin.getProperty('textContent')
-  //   ).jsonValue()
-  //   expect(buttonText).toContain(TEXT.BUTTON.LOGIN)
-  // })
 
   describe('ログイン前のテスト', () => {
-    test('ログイン前はログインモーダルが閉じていること', async () => {
+    test('TOPページアクセス時、ログインボタンが表示されること', async () => {
+      const buttonText = await (
+        await buttonLogin.getProperty('textContent')
+      ).jsonValue()
+      expect(buttonText).toContain(TEXT.BUTTON.LOGIN)
+    })
+
+    test('モーダルが閉じていること', async () => {
       const modalVisibility = await page.evaluate(selector => {
         const modalLogin = document.querySelector(selector.modalLogin)
           .parentElement
@@ -67,12 +72,42 @@ describe('E2Eテスト', () => {
       expect(modalVisibility).toBe('hidden')
     })
 
-    test('ログインモーダルの閉じるボタンを押すと、モーダルが閉じること', () => {
-      //TODO
+    test.skip('ログインボタンを押すと、モーダルが開くこと', async () => {
+      // NOTE: ログインのテストで担保
     })
 
-    test('ログイン認証前に、ログインが必要なページへ遷移しようとした時、リダイレクトされること', () => {
-      //TODO
+    test('モーダルの閉じるボタンを押すと、モーダルが閉じること', async () => {
+      await page.click(selector.buttonLogin)
+      await page.waitForSelector(selector.buttonLoginWithGoogle)
+
+      const modalVisibility = await page.evaluate(
+        selector =>
+          new Promise(resolve => {
+            const modalLogin = document.querySelector(selector.modalLogin)
+              .parentElement
+            modalLogin.querySelector(selector.buttonModalClose).click()
+
+            // NOTE: クリック後、直後にモーダルが閉じないため
+            setTimeout(() => {
+              resolve(modalLogin.style.visibility)
+            }, 800)
+          }),
+        selector
+      )
+
+      expect(modalVisibility).toBe('hidden')
+    })
+
+    test('ログインが必要なページへ遷移した時、リダイレクトされること', async () => {
+      // TODO: 認証必要ページは配列にまとめて、forEachでテストする
+      await page.goto(localhost + '/boards')
+      await page.waitForNavigation()
+      expect(page.url()).not.toContain('/boards')
+    })
+
+    test('「ボード一覧」ボタンが非表示であること', async () => {
+      const menuButton = await page.$(selector.menuBoardList)
+      expect(menuButton).toBe(null)
     })
   })
 

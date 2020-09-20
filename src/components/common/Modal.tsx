@@ -34,7 +34,11 @@ export const Modal: React.FC<Props> = ({ children, render }) => {
           <div css={styles['modal-inner']}>
             <div css={styles['modal-inner-header']}>
               {/* HACK: <BoardListMenu> からノードウォーキングで参照されている */}
-              <IconButton size="small" onClick={handleClose as any}>
+              <IconButton
+                size="small"
+                onClick={handleClose as any}
+                className="btn-modal-close"
+              >
                 <Close />
               </IconButton>
             </div>

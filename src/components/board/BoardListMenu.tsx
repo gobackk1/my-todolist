@@ -135,7 +135,7 @@ export const BoardListMenu: React.FC = () => {
         </Button>
       )}
     >
-      <div css={styles['menu-content']}>
+      <div css={styles['menu-content']} id="menu-board-list">
         <div css={styles['board-list']}>
           <BoardListSearchForm state={state} setState={setState} />
           {state.isSearching ? <SearchView /> : <BoardListView />}
