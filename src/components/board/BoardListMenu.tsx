@@ -91,32 +91,27 @@ export const BoardListMenu: React.FC = () => {
         {boardState.isLoading ? (
           <LoadingSpinner />
         ) : (
-          <>
-            {boardState.boards.length ? (
-              <ul id="list-board-menu">
-                {boardState.boards.map((board, i) => {
-                  return (
-                    <li css={styles['menu-content-item']} key={i}>
-                      <Button
-                        to={`${OPTION.PATH.BOARD}/${board.id}`}
-                        component={Link}
-                        fullWidth={true}
-                        variant="contained"
-                        className={muiStyles['button-board']}
-                        onClick={() => {
-                          document.body.click()
-                        }}
-                      >
-                        {board.title}
-                      </Button>
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : (
-              <Typography variant="body1">ボードはありません</Typography>
-            )}
-          </>
+          <ul id="list-board-menu">
+            {boardState.boards.length &&
+              boardState.boards.map((board, i) => {
+                return (
+                  <li css={styles['menu-content-item']} key={i}>
+                    <Button
+                      to={`${OPTION.PATH.BOARD}/${board.id}`}
+                      component={Link}
+                      fullWidth={true}
+                      variant="contained"
+                      className={muiStyles['button-board']}
+                      onClick={() => {
+                        document.body.click()
+                      }}
+                    >
+                      {board.title}
+                    </Button>
+                  </li>
+                )
+              })}
+          </ul>
         )}
       </>
     )
