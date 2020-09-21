@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { Reply, DeleteForever } from '@material-ui/icons'
 import { css } from '@emotion/core'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 
 export const ArchivedBoardModal: React.FC = () => {
