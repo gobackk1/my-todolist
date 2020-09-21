@@ -22,32 +22,43 @@ export const Board: React.FC = () => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const { boardId } = useParams<I.UrlParams>()
+  const [init, setInit] = React.useState(false)
 
+  /**
+   * useEffect でコールする fetchBoard は１度のみ
+   */
   React.useEffect(() => {
-    if (!(userState.user && !listState.error && !boardState.error)) return
+    if (!userState.user || boardState.error || init) return
 
-    const fetchData = async () => {
+    setInit(true)
+
+    const fetch = async () => {
       try {
-        if (boardId) {
-          await Promise.all([
-            await dispatch(fetchList({ boardId })),
-            await dispatch(fetchBoards())
-          ])
-        } else {
-          await dispatch(fetchBoards())
-        }
+        await dispatch(fetchBoards())
       } catch ({ message }) {
         showSnackbar({ message, type: 'error' })
       }
     }
-    fetchData()
+    fetch()
     /**
      * NOTE:
      * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
      * showSnackbar を配列に加えない
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [userState.user, dispatch, boardId, listState.error, boardState.error])
+  }, [userState.user, dispatch, boardState.error, init])
+
+  React.useEffect(() => {
+    if (!userState.user || listState.error) return
+    const fetch = async () => {
+      try {
+        await dispatch(fetchList({ boardId }))
+      } catch ({ message }) {
+        showSnackbar({ message, type: 'error' })
+      }
+    }
+    fetch()
+  }, [boardId, dispatch, fetchList, userState.user, listState.error])
 
   const onClick = () => {
     if (!userState.user || listState.error) return
