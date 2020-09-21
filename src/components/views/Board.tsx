@@ -36,6 +36,7 @@ export const Board: React.FC = () => {
       try {
         await dispatch(fetchBoards())
       } catch ({ message }) {
+        console.log('debug: await dispatch(fetchBoards())')
         showSnackbar({ message, type: 'error' })
       }
     }
@@ -49,15 +50,22 @@ export const Board: React.FC = () => {
   }, [userState.user, dispatch, boardState.error, init])
 
   React.useEffect(() => {
-    if (!userState.user || listState.error) return
+    if (!userState.user || listState.error || !boardId) return
     const fetch = async () => {
       try {
         await dispatch(fetchList({ boardId }))
       } catch ({ message }) {
+        console.log('debug: await dispatch(fetchList({ boardId }))')
         showSnackbar({ message, type: 'error' })
       }
     }
     fetch()
+    /**
+     * NOTE:
+     * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
+     * showSnackbar を配列に加えない
+     */
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [boardId, dispatch, fetchList, userState.user, listState.error])
 
   const onClick = () => {
