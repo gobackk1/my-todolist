@@ -1,3 +1,9 @@
+/**
+ * E2Eテスト独自のアノテーションコメント
+ * STEP: テストの手順をまとめる
+ * EXPECT: expect() でチェックする箇所をまとめる
+ */
+
 import { TEXT } from '@/components/common/AppHeader'
 import { OPTION } from '@/option'
 import {
@@ -11,25 +17,32 @@ import {
 } from '@jest/globals'
 import loginToGoogle from './util/loginToGoogle'
 
-require('dotenv').config()
-export const localhost = 'http://localhost:8080'
-export const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
+/**
+ * test config
+ */
+const localhost = 'http://localhost:8080'
+const testTimeoutMilliseconds = 10000
+const puppetWidth = 1440
+const puppetHeight = 900
 
+/**
+ * start e2e test
+ */
 describe('E2Eテスト', () => {
   let page: any
 
   beforeAll(async () => {
     page = await (global as any).__BROWSER__.newPage()
     await page.setViewport({
-      width: 1440,
-      height: 900
+      width: puppetWidth,
+      height: puppetHeight
     })
     await page.goto(localhost)
     await page.waitForNavigation()
   })
 
   beforeEach(() => {
-    jest.setTimeout(10000)
+    jest.setTimeout(testTimeoutMilliseconds)
   })
 
   afterAll(async () => {
@@ -139,11 +152,8 @@ describe('E2Eテスト', () => {
         await page.click('#btn-create-board')
         await page.waitForSelector('#form-create-board', { visible: true })
 
-        await page.type(
-          `${'#form-create-board'} input[name="title"]`,
-          newBoardTitle
-        )
-        await page.click(`${'#form-create-board'} button[type="submit"]`)
+        await page.type('#form-create-board input[name="title"]', newBoardTitle)
+        await page.click('#form-create-board button[type="submit"]')
         await page.waitForNavigation()
 
         const boardTitle = await page.evaluate(el => {
@@ -159,80 +169,97 @@ describe('E2Eテスト', () => {
         )
       })
 
-      test.skip('ボードタイトルが、空白または51字以上の時に、ボードが作成できないこと', async () => {
+      test('ボードがアーカイブできること', async () => {
+        /**
+         * STEP: アーカイブする確認ダイアログが出たら、OKを押す
+         */
+        page.on('dialog', dialog => {
+          dialog.accept()
+        })
+
+        /**
+         * STEP: アーカイブ前のボード数を調べる
+         */
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', { visible: true })
+        const beforeBoardLength = (await page.$$('#list-board-menu li')).length
+        await page.click('#button-menu-open')
+
+        /**
+         * STEP: ボードをアーカイブするボタンを押す
+         */
+        await page.click('#btn-open-board-menu')
+        const buttonArchive = await page.waitForSelector('#btn-archive-board', {
+          visible: true
+        })
+        await buttonArchive.click()
+        // await page.waitForNavigation()
+        // NOTE: ドロワーはアニメーションして閉じる&APIのレスポンス待ちなので
+        await page.waitFor(5000)
+
+        /**
+         * EXPECT: アーカイブ後のボード数を調べ、アーカイブ前との差分が1になること
+         */
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
+        const afterBoardLength = (await page.$$('#list-board-menu li')).length
+        await page.click('#button-menu-open')
+        expect(beforeBoardLength - afterBoardLength).toBe(1)
+
+        /**
+         * EXPECT:ドロワーが閉じていること
+         */
+        const drawerVisibility = await page.evaluate(
+          el => document.querySelector(el).style.visibility,
+          '#drawer .MuiDrawer-paper'
+        )
+        expect(drawerVisibility).toBe('hidden')
+
+        /**
+         * EXPECT: /boards へ遷移し、url から boardId が取り除かれること
+         */
+        expect(page.url()).toBe(localhost + OPTION.PATH.BOARD)
+      })
+
+      test('ボードタイトルが、空白または51字以上の時に、ボードが作成できないこと', async () => {
         const invalidTitle1 = ''
         const invalidTitle2 = 'a'.repeat(51)
 
+        /**
+         * STEP: メニューを開いて、新しいボードを作成するボタンを押す
+         */
         const buttonHandle = await page.$('#button-menu-open')
         await buttonHandle.click()
         await page.waitForSelector('#menu-board-list', {
           visible: true
         })
-
         await page.click('#btn-create-board')
         await page.waitForSelector('#form-create-board', {
           visible: true
         })
 
-        await page.type(
-          `${'#form-create-board'} input[name="title"]`,
-          invalidTitle1
+        /**
+         * STEP: 無効なタイトルを入力して、ボタンの disabled を見る
+         */
+        await page.type('#form-create-board input[name="title"]', invalidTitle1)
+        const submitDisabled1 = await page.$eval(
+          '#form-create-board button[type="submit"]',
+          node => node.disabled
         )
-        const submitDisabled1 = await page.evaluate(el => {
-          const submit = document.querySelector(`${el} button[type="submit"]`)
-          return (submit as HTMLButtonElement).disabled
-        }, '#form-create-board')
-
-        await page.type(
-          `${'#form-create-board'} input[name="title"]`,
-          invalidTitle2
+        await page.type('#form-create-board input[name="title"]', invalidTitle2)
+        const submitDisabled2 = await page.$eval(
+          '#form-create-board button[type="submit"]',
+          node => node.disabled
         )
-        const submitDisabled2 = await page.evaluate(el => {
-          const submit = document.querySelector(`${el} button[type="submit"]`)
-          return (submit as HTMLButtonElement).disabled
-        }, '#form-create-board')
 
-        await page.reload()
-        await page.waitForNavigation()
-
+        /**
+         * EXPECT: 無効なタイトルの時はボタンが押せないこと
+         * FIXME: テストが false になる場合がある?
+         */
         expect(submitDisabled1).toBe(true)
         expect(submitDisabled2).toBe(true)
-      })
-
-      test('ボードがアーカイブできること', async () => {
-        await page.click('#button-menu-open')
-        await page.waitForSelector('#menu-board-list', { visible: true })
-
-        const beforeBoardLength = (await page.$$('#list-board-menu li')).length
-        await page.click('#btn-open-board-menu')
-
-        page.on('dialog', dialog => {
-          // console.log(dialog, 'dialog')
-          dialog.accept()
-        })
-        const buttonArchive = await page.waitForSelector('#btn-archive-board', {
-          visible: true
-        })
-        await buttonArchive.click()
-
-        // NOTE: ドロワーはアニメーションして閉じる&APIのレスポンス待ちなので
-        await page.waitFor(5000)
-
-        const drawerVisibility = await page.evaluate(
-          el => document.querySelector(el).style.visibility,
-          '#drawer .MuiDrawer-paper'
-        )
-
-        await page.click('#button-menu-open')
-        await page.waitForSelector('#menu-board-list', {
-          visible: true
-        })
-
-        const afterBoardLength = (await page.$$('#list-board-menu li')).length
-
-        expect(drawerVisibility).toBe('hidden')
-        expect(page.url()).toBe(localhost + OPTION.PATH.BOARD)
-        expect(beforeBoardLength - afterBoardLength).toBe(1)
       })
     })
 

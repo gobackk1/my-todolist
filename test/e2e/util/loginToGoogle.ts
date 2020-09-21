@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-export const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
+const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
 
 /**
  * ログインボタンがある画面で実行すること
