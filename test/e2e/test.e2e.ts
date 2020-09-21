@@ -13,7 +13,8 @@ import {
   afterAll,
   expect,
   beforeEach,
-  jest
+  jest,
+  afterEach
 } from '@jest/globals'
 import loginToGoogle from './util/loginToGoogle'
 
@@ -21,7 +22,7 @@ import loginToGoogle from './util/loginToGoogle'
  * test config
  */
 const localhost = 'http://localhost:8080'
-const testTimeoutMilliseconds = 10000
+const testTimeoutMilliseconds = 15000
 const puppetWidth = 1440
 const puppetHeight = 900
 
@@ -41,7 +42,7 @@ describe('E2Eテスト', () => {
     await page.waitForNavigation()
   })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.setTimeout(testTimeoutMilliseconds)
   })
 
@@ -131,7 +132,38 @@ describe('E2Eテスト', () => {
   })
 
   describe('ボード操作のテスト', () => {
-    test('ボードの数が０の時、ボードが存在しないフィードバックすること。', async () => {
+    const app = {
+      async openAppMenu() {
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
+      },
+      async closeAppMenu() {
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: false
+        })
+      },
+      async getBoardCount() {
+        await this.openAppMenu()
+        await page.waitForSelector('#list-board-menu')
+        const count = await page.$eval(
+          '#list-board-menu',
+          node => node.childElementCount
+        )
+        await this.closeAppMenu()
+        return count
+      },
+      async openArchivedBoardModal() {
+        await this.openAppMenu()
+        await page.click('#open-archived-board-modal')
+        await page.waitForSelector('#modal-archived-board')
+      }
+    }
+    const newBoardTitle = 'new board'
+
+    test.skip('ボードの数が０の時、ボードが存在しないフィードバックすること。', async () => {
       // 決まったらテストかく
       await page.waitForSelector('#board')
       const html = await page.evaluate(el => {
@@ -143,26 +175,34 @@ describe('E2Eテスト', () => {
 
     describe('ボード作成のテスト', () => {
       test('新しいボードが作成できること', async () => {
-        const newBoardTitle = 'new board'
-
-        const buttonHandle = await page.$('#button-menu-open')
-        await buttonHandle.click()
-        await page.waitForSelector('#menu-board-list', { visible: true })
-
+        /**
+         * STEP ボード作成モーダルを開く
+         */
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
         await page.click('#btn-create-board')
         await page.waitForSelector('#form-create-board', { visible: true })
 
-        await page.type('#form-create-board input[name="title"]', newBoardTitle)
+        /**
+         * 有効なタイトルを入力して作成ボタンを押す
+         */
+        await page.type(
+          '#form-create-board input[name="title"]',
+          newBoardTitle,
+          { delay: 50 }
+        )
         await page.click('#form-create-board button[type="submit"]')
-        await page.waitForNavigation()
+        await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
 
-        const boardTitle = await page.evaluate(el => {
-          const boardTitle = document.querySelector(
-            el + ' button span:first-child'
-          )
-          return boardTitle!.textContent
-        }, '#board-title')
-
+        /**
+         * EXPECT 作成したボードのタイトルが表示され、画面が遷移していること
+         */
+        const boardTitle = await page.$eval(
+          '#board-title button span:first-child',
+          node => node.textContent
+        )
         expect(boardTitle).toBe(newBoardTitle)
         expect(page.url()).toMatch(
           RegExp(localhost + OPTION.PATH.BOARD + '/.*')
@@ -180,10 +220,7 @@ describe('E2Eテスト', () => {
         /**
          * STEP: アーカイブ前のボード数を調べる
          */
-        await page.click('#button-menu-open')
-        await page.waitForSelector('#menu-board-list', { visible: true })
-        const beforeBoardLength = (await page.$$('#list-board-menu li')).length
-        await page.click('#button-menu-open')
+        const beforeBoardLength = await app.getBoardCount()
 
         /**
          * STEP: ボードをアーカイブするボタンを押す
@@ -193,19 +230,13 @@ describe('E2Eテスト', () => {
           visible: true
         })
         await buttonArchive.click()
-        // await page.waitForNavigation()
         // NOTE: ドロワーはアニメーションして閉じる&APIのレスポンス待ちなので
-        await page.waitFor(5000)
+        await page.waitFor(2000)
 
         /**
          * EXPECT: アーカイブ後のボード数を調べ、アーカイブ前との差分が1になること
          */
-        await page.click('#button-menu-open')
-        await page.waitForSelector('#menu-board-list', {
-          visible: true
-        })
-        const afterBoardLength = (await page.$$('#list-board-menu li')).length
-        await page.click('#button-menu-open')
+        const afterBoardLength = await app.getBoardCount()
         expect(beforeBoardLength - afterBoardLength).toBe(1)
 
         /**
@@ -230,8 +261,7 @@ describe('E2Eテスト', () => {
         /**
          * STEP: メニューを開いて、新しいボードを作成するボタンを押す
          */
-        const buttonHandle = await page.$('#button-menu-open')
-        await buttonHandle.click()
+        await page.click('#button-menu-open')
         await page.waitForSelector('#menu-board-list', {
           visible: true
         })
@@ -243,12 +273,20 @@ describe('E2Eテスト', () => {
         /**
          * STEP: 無効なタイトルを入力して、ボタンの disabled を見る
          */
-        await page.type('#form-create-board input[name="title"]', invalidTitle1)
+        await page.type(
+          '#form-create-board input[name="title"]',
+          invalidTitle1,
+          { delay: 0 }
+        )
         const submitDisabled1 = await page.$eval(
           '#form-create-board button[type="submit"]',
           node => node.disabled
         )
-        await page.type('#form-create-board input[name="title"]', invalidTitle2)
+        await page.type(
+          '#form-create-board input[name="title"]',
+          invalidTitle2,
+          { delay: 0 }
+        )
         const submitDisabled2 = await page.$eval(
           '#form-create-board button[type="submit"]',
           node => node.disabled
@@ -260,13 +298,75 @@ describe('E2Eテスト', () => {
          */
         expect(submitDisabled1).toBe(true)
         expect(submitDisabled2).toBe(true)
+        await page.reload({ waitUntil: 'networkidle2' })
       })
     })
 
     describe('ボードアーカイブのテスト', () => {
-      test('アーカイブしたボードを戻せること', () => {
-        //
-        // アーカイブのボードに追加されていること
+      test('アーカイブしたボードを戻せること', async () => {
+        /**
+         * STEP 戻す前のボード数を調べる
+         */
+        const beforeBoardLength = await app.getBoardCount()
+
+        /**
+         * STEP: アーカイブ済みボードモーダルを開く
+         */
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
+        await page.click('#open-archived-board-modal')
+        await page.waitForSelector('#modal-archived-board-list')
+
+        /**
+         * STEP 戻す前のアーカイブボード数を調べる
+         */
+        const beforeArchivedBoardLength = await page.$eval(
+          '#modal-archived-board-list',
+          node => node.childElementCount
+        )
+
+        /**
+         * STEP: 「アーカイブから戻す」を押して、フィードバックのテキストを取得するまで待つ
+         */
+        await page.click(
+          '#modal-archived-board-list li:first-child .btn-restore-board'
+        )
+        page.waitForSelector('.MuiSnackbar-root')
+        const snackbarText = await page.$eval(
+          '.MuiSnackbar-root',
+          node => node.innerText
+        )
+        await page.waitFor(3000)
+
+        /**
+         * EXPECT: 戻した後のボード数を調べ、差分が?になること
+         */
+        const afterBoardLength = await app.getBoardCount()
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
+        await page.click('#open-archived-board-modal')
+        await page.waitForSelector('#modal-archived-board-list')
+        const afterArchivedBoardLength = await page.$eval(
+          '#modal-archived-board-list',
+          node => node.childElementCount
+        )
+        expect(beforeBoardLength - afterBoardLength).toBe(-1)
+        expect(beforeArchivedBoardLength - afterArchivedBoardLength).toBe(1)
+
+        /**
+         * EXPECT: アーカイブから戻したフィードバックが表示されること
+         */
+        expect(snackbarText).toBe(
+          `アーカイブされた「${newBoardTitle}」を戻しました。`
+        )
+
+        /**
+         * EXPECT: 戻したボードに遷移すること(ここは実装も)
+         */
       })
     })
 

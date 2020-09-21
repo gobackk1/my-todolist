@@ -7,19 +7,15 @@ const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
  * @param page ログインしたい puppeteer の page
  */
 export default async function(page: any) {
-  const button = await page.$('#btn-login')
-  if (!button) return
   await page.click('#btn-login')
-  const buttonLoginWithGoogle = await page.waitForSelector(
-    '#btn-login-with-google'
-  )
+  await page.waitForSelector('#btn-login-with-google')
 
   // signInWithPopup によってログイン用ページが開く
   const [newPage] = await Promise.all([
     (global as any).__BROWSER__
       .waitForTarget(t => t.opener() === page.target())
       .then(t => t.page()),
-    await buttonLoginWithGoogle.click()
+    await page.click('#btn-login-with-google')
   ])
 
   // アドレス入力
@@ -51,5 +47,6 @@ export default async function(page: any) {
   const [button2] = await (newPage as any).$x("//button[contains(.,'次へ')]")
   if (button2) await button2.click()
 
-  await page.waitForNavigation()
+  await newPage.waitForNavigation({ waitUntil: 'domcontentloaded' })
+  await page.waitForNavigation({ waitUntil: 'domcontentloaded' })
 }
