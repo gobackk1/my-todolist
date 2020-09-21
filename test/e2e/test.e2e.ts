@@ -9,15 +9,15 @@ import {
   beforeEach,
   jest
 } from '@jest/globals'
-import { selector, localhost } from './util/testOption'
 import loginToGoogle from './util/loginToGoogle'
 
 require('dotenv').config()
-
+export const localhost = 'http://localhost:8080'
 export const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
 
 describe('E2Eテスト', () => {
   let page: any
+
   beforeAll(async () => {
     page = await (global as any).__BROWSER__.newPage()
     await page.setViewport({
@@ -38,9 +38,7 @@ describe('E2Eテスト', () => {
 
   describe('ログインのテスト', () => {
     test('TOPページアクセス時、ログインボタンが表示されること', async () => {
-      const buttonLogin = await page.$(
-        selector.buttonLogin + ' span:first-child'
-      )
+      const buttonLogin = await page.$('#btn-login span:first-child')
       const buttonText = await (
         await buttonLogin.getProperty('textContent')
       ).jsonValue()
@@ -48,11 +46,10 @@ describe('E2Eテスト', () => {
     })
 
     test('モーダルが閉じていること', async () => {
-      const modalVisibility = await page.evaluate(selector => {
-        const modalLogin = document.querySelector(selector.modalLogin)
-          .parentElement
+      const modalVisibility = await page.evaluate(el => {
+        const modalLogin = document.querySelector(el).parentElement
         return modalLogin.style.visibility
-      }, selector)
+      }, '#modal-login')
 
       expect(modalVisibility).toBe('hidden')
     })
@@ -62,22 +59,21 @@ describe('E2Eテスト', () => {
     // })
 
     test('モーダルの閉じるボタンを押すと、モーダルが閉じること', async () => {
-      await page.click(selector.buttonLogin)
-      await page.waitForSelector(selector.buttonLoginWithGoogle)
+      await page.click('#btn-login')
+      await page.waitForSelector('#btn-login-with-google')
 
       const modalVisibility = await page.evaluate(
-        selector =>
+        ([btnModalClose, modalLogin]) =>
           new Promise(resolve => {
-            const modalLogin = document.querySelector(selector.modalLogin)
-              .parentElement
-            modalLogin.querySelector(selector.buttonModalClose).click()
+            const modal = document.querySelector(modalLogin).parentElement
+            modal.querySelector(btnModalClose).click()
 
             // NOTE: クリック後、直後にモーダルが閉じないため
             setTimeout(() => {
-              resolve(modalLogin.style.visibility)
+              resolve(modal.style.visibility)
             }, 800)
           }),
-        selector
+        ['.btn-modal-close', '#modal-login']
       )
 
       expect(modalVisibility).toBe('hidden')
@@ -91,7 +87,7 @@ describe('E2Eテスト', () => {
     })
 
     test('「ボード一覧」ボタンが非表示であること', async () => {
-      const menuButton = await page.$(selector.menuBoardList)
+      const menuButton = await page.$('#menu-board-list')
       expect(menuButton).toBe(null)
     })
 
@@ -99,22 +95,20 @@ describe('E2Eテスト', () => {
       await loginToGoogle(page)
 
       // web アプリがログイン後の画面へ遷移する
-      const snackbar = await page.waitForSelector(selector.snackbarRoot)
+      const snackbar = await page.waitForSelector('.MuiSnackbar-root')
       const snackbarText = await snackbar.evaluate(node => {
         return node.innerText
       })
 
-      const buttonLogout = await page.$(
-        selector.buttonLogout + ' span:first-child'
-      )
+      const buttonLogout = await page.$('#btn-logout' + ' span:first-child')
       const buttonText = await (
         await buttonLogout.getProperty('textContent')
       ).jsonValue()
 
-      const imageSrc = await page.evaluate(selector => {
-        const img = document.querySelector(selector.imgUserPhoto)
+      const imageSrc = await page.evaluate(el => {
+        const img = document.querySelector(el)
         return img.src
-      }, selector)
+      }, '#img-user-photo')
 
       expect(buttonText).toContain(TEXT.BUTTON.LOGOUT)
       expect(snackbarText).toBe(OPTION.MESSAGE.LOGIN.SUCCESS)
@@ -126,11 +120,11 @@ describe('E2Eテスト', () => {
   describe('ボード操作のテスト', () => {
     test('ボードの数が０の時、ボードが存在しないフィードバックすること。', async () => {
       // 決まったらテストかく
-      await page.waitForSelector(selector.board)
-      const html = await page.evaluate(selector => {
-        const el = document.querySelector(selector.board)
-        return el.textContent
-      }, selector)
+      await page.waitForSelector('#board')
+      const html = await page.evaluate(el => {
+        const board = document.querySelector(el)
+        return board.textContent
+      }, '#board')
       console.log(html)
     })
 
@@ -138,26 +132,26 @@ describe('E2Eテスト', () => {
       test('新しいボードが作成できること', async () => {
         const newBoardTitle = 'new board'
 
-        const buttonHandle = await page.$(selector.buttonMenuOpen)
+        const buttonHandle = await page.$('#button-menu-open')
         await buttonHandle.click()
-        await page.waitForSelector(selector.menuBoardList, { visible: true })
+        await page.waitForSelector('#menu-board-list', { visible: true })
 
-        page.click(selector.buttonCreateBoard)
-        await page.waitForSelector(selector.formCreateBoard, { visible: true })
+        await page.click('#btn-create-board')
+        await page.waitForSelector('#form-create-board', { visible: true })
 
         await page.type(
-          `${selector.formCreateBoard} input[name="title"]`,
+          `${'#form-create-board'} input[name="title"]`,
           newBoardTitle
         )
-        await page.click(`${selector.formCreateBoard} button[type="submit"]`)
+        await page.click(`${'#form-create-board'} button[type="submit"]`)
         await page.waitForNavigation()
 
-        const boardTitle = await page.evaluate(selector => {
+        const boardTitle = await page.evaluate(el => {
           const boardTitle = document.querySelector(
-            selector.boardTitle + ' button span:first-child'
+            el + ' button span:first-child'
           )
           return boardTitle!.textContent
-        }, selector)
+        }, '#board-title')
 
         expect(boardTitle).toBe(newBoardTitle)
         expect(page.url()).toMatch(
@@ -169,38 +163,34 @@ describe('E2Eテスト', () => {
         const invalidTitle1 = ''
         const invalidTitle2 = 'a'.repeat(51)
 
-        const buttonHandle = await page.$(selector.buttonMenuOpen)
+        const buttonHandle = await page.$('#button-menu-open')
         await buttonHandle.click()
-        await page.waitForSelector(selector.menuBoardList, {
+        await page.waitForSelector('#menu-board-list', {
           visible: true
         })
 
-        await page.click(selector.buttonCreateBoard)
-        await page.waitForSelector(selector.formCreateBoard, {
+        await page.click('#btn-create-board')
+        await page.waitForSelector('#form-create-board', {
           visible: true
         })
 
         await page.type(
-          `${selector.formCreateBoard} input[name="title"]`,
+          `${'#form-create-board'} input[name="title"]`,
           invalidTitle1
         )
-        const submitDisabled1 = await page.evaluate(selector => {
-          const submit = document.querySelector(
-            `${selector.formCreateBoard} button[type="submit"]`
-          )
+        const submitDisabled1 = await page.evaluate(el => {
+          const submit = document.querySelector(`${el} button[type="submit"]`)
           return (submit as HTMLButtonElement).disabled
-        }, selector)
+        }, '#form-create-board')
 
         await page.type(
-          `${selector.formCreateBoard} input[name="title"]`,
+          `${'#form-create-board'} input[name="title"]`,
           invalidTitle2
         )
-        const submitDisabled2 = await page.evaluate(selector => {
-          const submit = document.querySelector(
-            `${selector.formCreateBoard} button[type="submit"]`
-          )
+        const submitDisabled2 = await page.evaluate(el => {
+          const submit = document.querySelector(`${el} button[type="submit"]`)
           return (submit as HTMLButtonElement).disabled
-        }, selector)
+        }, '#form-create-board')
 
         await page.reload()
         await page.waitForNavigation()
@@ -210,22 +200,19 @@ describe('E2Eテスト', () => {
       })
 
       test('ボードがアーカイブできること', async () => {
-        await page.click(selector.buttonMenuOpen)
-        await page.waitForSelector(selector.menuBoardList, { visible: true })
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', { visible: true })
 
         const beforeBoardLength = (await page.$$('#list-board-menu li')).length
-        await page.click(selector.buttonOpenBoardMenu)
+        await page.click('#btn-open-board-menu')
 
         page.on('dialog', dialog => {
           // console.log(dialog, 'dialog')
           dialog.accept()
         })
-        const buttonArchive = await page.waitForSelector(
-          selector.buttonArchiveBoard,
-          {
-            visible: true
-          }
-        )
+        const buttonArchive = await page.waitForSelector('#btn-archive-board', {
+          visible: true
+        })
         await buttonArchive.click()
 
         // NOTE: ドロワーはアニメーションして閉じる&APIのレスポンス待ちなので
@@ -236,8 +223,8 @@ describe('E2Eテスト', () => {
           '#drawer .MuiDrawer-paper'
         )
 
-        await page.click(selector.buttonMenuOpen)
-        await page.waitForSelector(selector.menuBoardList, {
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
           visible: true
         })
 

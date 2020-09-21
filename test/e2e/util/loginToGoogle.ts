@@ -1,4 +1,3 @@
-import { selector } from './testOption'
 require('dotenv').config()
 
 export const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
@@ -8,11 +7,11 @@ export const { GOOGLE_PASSWORD, GOOGLE_ADDRESS } = process.env
  * @param page ログインしたい puppeteer の page
  */
 export default async function(page: any) {
-  const button = await page.$(selector.buttonLogin)
+  const button = await page.$('#btn-login')
   if (!button) return
-  await page.click(selector.buttonLogin)
+  await page.click('#btn-login')
   const buttonLoginWithGoogle = await page.waitForSelector(
-    selector.buttonLoginWithGoogle
+    '#btn-login-with-google'
   )
 
   // signInWithPopup によってログイン用ページが開く
@@ -24,20 +23,31 @@ export default async function(page: any) {
   ])
 
   // アドレス入力
-  await (newPage as any).waitForSelector(selector.addressInput)
-  await (newPage as any).type(selector.addressInput, GOOGLE_ADDRESS, {
-    delay: 0
-  })
+  await (newPage as any).waitForSelector('form section input[type="email"]')
+  await (newPage as any).type(
+    'form section input[type="email"]',
+    GOOGLE_ADDRESS,
+    {
+      delay: 0
+    }
+  )
   const [button1] = await (newPage as any).$x("//button[contains(.,'次へ')]")
   if (button1) await button1.click()
 
   // パスワード入力
-  await (newPage as any).waitForSelector(selector.passwordInput, {
-    visible: true
-  })
-  await (newPage as any).type(selector.passwordInput, GOOGLE_PASSWORD, {
-    delay: 0
-  })
+  await (newPage as any).waitForSelector(
+    'form section input[type="password"]',
+    {
+      visible: true
+    }
+  )
+  await (newPage as any).type(
+    'form section input[type="password"]',
+    GOOGLE_PASSWORD,
+    {
+      delay: 0
+    }
+  )
   const [button2] = await (newPage as any).$x("//button[contains(.,'次へ')]")
   if (button2) await button2.click()
 
