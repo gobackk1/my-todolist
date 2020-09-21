@@ -11,6 +11,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { Reply, DeleteForever } from '@material-ui/icons'
 import { css } from '@emotion/core'
+import { useHistory } from 'react-router'
+import { OPTION } from '@/option'
 
 export const ArchivedBoardModal: React.FC = () => {
   const dispatch = useDispatch()
@@ -18,6 +20,7 @@ export const ArchivedBoardModal: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
   const muiStyles = useStyles()
+  const history = useHistory()
 
   const renderButton = React.useCallback(
     props => {
@@ -37,6 +40,7 @@ export const ArchivedBoardModal: React.FC = () => {
             props.onClick()
             dispatchFetchArchiveBoards()
           }}
+          id="open-archived-board-modal"
         >
           アーカイブ済みのボードを確認
         </Button>
@@ -78,6 +82,8 @@ export const ArchivedBoardModal: React.FC = () => {
         [].forEach.call(backdrops, (backdrop: HTMLElement) => {
           if (backdrop) backdrop.click()
         })
+
+      history.push(OPTION.PATH.BOARD + '/' + id)
     } catch ({ message }) {
       showSnackbar({
         message,
@@ -88,47 +94,42 @@ export const ArchivedBoardModal: React.FC = () => {
 
   return (
     <Modal render={renderButton}>
-      <div css={styles['modal-inner']}>
+      <div css={styles['modal-inner']} id="modal-archived-board">
         <div css={styles['modal-title']}>アーカイブ済みボード</div>
         {boardState.isLoading && <LoadingSpinner />}
         {!boardState.isLoading && (
-          <>
-            {boardState.archivedBoards.length ? (
-              <ul>
-                {boardState.archivedBoards.map((board, i) => (
-                  <li css={styles['archived-board']} key={i}>
-                    <div css={styles['archived-board-title']}>
-                      {board.title}
-                    </div>
-                    <Button
-                      onClick={e => {
-                        onClickRestore(e, board.id, board.title)
-                      }}
-                      startIcon={<Reply />}
-                      variant="contained"
-                      className={muiStyles['restore-button']}
-                      size="small"
-                    >
-                      アーカイブから戻す
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        onClickDelete(board.id)
-                      }}
-                      startIcon={<DeleteForever />}
-                      variant="contained"
-                      className={muiStyles['delete-button']}
-                      size="small"
-                    >
-                      削除する
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              'アーカイブはありません'
-            )}
-          </>
+          <ul css={styles['archived-list']} id="modal-archived-board-list">
+            {boardState.archivedBoards.length &&
+              boardState.archivedBoards.map((board, i) => (
+                <li css={styles['archived-board']} key={i}>
+                  <div css={styles['archived-board-title']}>{board.title}</div>
+                  <Button
+                    onClick={e => {
+                      onClickRestore(e, board.id, board.title)
+                    }}
+                    startIcon={<Reply />}
+                    variant="contained"
+                    className={
+                      muiStyles['restore-button'] + ' btn-restore-board'
+                    }
+                    size="small"
+                  >
+                    アーカイブから戻す
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      onClickDelete(board.id)
+                    }}
+                    startIcon={<DeleteForever />}
+                    variant="contained"
+                    className={muiStyles['delete-button'] + ' btn-delete-board'}
+                    size="small"
+                  >
+                    削除する
+                  </Button>
+                </li>
+              ))}
+          </ul>
         )}
       </div>
     </Modal>
@@ -176,5 +177,9 @@ const styles = {
     font-weight: bold;
     margin-bottom: 30px;
     text-align: center;
+  `,
+  'archived-list': css`
+    max-height: 600px;
+    overflow: scroll;
   `
 }
