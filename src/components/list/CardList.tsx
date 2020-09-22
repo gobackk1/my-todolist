@@ -180,9 +180,9 @@ const useStyles = makeStyles((theme: T.GlobalTheme) => ({
     borderRadius: 0
   },
   paper: {
-    margin: `0 ${theme.spacing(1)}px`,
-    '&:first-child': {
-      marginLeft: 0
-    }
+    // margin: `0 ${theme.spacing(1)}px`,
+    // '&:first-child': {
+    //   marginLeft: 0
+    // }
   }
 }))

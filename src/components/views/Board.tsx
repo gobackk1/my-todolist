@@ -3,14 +3,15 @@ import { useParams, Route } from 'react-router-dom'
 import { fetchBoards } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
+import * as T from '@/scripts/model/type'
 import { LoadingSpinner, CardList } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { css } from '@emotion/core'
 import { BoardTitle, BoardDrawer } from '@/components'
 import { Button } from '@material-ui/core'
-import { Theme } from '@material-ui/core'
 import { fetchList, createList } from '@/scripts/redux/state/list/actions'
 import { OPTION } from '@/option'
+import { Add } from '@material-ui/icons'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -95,7 +96,6 @@ export const Board: React.FC = () => {
                     {boardState.error && (
                       <>エラーメッセージ{boardState.error.message}</>
                     )}
-                    <Button onClick={onClick}>create list</Button>
                     <ul css={styles['card-list-container']}>
                       {boardId &&
                         listState.boards[boardId] &&
@@ -106,6 +106,15 @@ export const Board: React.FC = () => {
                             </li>
                           )
                         })}
+                      <li>
+                        <Button
+                          onClick={onClick}
+                          startIcon={<Add />}
+                          variant="contained"
+                        >
+                          リストを追加
+                        </Button>
+                      </li>
                     </ul>
                   </>
                 ) : (
@@ -126,11 +135,15 @@ const styles = {
     padding: 10px;
     position: relative;
   `,
-  'board-header': (theme: Theme) => css`
+  'board-header': (theme: T.GlobalTheme) => css`
     margin-bottom: ${theme.spacing(1)}px;
   `,
-  'card-list-container': css`
+  'card-list-container': (theme: T.GlobalTheme) => css`
     display: flex;
     flex-wrap: wrap;
+    li {
+      margin-right: ${theme.spacing(2)}px;
+      margin-bottom: ${theme.spacing(2)}px;
+    }
   `
 }

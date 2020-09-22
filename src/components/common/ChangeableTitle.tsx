@@ -181,7 +181,8 @@ const useStyles = makeStyles({
     '&.MuiButton-outlined': {
       padding: '4px 8px',
       fontWeight: 'bold',
-      resize: 'none'
+      resize: 'none',
+      minHeight: 36
     }
   }
 })
