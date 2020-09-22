@@ -7,6 +7,7 @@ import {
 } from '@material-ui/core'
 import { css } from '@emotion/core'
 import { Close } from '@material-ui/icons'
+import { useEventListener } from '@/scripts/hooks'
 
 const styles = {
   modal: css`
@@ -28,6 +29,10 @@ type Props = {
   className?: string
 }
 
+/**
+ * 開いたモーダルを全て閉じるとき
+ * dispatchEvent(new CustomEvent('onDispatchCloseModal'))
+ */
 export const Modal: React.FC<Props> = ({ children, render, className }) => {
   const [open, setOpen] = useState(false)
 
@@ -36,6 +41,15 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
     setOpen(false)
   }
   const onClick = () => handleOpen()
+
+  useEventListener('onDispatchCloseModal', () => {
+    //NOTE: Modalを閉じるため
+    const backdrops = document.querySelectorAll('.MuiBackdrop-root')
+    if (backdrops)
+      [].forEach.call(backdrops, (backdrop: HTMLElement) => {
+        if (backdrop) backdrop.click()
+      })
+  })
 
   return (
     <div>

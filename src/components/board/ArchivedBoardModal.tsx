@@ -14,6 +14,12 @@ import { css } from '@emotion/core'
 import { useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 
+export const TEXT = {
+  DELETE_BOARD: 'ボードを削除しました。',
+  DELETE_CONFIRM:
+    '本当にボードを削除しても良いですか？ボードを再び開くことが出来なくなります'
+}
+
 export const ArchivedBoardModal: React.FC = () => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
@@ -52,15 +58,13 @@ export const ArchivedBoardModal: React.FC = () => {
   const onClickDelete = async (id: string) => {
     if (!userState.user || boardState.error) return
 
-    if (
-      !window.confirm(
-        '本当にボードを削除しても良いですか？ボードを再び開くことが出来なくなります'
-      )
-    )
-      return
+    if (!window.confirm(TEXT.DELETE_CONFIRM)) return
+
     try {
       await dispatch(deleteBoard({ id }))
-      showSnackbar({ message: 'ボードを削除しました。', type: 'info' })
+      showSnackbar({ message: TEXT.DELETE_BOARD, type: 'info' })
+
+      dispatchEvent(new CustomEvent('onDispatchCloseModal'))
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
     }
@@ -76,13 +80,7 @@ export const ArchivedBoardModal: React.FC = () => {
         type: 'info'
       })
 
-      //NOTE: Modalを閉じるため
-      const backdrops = document.querySelectorAll('.MuiBackdrop-root')
-      if (backdrops)
-        [].forEach.call(backdrops, (backdrop: HTMLElement) => {
-          if (backdrop) backdrop.click()
-        })
-
+      dispatchEvent(new CustomEvent('onDispatchCloseModal'))
       history.push(OPTION.PATH.BOARD + '/' + id)
     } catch ({ message }) {
       showSnackbar({
