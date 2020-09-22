@@ -122,10 +122,11 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
  */
 export const archiveBoard = asyncActionCreator<
   Pick<Board, 'id'>,
-  string,
+  Pick<Board, 'id'>,
   Error
 >('ARCHIVE_BOARD', async ({ id }) => {
   const { user }: UserState = store.getState().user
+
   if (user && user.uid) {
     let documentReference: firebase.firestore.DocumentReference
 
@@ -154,11 +155,12 @@ export const archiveBoard = asyncActionCreator<
         await firebase
           .firestore()
           .collection(`users/${user.uid}/archivedBoards/`)
-          .add(archiveBoard)
+          .doc(id)
+          .set(archiveBoard)
 
         await documentReference.delete()
       })
-      return id
+      return { id }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
@@ -172,10 +174,11 @@ export const archiveBoard = asyncActionCreator<
  */
 export const restoreBoard = asyncActionCreator<
   Pick<Board, 'id'>,
-  string,
+  Pick<Board, 'id'>,
   Error
 >('RESTORE_BOARD', async ({ id }) => {
   const { user }: UserState = store.getState().user
+
   if (user && user.uid) {
     let documentReference: firebase.firestore.DocumentReference
 
@@ -204,11 +207,12 @@ export const restoreBoard = asyncActionCreator<
         await firebase
           .firestore()
           .collection(`users/${user.uid}/boards/`)
-          .add(archiveBoard)
+          .doc(id)
+          .set(archiveBoard)
 
         await documentReference.delete()
       })
-      return id
+      return { id }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }

@@ -5,8 +5,8 @@ import {
   archiveList,
   fetchArchivedList,
   restoreList,
-  moveToArchivedList,
-  moveToList,
+  // moveToArchivedList,
+  // moveToList,
   updateList
 } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
@@ -102,10 +102,19 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
-  .case(archiveList.async.done, state => {
+  .case(archiveList.async.done, (state, { result }) => {
+    const lists = state.boards[result.boardId].lists
+    const archivedLists = state.boards[result.boardId].archivedLists
+    const index = lists.findIndex(list => list.id === result.id)
     return {
       ...state,
-      isLoading: false
+      isLoading: false,
+      boards: {
+        [result.boardId]: {
+          archivedLists: [...archivedLists.concat(lists[index])],
+          lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
+        }
+      }
     }
   })
   .case(deleteList.async.done, (state, { result }) => {
@@ -140,32 +149,16 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
-  .case(restoreList.async.done, (state, { params, result }) => {
-    const targetLists = state.boards[result.boardId].archivedLists
+  .case(restoreList.async.done, (state, { result }) => {
+    const archivedLists = state.boards[result.boardId].archivedLists
     const lists = state.boards[result.boardId].lists
-    const index = targetLists.findIndex(list => list.id === result.id)
+    const index = archivedLists.findIndex(list => list.id === result.id)
     return {
       ...state,
       isLoading: false,
       boards: {
         [result.boardId]: {
-          lists: [...lists.concat(targetLists[index])],
-          archivedLists: [
-            ...targetLists.slice(0, index),
-            ...targetLists.slice(index + 1)
-          ]
-        }
-      }
-    }
-  })
-  .case(moveToList, (state, params) => {
-    const { archivedLists, lists } = state.boards[params.boardId]
-    const index = archivedLists.findIndex(list => list.id === params.id)
-    return {
-      ...state,
-      boards: {
-        [params.boardId]: {
-          lists: lists.concat(params),
+          lists: [...lists.concat(archivedLists[index])],
           archivedLists: [
             ...archivedLists.slice(0, index),
             ...archivedLists.slice(index + 1)
@@ -174,19 +167,35 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
-  .case(moveToArchivedList, (state, params) => {
-    const { archivedLists, lists } = state.boards[params.boardId]
-    const index = lists.findIndex(list => list.id === params.id)
-    return {
-      ...state,
-      boards: {
-        [params.boardId]: {
-          archivedLists: archivedLists.concat(params),
-          lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
-        }
-      }
-    }
-  })
+  // .case(moveToList, (state, params) => {
+  //   const { archivedLists, lists } = state.boards[params.boardId]
+  //   const index = archivedLists.findIndex(list => list.id === params.id)
+  //   return {
+  //     ...state,
+  //     boards: {
+  //       [params.boardId]: {
+  //         lists: lists.concat(params),
+  //         archivedLists: [
+  //           ...archivedLists.slice(0, index),
+  //           ...archivedLists.slice(index + 1)
+  //         ]
+  //       }
+  //     }
+  //   }
+  // })
+  // .case(moveToArchivedList, (state, params) => {
+  //   const { archivedLists, lists } = state.boards[params.boardId]
+  //   const index = lists.findIndex(list => list.id === params.id)
+  //   return {
+  //     ...state,
+  //     boards: {
+  //       [params.boardId]: {
+  //         archivedLists: archivedLists.concat(params),
+  //         lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
+  //       }
+  //     }
+  //   }
+  // })
   .case(updateList.async.done, (state, { result }) => {
     const { archivedLists, lists } = state.boards[result.boardId]
     const index = lists.findIndex(list => list.id === result.id)

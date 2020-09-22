@@ -66,11 +66,11 @@ export const ArchivedBoardModal: React.FC = () => {
     }
   }
 
-  const onClickRestore = (e: any, id: string, title: string) => {
+  const onClickRestore = async (e: any, id: string, title: string) => {
     if (!userState.user || boardState.error) return
 
     try {
-      dispatch(restoreBoard({ id }))
+      await dispatch(restoreBoard({ id }))
       showSnackbar({
         message: `アーカイブされた「${title}」を戻しました。`,
         type: 'info'

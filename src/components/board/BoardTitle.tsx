@@ -61,13 +61,15 @@ export const BoardTitle: React.FC = () => {
    * 選択中のボードの情報を state で管理する
    */
   React.useEffect(() => {
+    if (!user.user) return
+
     const current = boardState.boards.find(board => board.id === boardId)
     if (current) {
       setCurrentBoard(current)
     } else {
       setCurrentBoard(null)
     }
-  }, [boardId, boardState, setCurrentBoard])
+  }, [boardId, boardState, setCurrentBoard, user.user])
 
   return (
     <div className="js-title-area" id="board-title">

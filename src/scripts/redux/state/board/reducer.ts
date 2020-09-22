@@ -105,7 +105,7 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
   .cases([archiveBoard.async.done], (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result)
+    const index = state.boards.findIndex(board => board.id === result.id)
     return {
       ...state,
       isLoading: false,
@@ -117,7 +117,9 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
   .cases([restoreBoard.async.done], (state, { result }) => {
-    const index = state.archivedBoards.findIndex(board => board.id === result)
+    const index = state.archivedBoards.findIndex(
+      board => board.id === result.id
+    )
     return {
       ...state,
       isLoading: false,
