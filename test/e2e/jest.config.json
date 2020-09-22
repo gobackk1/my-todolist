@@ -1,0 +1,39 @@
+{
+  "preset": "jest-puppeteer",
+  "testRegex": "/e2e/.*\\.e2e\\.([jt]sx?)",
+  "rootDir": "../../",
+  "globals": {
+    "ts-jest": {
+      "tsConfig": "tsconfig.jest.json"
+    }
+  },
+  "globalSetup": "./test/e2e/setup.js",
+  "globalTeardown": "./test/e2e/teardown.js",
+  "testEnvironment": "./test/e2e/puppeteer_environment.js",
+  "transform": {
+    "^.+\\.(js|jsx|mjs)$": "babel-jest",
+    "^.+\\.(ts|tsx)$": "ts-jest"
+  },
+  "transformIgnorePatterns": [
+    "/node_modules/(?!(xxxx.*?\\.js$))"
+  ],
+  "testPathIgnorePatterns": [
+    "/node_modules/"
+  ],
+  "moduleFileExtensions": [
+    "ts",
+    "tsx",
+    "js",
+    "json"
+  ],
+  "moduleNameMapper": {
+    "@/(.*)$": "<rootDir>/src/$1",
+    "~redux(.*)$": "<rootDir>/src/scripts/redux/$1"
+  },
+  "snapshotSerializers": [
+    "enzyme-to-json/serializer"
+  ],
+  "setupFilesAfterEnv": [
+    "<rootDir>/src/setupEnzyme.ts"
+  ]
+}

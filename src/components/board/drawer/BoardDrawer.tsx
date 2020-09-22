@@ -18,6 +18,7 @@ export const BoardDrawer: React.FC = () => {
       onClose={toggleDrawer}
       className={muiStyle['root']}
       variant="persistent"
+      id="drawer"
     >
       <Paper elevation={5}>
         <div css={styles['drawer-button']}>
@@ -25,6 +26,7 @@ export const BoardDrawer: React.FC = () => {
             onClick={toggleDrawer}
             variant="contained"
             startIcon={<MoreHoriz />}
+            id="btn-open-board-menu"
           >
             ボードメニューを表示
           </Button>

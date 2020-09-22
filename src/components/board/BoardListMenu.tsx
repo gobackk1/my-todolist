@@ -33,7 +33,7 @@ export const BoardListMenu: React.FC = () => {
   const history = useHistory()
   const { user, board } = useStore().getState()
 
-  const onClickCreate = async (title: string) => {
+  const onClickCreate = async ({ title }: Pick<Board, 'title'>) => {
     if (!user || board.error) return
 
     try {
@@ -75,7 +75,7 @@ export const BoardListMenu: React.FC = () => {
         {/* NOTE: サーバーからも検索するのであればここに表示 */}
         <Button
           onClick={() => {
-            onClickCreate(state.value)
+            onClickCreate({ title: state.value })
           }}
           className={muiStyles['create-board-button']}
         >
@@ -91,32 +91,27 @@ export const BoardListMenu: React.FC = () => {
         {boardState.isLoading ? (
           <LoadingSpinner />
         ) : (
-          <>
-            {boardState.boards.length ? (
-              <ul>
-                {boardState.boards.map((board, i) => {
-                  return (
-                    <div css={styles['menu-content-item']} key={i}>
-                      <Button
-                        to={`${OPTION.PATH.BOARD}/${board.id}`}
-                        component={Link}
-                        fullWidth={true}
-                        variant="contained"
-                        className={muiStyles['button-board']}
-                        onClick={() => {
-                          document.body.click()
-                        }}
-                      >
-                        {board.title}
-                      </Button>
-                    </div>
-                  )
-                })}
-              </ul>
-            ) : (
-              <Typography variant="body1">ボードはありません</Typography>
-            )}
-          </>
+          <ul id="list-board-menu">
+            {boardState.boards.length &&
+              boardState.boards.map((board, i) => {
+                return (
+                  <li css={styles['menu-content-item']} key={i}>
+                    <Button
+                      to={`${OPTION.PATH.BOARD}/${board.id}`}
+                      component={Link}
+                      fullWidth={true}
+                      variant="contained"
+                      className={muiStyles['button-board']}
+                      onClick={() => {
+                        document.body.click()
+                      }}
+                    >
+                      {board.title}
+                    </Button>
+                  </li>
+                )
+              })}
+          </ul>
         )}
       </>
     )
@@ -130,12 +125,13 @@ export const BoardListMenu: React.FC = () => {
           color="inherit"
           variant="contained"
           className={muiStyles['button-open']}
+          id="button-menu-open"
         >
           ボード一覧
         </Button>
       )}
     >
-      <div css={styles['menu-content']}>
+      <div css={styles['menu-content']} id="menu-board-list">
         <div css={styles['board-list']}>
           <BoardListSearchForm state={state} setState={setState} />
           {state.isSearching ? <SearchView /> : <BoardListView />}

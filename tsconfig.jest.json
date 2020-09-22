@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "commonjs",
     "noImplicitAny": false,
-    "strict": false
+    "strict": false,
+    "types": ["jest", "node"]
   },
   "baseUrl": "./",
   "paths": {

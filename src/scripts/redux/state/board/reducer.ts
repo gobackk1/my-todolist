@@ -12,7 +12,6 @@ import {
 export interface Board {
   id: string
   title: string
-  list: { title: string }[]
 }
 export interface BoardState {
   isLoading: boolean
@@ -80,8 +79,8 @@ export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.done
    */
-  .case(fetchBoards.async.done, (state, { result }) => {
-    return { ...state, isLoading: false, boards: result }
+  .case(fetchBoards.async.done, (state, payload) => {
+    return { ...state, isLoading: false, boards: payload.result }
   })
   .case(fetchArchivedBoards.async.done, (state, { result }) => {
     return { ...state, isLoading: false, archivedBoards: result }
@@ -106,7 +105,7 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
   .cases([archiveBoard.async.done], (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result)
+    const index = state.boards.findIndex(board => board.id === result.id)
     return {
       ...state,
       isLoading: false,
@@ -118,7 +117,9 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
   .cases([restoreBoard.async.done], (state, { result }) => {
-    const index = state.archivedBoards.findIndex(board => board.id === result)
+    const index = state.archivedBoards.findIndex(
+      board => board.id === result.id
+    )
     return {
       ...state,
       isLoading: false,

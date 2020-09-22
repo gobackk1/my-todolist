@@ -107,14 +107,12 @@ export const createList = asyncActionCreator<
   }
 })
 
-export const archiveList = asyncActionCreator<List, void, Error>(
+export const archiveList = asyncActionCreator<List, List | undefined, Error>(
   'ARCHIVE_LIST',
-  async (list, dispatch) => {
+  async list => {
     const { user }: UserState = store.getState().user
-    dispatch(moveToArchivedList(list))
 
     if (!(user && user.uid)) {
-      dispatch(moveToList(list))
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
 
@@ -131,21 +129,21 @@ export const archiveList = asyncActionCreator<List, void, Error>(
         firebase
           .firestore()
           .collection(`users/${user.uid}/archivedLists/`)
-          .add(archivedList),
+          .doc(list.id)
+          .set(archivedList),
         await documentReference.delete()
       ])
-
-      return
     } catch (e) {
-      dispatch(moveToList(list))
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
+
+    return list
   }
 )
 
 export const restoreList = asyncActionCreator<
-  Pick<List, 'id'> & { boardId: string },
-  Pick<List, 'id'> & { boardId: string },
+  Pick<List, 'id' | 'boardId'>,
+  Pick<List, 'id' | 'boardId'>,
   Error
 >('RESTORE_LIST', async ({ id, boardId }) => {
   const { user }: UserState = store.getState().user
@@ -178,10 +176,12 @@ export const restoreList = asyncActionCreator<
         await firebase
           .firestore()
           .collection(`users/${user.uid}/lists/`)
-          .add(archivedList)
+          .doc(id)
+          .set(archivedList)
 
         await documentReference.delete()
       })
+
       return { id, boardId }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)

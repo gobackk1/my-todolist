@@ -35,6 +35,8 @@ export const OPTION = {
         MAX_LENGTH_ERROR: 'タイトルは50字以内で指定してください',
         REQUIRED_ERROR: 'タイトルは必須です'
       }
-    }
+    },
+    ABORT:
+      'state でエラーが発生しているか、board の fetch 中に呼び出そうとしました。'
   }
 } as const

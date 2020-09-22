@@ -6,6 +6,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { Button, makeStyles } from '@material-ui/core'
 import { css } from '@emotion/core'
 import * as I from '@/scripts/model/interface'
+import { OPTION } from '@/option'
 
 export const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
   setOpen
@@ -24,7 +25,7 @@ export const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
     try {
       await dispatch(archiveBoard({ id: boardId }))
       setOpen(false)
-      history.push('/boards')
+      history.push(OPTION.PATH.BOARD)
     } catch ({ message }) {
       showSnackbar({
         message,
@@ -39,6 +40,7 @@ export const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
         onClick={onClickArchive}
         fullWidth
         className={muiStyle['archiveButton']}
+        id="btn-archive-board"
       >
         このボードをアーカイブ
       </Button>

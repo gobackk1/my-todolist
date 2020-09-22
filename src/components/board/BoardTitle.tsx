@@ -18,56 +18,61 @@ export const BoardTitle: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
 
-  const updateTitle = async (
-    e: React.FocusEvent<any> | React.KeyboardEvent<any>,
-    close: () => void
-  ) => {
-    if (!user || board.error || !currentBoard) return
+  const updateTitle = React.useCallback(
+    async (
+      e: React.FocusEvent<any> | React.KeyboardEvent<any>,
+      close: () => void
+    ) => {
+      if (!user || board.error || !currentBoard) return
 
-    const title = e.currentTarget.value
+      const title = e.currentTarget.value
 
-    close()
+      close()
 
-    if (title === currentBoard.title) return
+      if (title === currentBoard.title) return
 
-    if (title.length > 50) {
-      showSnackbar({
-        message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR,
-        type: 'error'
-      })
-      return
-    } else if (!title.length) {
-      showSnackbar({
-        message: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
-        type: 'error'
-      })
-      return
-    }
+      if (title.length > 50) {
+        showSnackbar({
+          message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR,
+          type: 'error'
+        })
+        return
+      } else if (!title.length) {
+        showSnackbar({
+          message: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
+          type: 'error'
+        })
+        return
+      }
 
-    try {
-      await dispatch(updateBoard({ title, id: boardId }))
-    } catch (e) {
-      showSnackbar({
-        message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
-        type: 'error'
-      })
-    }
-  }
+      try {
+        await dispatch(updateBoard({ title, id: boardId }))
+      } catch (e) {
+        showSnackbar({
+          message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+          type: 'error'
+        })
+      }
+    },
+    [board.error, boardId, currentBoard, dispatch, showSnackbar, user]
+  )
 
   /**
    * 選択中のボードの情報を state で管理する
    */
   React.useEffect(() => {
+    if (!user.user) return
+
     const current = boardState.boards.find(board => board.id === boardId)
     if (current) {
       setCurrentBoard(current)
     } else {
       setCurrentBoard(null)
     }
-  }, [boardId, boardState, setCurrentBoard])
+  }, [boardId, boardState, setCurrentBoard, user.user])
 
   return (
-    <div className="js-title-area">
+    <div className="js-title-area" id="board-title">
       {currentBoard ? (
         <ChangeableTitle
           title={currentBoard.title}
