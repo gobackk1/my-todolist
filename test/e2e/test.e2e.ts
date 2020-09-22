@@ -4,7 +4,8 @@
  * EXPECT: expect() でチェックする箇所をまとめる
  */
 
-import { TEXT } from '@/components/common/AppHeader'
+import { TEXT as AppHeader_TEXT } from '@/components/common/AppHeader'
+import { TEXT as ArchivedBoardModal_TEXT } from '@/components/board/ArchivedBoardModal'
 import { OPTION } from '@/option'
 import {
   test,
@@ -56,7 +57,7 @@ describe('E2Eテスト', () => {
       const buttonText = await (
         await buttonLogin.getProperty('textContent')
       ).jsonValue()
-      expect(buttonText).toContain(TEXT.BUTTON.LOGIN)
+      expect(buttonText).toContain(AppHeader_TEXT.BUTTON.LOGIN)
     })
 
     test('モーダルが閉じていること', async () => {
@@ -124,7 +125,7 @@ describe('E2Eテスト', () => {
         return img.src
       }, '#img-user-photo')
 
-      expect(buttonText).toContain(TEXT.BUTTON.LOGOUT)
+      expect(buttonText).toContain(AppHeader_TEXT.BUTTON.LOGOUT)
       expect(snackbarText).toBe(OPTION.MESSAGE.LOGIN.SUCCESS)
       expect(imageSrc).toContain('https://')
       expect(page.url()).toContain(OPTION.PATH.BOARD)
@@ -214,6 +215,7 @@ describe('E2Eテスト', () => {
          * STEP: アーカイブする確認ダイアログが出たら、OKを押す
          */
         page.on('dialog', dialog => {
+          // NOTE: テスト内で何回かダイアログを出すとき、ここにまとめる。
           dialog.accept()
         })
 
@@ -347,7 +349,7 @@ describe('E2Eテスト', () => {
         await page.waitFor(3000)
 
         /**
-         * EXPECT: 戻した後のボード数を調べ、差分が?になること
+         * EXPECT: ボード数が1増え、アーカイブボード数が1減ること
          */
         const afterBoardLength = await app.getBoardCount()
         await page.click('#button-menu-open')
@@ -413,8 +415,70 @@ describe('E2Eテスト', () => {
     })
 
     describe('ボード削除のテスト', () => {
-      test('アーカイブしたボードを削除できること', () => {
-        //
+      test('アーカイブしたボードを削除できること', async () => {
+        /**
+         * STEP: ボードをアーカイブする
+         */
+        await page.click('#btn-open-board-menu')
+        const buttonArchive = await page.waitForSelector('#btn-archive-board', {
+          visible: true
+        })
+        await buttonArchive.click()
+        // NOTE: ドロワーはアニメーションして閉じる&APIのレスポンス待ちなので
+        await page.waitFor(2000)
+
+        /**
+         * STEP: アーカイブ済みボードモーダルを開く
+         */
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
+        await page.click('#open-archived-board-modal')
+        await page.waitForSelector('#modal-archived-board-list')
+
+        /**
+         * STEP 削除前のアーカイブボード数を調べる
+         */
+        const beforeArchivedBoardLength = await page.$eval(
+          '#modal-archived-board-list',
+          node => node.childElementCount
+        )
+
+        /**
+         * STEP: 「削除する」を押して、フィードバックのテキストを取得するまで待つ
+         */
+        await page.click(
+          '#modal-archived-board-list li:first-child .btn-delete-board'
+        )
+        await page.waitForSelector('#board-inner')
+
+        await page.waitForSelector('.MuiSnackbar-root')
+        const snackbarText = await page.$eval(
+          '.MuiSnackbar-root',
+          node => node.innerText
+        )
+        await page.waitFor(3000)
+
+        /**
+         * EXPECT: 削除後のボード数が1減ること
+         */
+        await page.click('#button-menu-open')
+        await page.waitForSelector('#menu-board-list', {
+          visible: true
+        })
+        await page.click('#open-archived-board-modal')
+        await page.waitForSelector('#modal-archived-board-list')
+        const afterArchivedBoardLength = await page.$eval(
+          '#modal-archived-board-list',
+          node => node.childElementCount
+        )
+        expect(beforeArchivedBoardLength - afterArchivedBoardLength).toBe(1)
+
+        /**
+         * フィードバックテキストが正しいこと
+         */
+        expect(snackbarText).toBe(ArchivedBoardModal_TEXT.DELETE_BOARD)
       })
     })
 
