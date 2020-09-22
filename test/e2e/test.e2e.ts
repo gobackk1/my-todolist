@@ -305,7 +305,12 @@ describe('E2Eテスト', () => {
     describe('ボードアーカイブのテスト', () => {
       test('アーカイブしたボードを戻せること', async () => {
         /**
-         * STEP 戻す前のボード数を調べる
+         * STEP: 現在のURLを調べる
+         */
+        const beforeUrl = page.url()
+
+        /**
+         * STEP: 戻す前のボード数を調べる
          */
         const beforeBoardLength = await app.getBoardCount()
 
@@ -333,7 +338,8 @@ describe('E2Eテスト', () => {
         await page.click(
           '#modal-archived-board-list li:first-child .btn-restore-board'
         )
-        page.waitForSelector('.MuiSnackbar-root')
+        await page.waitForSelector('#board-inner')
+        await page.waitForSelector('.MuiSnackbar-root')
         const snackbarText = await page.$eval(
           '.MuiSnackbar-root',
           node => node.innerText
@@ -365,14 +371,44 @@ describe('E2Eテスト', () => {
         )
 
         /**
-         * EXPECT: 戻したボードに遷移すること(ここは実装も)
+         * EXPECT: 戻したボードに遷移すること
          */
+        expect(page.url() === beforeUrl).toBe(false)
+        await page.reload({
+          waitUntil: 'networkidle2'
+        })
       })
     })
 
     describe('ボード更新のテスト', () => {
-      test('ボードタイトルが更新できること', () => {
-        //
+      test('ボードタイトルが更新できること', async () => {
+        /**
+         * STEP: 変更前の input.value を取得する
+         */
+        const beforeValue = await page.$eval(
+          '#board-title input',
+          node => node.value
+        )
+
+        /**
+         * STEP: ボードタイトルを変更してページをリロードする
+         */
+        await page.click('#board-title button')
+        await page.waitForSelector('#board-title input', { visible: true })
+        await page.$eval(
+          '#board-title input',
+          node => (node.value = node.value + 'update')
+        )
+        await page.keyboard.down('Enter')
+
+        /**
+         * EXPECT: ボードタイトルが変更されていること
+         */
+        const buttonText = await page.$eval(
+          '#board-title button span',
+          node => node.textContent
+        )
+        expect(buttonText).toBe(beforeValue + 'update')
       })
     })
 

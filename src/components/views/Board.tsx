@@ -77,7 +77,7 @@ export const Board: React.FC = () => {
     <div css={styles['root']} id="board">
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
-        <>
+        <div id="board-inner">
           <Route
             path={OPTION.PATH.BOARD}
             exact
@@ -114,7 +114,7 @@ export const Board: React.FC = () => {
               </>
             )}
           />
-        </>
+        </div>
       )}
       <BoardDrawer />
     </div>
