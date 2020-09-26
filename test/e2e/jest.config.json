@@ -4,7 +4,7 @@
   "rootDir": "../../",
   "globals": {
     "ts-jest": {
-      "tsConfig": "tsconfig.jest.json"
+      "tsConfig": "./test/e2e/tsconfig.json"
     }
   },
   "globalSetup": "./test/e2e/setup.js",

@@ -10,6 +10,7 @@ import { setLoggingIn } from '@/scripts/redux/state/user/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import * as T from '@/scripts/model/type'
+import { theme } from '@/styles'
 
 export const TEXT = {
   BUTTON: {
@@ -19,12 +20,12 @@ export const TEXT = {
   }
 } as const
 
-const useStyles = makeStyles((theme: T.GlobalTheme) => ({
+const useStyles = makeStyles({
   root: {
     position: 'relative',
     zIndex: theme.zIndex.appHeader
   }
-}))
+})
 
 const styles = {
   h1: css`

@@ -1,6 +1,7 @@
 export { App } from './common/App'
 export { AppHeader } from './common/AppHeader'
 export { Authentication } from './common/Authentication'
+export { EmotionGlobal } from './common/EmotionGlobal'
 export { BoardListMenu } from './board/BoardListMenu'
 export { VariableInput } from './common/VariableInput'
 export { LoadingSpinner } from './common/LoadingSpinner'

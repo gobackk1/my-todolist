@@ -1,1 +1,1 @@
-export * from './modules/GlobalTheme'
+export {}

@@ -12,6 +12,7 @@ import { Button } from '@material-ui/core'
 import { fetchList, createList } from '@/scripts/redux/state/list/actions'
 import { OPTION } from '@/option'
 import { Add } from '@material-ui/icons'
+import { theme } from '@/styles'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -101,7 +102,10 @@ export const Board: React.FC = () => {
                         listState.boards[boardId] &&
                         listState.boards[boardId].lists.map((list, i) => {
                           return (
-                            <li key={i}>
+                            <li
+                              css={styles['card-list-container-item']}
+                              key={i}
+                            >
                               <CardList list={list} />
                             </li>
                           )
@@ -135,15 +139,15 @@ const styles = {
     padding: 10px;
     position: relative;
   `,
-  'board-header': (theme: T.GlobalTheme) => css`
+  'board-header': css`
     margin-bottom: ${theme.spacing(1)}px;
   `,
-  'card-list-container': (theme: T.GlobalTheme) => css`
+  'card-list-container': css`
     display: flex;
     flex-wrap: wrap;
-    li {
-      margin-right: ${theme.spacing(2)}px;
-      margin-bottom: ${theme.spacing(2)}px;
-    }
+  `,
+  'card-list-container-item': css`
+    margin-right: ${theme.spacing(2)}px;
+    margin-bottom: ${theme.spacing(2)}px;
   `
 }

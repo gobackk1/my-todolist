@@ -14,6 +14,7 @@ import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
 import { useParams } from 'react-router-dom'
 import { createCard } from '~redux/state/card/actions'
+import { theme } from '@/styles'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const muiStyles = useStyles()
@@ -140,7 +141,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
             card.lists[list.id].cards &&
             card.lists[list.id].cards.map((card, i) => {
               return (
-                <li key={i}>
+                <li key={i} css={styles['card-list-item']}>
                   <Button
                     fullWidth
                     variant="contained"
@@ -163,7 +164,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
                 close()
               }}
               component="textarea"
-              width={218}
+              width={234}
             />
           </li>
         </ul>
@@ -200,14 +201,23 @@ export const CardList: React.FC<Props> = ({ list }) => {
   )
 }
 
+const common = {
+  'card-list-item': css`
+    margin-bottom: ${theme.spacing(1)}px;
+  `
+}
+
 const styles = {
-  'card-list': (theme: T.GlobalTheme) => css`
+  'card-list': css`
     width: 250px;
     background: #ccc;
     padding: ${theme.spacing(1)}px;
     border-radius: ${theme.borderRadius(1)}px;
   `,
-  'card-list-header': (theme: T.GlobalTheme) => css`
+  'card-list-item': css`
+    ${common['card-list-item']};
+  `,
+  'card-list-header': css`
     display: flex;
     margin-bottom: ${theme.spacing(2)}px;
   `,
@@ -218,25 +228,26 @@ const styles = {
     font-size: 18px;
     width: 200px;
   `,
-  'card-list-menu': (theme: T.GlobalTheme) => css`
+  'card-list-menu': css`
     background: #ffffff;
     padding: ${theme.spacing(1)}px;
     width: 200px;
     border-radius: ${theme.borderRadius(1)}px;
   `,
+  'card-list-footer': css``,
   'card-list-input': css`
+    ${common['card-list-item']};
     .MuiButton-outlined {
       font-weight: normal;
     }
-  `,
-  'card-list-footer': css``
+  `
 }
 
 type Props = {
   list: List
 }
 
-const useStyles = makeStyles((theme: T.GlobalTheme) => ({
+const useStyles = makeStyles({
   root: {
     '& .MuiButton-root': {
       minWidth: 150,
@@ -277,4 +288,4 @@ const useStyles = makeStyles((theme: T.GlobalTheme) => ({
     //   marginLeft: 0
     // }
   }
-}))
+})

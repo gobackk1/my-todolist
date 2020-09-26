@@ -1,8 +1,8 @@
 import React from 'react'
 import { css } from '@emotion/core'
 import { useEventListener } from '@/scripts/hooks'
-import * as T from '@/scripts/model/type'
 import { Paper } from '@material-ui/core'
+import { theme } from '@/styles'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
@@ -82,7 +82,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 }
 
 const styles = {
-  menu: (theme: T.GlobalTheme) => css`
+  menu: css`
     position: relative;
     z-index: ${theme.zIndex.menu};
   `,
