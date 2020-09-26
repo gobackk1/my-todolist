@@ -1,4 +1,10 @@
-import { createCard, addCard, setCards } from './actions'
+import {
+  createCard,
+  addCard,
+  setCards,
+  updateCard,
+  deleteCard
+} from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
 // crud できるまで書く
@@ -6,6 +12,7 @@ import { reducerWithInitialState } from 'typescript-fsa-reducers'
 export interface Card {
   title: string
   listId: string
+  id: string
 }
 
 export interface cardState {
@@ -33,13 +40,13 @@ const initialState: cardState = {
 export const cardReducer = reducerWithInitialState(initialState)
   .cases(
     [
-      createCard.async.started
+      createCard.async.started,
       // fetchList.async.started,
-      // deleteList.async.started,
+      deleteCard.async.started,
       // archiveList.async.started,
       // fetchArchivedList.async.started,
       // restoreList.async.started,
-      // updateList.async.started
+      updateCard.async.started
     ],
     state => {
       return { ...state, isLoading: true }
@@ -47,13 +54,13 @@ export const cardReducer = reducerWithInitialState(initialState)
   )
   .cases(
     [
-      createCard.async.failed
+      createCard.async.failed,
       // fetchList.async.failed,
-      // deleteList.async.failed,
+      deleteCard.async.failed,
       // archiveList.async.failed,
       // fetchArchivedList.async.failed,
       // restoreList.async.failed,
-      // updateList.async.failed
+      updateCard.async.failed
     ],
     (state, { error }: any) => {
       return { ...state, isLoading: false, error }
@@ -80,6 +87,42 @@ export const cardReducer = reducerWithInitialState(initialState)
       }
     }
   })
+  .case(updateCard.async.done, (state, { params, result }) => {
+    const index = state.lists[params.listId].cards.findIndex(
+      card => card.id === params.id
+    )
+    const target = state.lists[params.listId]
+    return {
+      ...state,
+      isLoading: false,
+      lists: {
+        ...state.lists,
+        [params.listId]: {
+          ...target,
+          cards: [
+            ...target.cards.slice(0, index),
+            result,
+            ...target.cards.slice(index + 1)
+          ]
+        }
+      }
+    }
+  })
+  .case(deleteCard.async.done, (state, { result }) => {
+    const target = state.lists[result.listId].cards
+    const index = target.findIndex(card => card.id === result.id)
+    return {
+      ...state,
+      isLoading: false,
+      lists: {
+        ...state.lists,
+        [result.listId]: {
+          ...state.lists[result.listId],
+          cards: [...target.slice(0, index), ...target.slice(index + 1)]
+        }
+      }
+    }
+  })
   .case(addCard, (state, params) => {
     if (!(params.listId in state.lists)) {
       state.lists[params.listId] = { cards: [] }
@@ -89,7 +132,10 @@ export const cardReducer = reducerWithInitialState(initialState)
     const cards = state.lists[params.listId].cards
     return {
       ...state,
-      lists: { ...lists, [params.listId]: { cards: cards.concat(params) } }
+      lists: {
+        ...lists,
+        [params.listId]: { cards: cards.concat(params) }
+      }
     }
   })
   .case(setCards, (state, { listId, card }) => {

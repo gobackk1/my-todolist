@@ -1,19 +1,19 @@
 import React from 'react'
 import { List } from '~redux/state/list/reducer'
 import { css } from '@emotion/core'
-import { IconButton, Button, Typography, Paper } from '@material-ui/core'
-import { withStyles, makeStyles } from '@material-ui/styles'
+import { IconButton, Button, Paper } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
 import { MoreHoriz, Add } from '@material-ui/icons'
 import { Menu, VariableInput } from '@/components'
 import * as T from '@/scripts/model/type'
 import * as I from '@/scripts/model/interface'
-import { useDispatch, useStore, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { archiveList } from '~redux/state/list/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
 import { useParams } from 'react-router-dom'
-import { createCard } from '~redux/state/card/actions'
+import { createCard, updateCard, deleteCard } from '~redux/state/card/actions'
 import { theme } from '@/styles'
 
 export const CardList: React.FC<Props> = ({ list }) => {
@@ -107,6 +107,34 @@ export const CardList: React.FC<Props> = ({ list }) => {
     }
   }
 
+  const onClickUpdate = async id => {
+    const title = prompt('更新')
+    if (!title) return
+
+    try {
+      await dispatch(updateCard({ title, listId: list.id, id }))
+    } catch ({ message }) {
+      showSnackbar({
+        message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+        type: 'error'
+      })
+    }
+  }
+
+  const onClickDelete = async id => {
+    if (!confirm('削除して良いですか')) return
+
+    try {
+      console.log(id, list.id)
+      await dispatch(deleteCard({ listId: list.id, id }))
+    } catch ({ message }) {
+      showSnackbar({
+        message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+        type: 'error'
+      })
+    }
+  }
+
   return (
     <Paper elevation={1} className={muiStyles['paper']}>
       <div css={styles['card-list']}>
@@ -146,6 +174,12 @@ export const CardList: React.FC<Props> = ({ list }) => {
                     fullWidth
                     variant="contained"
                     className={muiStyles['button-card']}
+                    onClick={() => {
+                      onClickUpdate(card.id)
+                    }}
+                    onContextMenu={() => {
+                      onClickDelete(card.id)
+                    }}
                   >
                     {card.title}
                   </Button>

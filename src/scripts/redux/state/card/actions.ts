@@ -3,7 +3,7 @@ import { UserState } from '~redux/state/user/reducer'
 import { store } from '~redux/store'
 import { OPTION } from '@/option'
 import firebase from 'firebase'
-import { List } from '~redux/state/list/reducer'
+import { Card } from '~redux/state/card/reducer'
 
 // crud できるまで書く
 
@@ -61,17 +61,66 @@ export const createCard = asyncActionCreator<any, any, Error>(
     }
 
     try {
-      await firebase
+      const { id } = await firebase
         .firestore()
         .collection(`users/${user.uid}/lists/${listId}/cards`)
         .add({ title, listId })
 
-      return { title, listId }
+      return { id, title, listId }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   }
 )
+
+export const updateCard = asyncActionCreator<
+  Pick<Card, 'title' | 'id' | 'listId'>,
+  Pick<Card, 'title' | 'id' | 'listId'>,
+  Error
+>('UPDATE_CARD', async ({ listId, title, id }) => {
+  const { user }: UserState = store.getState().user
+
+  if (user && user.uid) {
+    try {
+      const documentReference = await firebase
+        .firestore()
+        .collection(`users/${user.uid}/lists/${listId}/cards`)
+        .doc(id)
+
+      documentReference.set({ title }, { merge: true })
+      return { id, title, listId }
+    } catch (e) {
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})
+
+export const deleteCard = asyncActionCreator<
+  Pick<Card, 'id' | 'listId'>,
+  Pick<Card, 'id' | 'listId'>,
+  Error
+>('DELETE_CARD', async ({ listId, id }) => {
+  const { user }: UserState = store.getState().user
+
+  if (user && user.uid) {
+    try {
+      await firebase
+        .firestore()
+        .collection(`users/${user.uid}/lists/${listId}/cards`)
+        .doc(id)
+        .delete()
+
+      return { id, listId }
+    } catch (e) {
+      console.log(e)
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+    }
+  } else {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  }
+})
 
 export const addCard = actionCreator<any>('ADD_CARD')
 export const setCards = actionCreator<any>('SET_CARDS')

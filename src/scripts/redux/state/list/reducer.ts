@@ -140,6 +140,7 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [result.boardId]: {
           archivedLists: [
             ...targetLists.slice(0, index),
