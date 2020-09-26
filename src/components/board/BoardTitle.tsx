@@ -6,7 +6,7 @@ import { updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch, useStore } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { OPTION } from '@/option'
-import { ChangeableTitle } from '@/components'
+import { VariableInput } from '@/components'
 
 export const BoardTitle: React.FC = () => {
   const [currentBoard, setCurrentBoard] = React.useState<IBoard | null>(
@@ -74,9 +74,9 @@ export const BoardTitle: React.FC = () => {
   return (
     <div className="js-title-area" id="board-title">
       {currentBoard ? (
-        <ChangeableTitle
-          title={currentBoard.title}
-          updateTitle={updateTitle}
+        <VariableInput
+          label={currentBoard.title}
+          onUpdate={updateTitle}
           component="input"
         />
       ) : null}

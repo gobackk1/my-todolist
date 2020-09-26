@@ -1,7 +1,7 @@
 import React from 'react'
 import { useParams, Route } from 'react-router-dom'
 import { fetchBoards } from '@/scripts/redux/state/board/actions'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch, useStore } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import * as T from '@/scripts/model/type'
 import { LoadingSpinner, CardList } from '@/components'
@@ -20,6 +20,7 @@ export const Board: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
   const listState = useSelector((state: I.ReduxState) => state.list)
+  // const {user, list, board, card }  = useStore().getState()
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const { boardId } = useParams<I.UrlParams>()
@@ -73,7 +74,6 @@ export const Board: React.FC = () => {
     if (!userState.user || listState.error) return
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
   }
-
   return (
     <div css={styles['root']} id="board">
       {boardState.isLoading && <LoadingSpinner />}

@@ -20,8 +20,6 @@ export const VariableInput: React.FC<Props> = ({
   const [isEditing, setEditing] = React.useState(false)
 
   React.useEffect(() => {
-    if (!label) return
-
     labelRef.current!.value = label
   }, [label, isEditing])
 
@@ -185,7 +183,8 @@ const useStyles = makeStyles({
       padding: '4px 8px',
       fontWeight: 'bold',
       resize: 'none',
-      minHeight: 36
+      minHeight: 36,
+      wordBreak: 'break-all'
     }
   }
 })
