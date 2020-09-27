@@ -5,6 +5,9 @@ export const OPTION = {
     HOME: '/',
     BOARD: '/boards'
   },
+  URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${
+    document.domain ? '8080' : ''
+  }/boards`,
   SNACKBAR: {
     AUTO_HIDE_DURATION: 5000,
     POSITION: {
@@ -36,6 +39,8 @@ export const OPTION = {
         REQUIRED_ERROR: 'タイトルは必須です'
       }
     },
+    SEND_EMAIL_VERIFICATION:
+      '確認メールを送信しました。受信メールを確認し、アカウントを有効化してから画面を更新してください',
     ABORT:
       'state でエラーが発生しているか、board の fetch 中に呼び出そうとしました。'
   }

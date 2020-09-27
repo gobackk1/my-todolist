@@ -27,7 +27,7 @@ export const PasswordField: React.FC<Props> = ({ errors, register }) => {
           message: 'パスワードは6~20文字の英数小文字で入力してください'
         }
       })}
-      type="text"
+      type="password"
       label="パスワード"
       helperText={errors.password && errors.password.message}
       variant="filled"
