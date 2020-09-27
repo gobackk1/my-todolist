@@ -4,12 +4,13 @@ import firebase from '@/scripts/firebase'
 import { OPTION } from '@/option'
 import { List } from './reducer'
 import { UserState } from '~redux/state/user/reducer'
+import { setCards } from '~redux/state/card/actions'
 
 export const fetchList = asyncActionCreator<
   Pick<List, 'boardId'>,
   List[][],
   Error
->('FETCH_LIST', async ({ boardId }) => {
+>('FETCH_LIST', async ({ boardId }, dispatch) => {
   const { user }: UserState = store.getState().user
   let lists: List[] = []
   let archivedLists: List[] = []
@@ -28,7 +29,6 @@ export const fetchList = asyncActionCreator<
 
       if (snapshot.empty) lists = []
       if (archivedSnapshot.empty) archivedLists = []
-
       snapshot.forEach(doc => {
         const { id } = doc
         const { title } = doc.data()
@@ -36,10 +36,33 @@ export const fetchList = asyncActionCreator<
       })
       archivedSnapshot.forEach(doc => {
         const { id } = doc
-        const { title } = doc.data()
+        const { title, cards } = doc.data()
+        dispatch(setCards({ listId: id, cards }))
         archivedLists.push({ boardId, id, title })
       })
+
+      const results = await Promise.all(
+        (() => {
+          const cardQueries = lists.map(list => {
+            return firebase
+              .firestore()
+              .collection(`users/${user.uid}/lists/${list.id}/cards`)
+              .get()
+          })
+          return cardQueries
+        })()
+      )
+      results.forEach(snapshot => {
+        snapshot.forEach(doc => {
+          const { id } = doc
+          const { listId, title } = doc.data()
+          dispatch(setCards({ listId, card: { title, id } }))
+        })
+      })
+
+      // アーカイブリストのカードはどうする？
     } catch (e) {
+      console.log(e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
 
@@ -97,7 +120,7 @@ export const createList = asyncActionCreator<
         .firestore()
         .collection(`users/${user.uid}/lists`)
         .add({ ...params })
-
+      // dispatch(setCardList(id))
       return { ...params, id }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)

@@ -27,3 +27,4 @@ firestore.rules
 .firebase
 
 /screenshot
+firebase-adminsdk.json

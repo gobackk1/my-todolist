@@ -44,12 +44,21 @@ const initialState: ListState = {
 }
 
 export const listReducer = reducerWithInitialState(initialState)
+  .case(createList.async.started, state => {
+    return { ...state, isLoading: true }
+  })
+  .case(deleteList.async.started, state => {
+    return { ...state, isLoading: true }
+  })
+  .case(archiveList.async.started, state => {
+    return { ...state, isLoading: true }
+  })
+  .case(createList.async.started, state => {
+    return { ...state, isLoading: true }
+  })
   .cases(
     [
-      createList.async.started,
       fetchList.async.started,
-      deleteList.async.started,
-      archiveList.async.started,
       fetchArchivedList.async.started,
       restoreList.async.started,
       updateList.async.started
@@ -58,12 +67,18 @@ export const listReducer = reducerWithInitialState(initialState)
       return { ...state, isLoading: true }
     }
   )
+  .case(createList.async.failed, (state, { error }: any) => {
+    return { ...state, isLoading: false, error }
+  })
+  .case(archiveList.async.failed, (state, { error }: any) => {
+    return { ...state, isLoading: false, error }
+  })
+  .case(deleteList.async.failed, (state, { error }: any) => {
+    return { ...state, isLoading: false, error }
+  })
   .cases(
     [
-      createList.async.failed,
       fetchList.async.failed,
-      deleteList.async.failed,
-      archiveList.async.failed,
       fetchArchivedList.async.failed,
       restoreList.async.failed,
       updateList.async.failed
@@ -102,7 +117,7 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
-  .case(archiveList.async.done, (state, { result }) => {
+  .case(archiveList.async.done, (state, { result }: any) => {
     const lists = state.boards[result.boardId].lists
     const archivedLists = state.boards[result.boardId].archivedLists
     const index = lists.findIndex(list => list.id === result.id)
@@ -125,6 +140,7 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [result.boardId]: {
           archivedLists: [
             ...targetLists.slice(0, index),

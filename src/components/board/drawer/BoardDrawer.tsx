@@ -1,10 +1,10 @@
 import React from 'react'
 import { Drawer, Button, Paper, makeStyles } from '@material-ui/core'
-import * as T from '@/scripts/model/type'
 import { DrawerArchivedItem, DrawerRoot } from '@/components'
 import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import { Route, Switch } from 'react-router-dom'
+import { theme } from '@/styles'
 
 export const BoardDrawer: React.FC = () => {
   const [open, setOpen] = React.useState(false)
@@ -57,7 +57,7 @@ const styles = {
   'drawer-content': css``
 }
 
-const useStyles = makeStyles((theme: T.GlobalTheme) => ({
+const useStyles = makeStyles({
   root: {
     position: 'relative',
     zIndex: theme.zIndex.boardDrawer,
@@ -70,4 +70,4 @@ const useStyles = makeStyles((theme: T.GlobalTheme) => ({
       height: '100%'
     }
   }
-}))
+})

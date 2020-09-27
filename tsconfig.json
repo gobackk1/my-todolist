@@ -12,8 +12,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react",
+    "jsx": "preserve",
     "baseUrl": "./",
     "noImplicitAny": false,
     "paths": {
@@ -21,7 +20,8 @@
       "~redux/*": ["src/scripts/redux/*"]
     },
     "types": ["jest", "node"],
-    "typeRoots": ["types"]
+    "typeRoots": ["types"],
+    "outDir": "./types"
   },
   "include": ["src", "test/e2e/test.e2e.ts", "e2e/test.e2e.ts"],
   "exclude": ["node_modules"]

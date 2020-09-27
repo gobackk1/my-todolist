@@ -3,25 +3,25 @@ import { withStyles, makeStyles } from '@material-ui/styles'
 import { useEventListener } from '@/scripts/hooks'
 import { Button } from '@material-ui/core'
 
+// ネーミングと幅をリファクタ
+
 type TitleElement = HTMLInputElement | HTMLTextAreaElement
 
-export const ChangeableTitle: React.FC<Props> = ({
-  title,
-  updateTitle,
+export const VariableInput: React.FC<Props> = ({
+  label,
+  onUpdate,
   component,
   width
 }) => {
   // NOTE: titleRef はアンマウントしないので
   /* eslint @typescript-eslint/no-non-null-assertion: off */
-  const titleRef = React.useRef<TitleElement>(null)
+  const labelRef = React.useRef<TitleElement>(null)
   const styles = useStyles()
   const [isEditing, setEditing] = React.useState(false)
 
   React.useEffect(() => {
-    if (!title) return
-
-    titleRef.current!.value = title
-  }, [title, isEditing])
+    labelRef.current!.value = label
+  }, [label, isEditing])
 
   /**
    * ボードタイトル変更 input 以外をクリックしたら、編集終了してタイトルを表示
@@ -32,17 +32,17 @@ export const ChangeableTitle: React.FC<Props> = ({
       if ((e.target as HTMLElement).closest('.js-title-area')) return
       if (isEditing) setEditing(false)
     },
-    titleRef.current ? titleRef.current : undefined
+    labelRef.current ? labelRef.current : undefined
   )
 
   const onBlurTitle = async (e: React.FocusEvent<TitleElement>) => {
-    await updateTitle(e, () => setEditing(false))
+    await onUpdate(e, () => setEditing(false))
   }
 
   const onKeyDownTitle = async (e: React.KeyboardEvent<TitleElement>) => {
     // NOTE: EnterKey以外はリターン
     if (e.keyCode !== 13) return
-    await updateTitle(e, () => setEditing(false))
+    await onUpdate(e, () => setEditing(false))
   }
 
   const onClickTitle = () => {
@@ -51,8 +51,8 @@ export const ChangeableTitle: React.FC<Props> = ({
 
     // HACK: 非同期しないとテキストが選択状態にならない
     setTimeout(() => {
-      titleRef.current!.focus()
-      titleRef.current!.select()
+      labelRef.current!.focus()
+      labelRef.current!.select()
     }, 0)
   }
 
@@ -61,12 +61,12 @@ export const ChangeableTitle: React.FC<Props> = ({
    * textarea: 縦にリサイズ
    */
   const resize = () => {
-    const inputStyles = getComputedStyle(titleRef.current!)
+    const inputStyles = getComputedStyle(labelRef.current!)
     if (!inputStyles) return
 
     if (component === 'input') {
       const span = document.createElement('span')
-      span.innerHTML = titleRef.current!.value
+      span.innerHTML = labelRef.current!.value
       span.style.padding = inputStyles.padding
       span.style.fontFamily = inputStyles.fontFamily
       span.style.fontSize = inputStyles.fontSize
@@ -80,10 +80,10 @@ export const ChangeableTitle: React.FC<Props> = ({
       document.body.appendChild(span)
       const spanWidth = span.offsetWidth
       document.body.removeChild(span)
-      titleRef.current!.style.width = `${spanWidth + 4}px`
+      labelRef.current!.style.width = `${spanWidth + 4}px`
     } else {
       const span = document.createElement('span')
-      span.innerHTML = titleRef.current!.value
+      span.innerHTML = labelRef.current!.value
       span.style.padding = inputStyles.padding
       span.style.fontFamily = inputStyles.fontFamily
       span.style.fontSize = inputStyles.fontSize
@@ -101,7 +101,7 @@ export const ChangeableTitle: React.FC<Props> = ({
       document.body.appendChild(span)
       const spanHeight = span.offsetHeight
       document.body.removeChild(span)
-      titleRef.current!.style.height = `${spanHeight}px`
+      labelRef.current!.style.height = `${spanHeight}px`
     }
   }
 
@@ -116,13 +116,13 @@ export const ChangeableTitle: React.FC<Props> = ({
           component === 'input' ? styles['button'] : styles['button-textarea']
         }
       >
-        {title}
+        {label}
       </BoardTitleButton>
       {component === 'input' ? (
         <input
           name="title"
           type="text"
-          ref={titleRef as React.RefObject<HTMLInputElement>}
+          ref={labelRef as React.RefObject<HTMLInputElement>}
           onBlur={onBlurTitle}
           onKeyDown={onKeyDownTitle}
           onChange={resize}
@@ -134,7 +134,7 @@ export const ChangeableTitle: React.FC<Props> = ({
       ) : (
         <textarea
           name="title"
-          ref={titleRef as React.RefObject<HTMLTextAreaElement>}
+          ref={labelRef as React.RefObject<HTMLTextAreaElement>}
           onBlur={onBlurTitle}
           onKeyDown={onKeyDownTitle}
           onChange={resize}
@@ -174,14 +174,17 @@ const useStyles = makeStyles({
       border: '2px solid transparent',
       fontWeight: 'bold',
       width: '100%',
-      wordBreak: 'break-all'
+      wordBreak: 'break-all',
+      minHeight: 36
     }
   },
   input: {
     '&.MuiButton-outlined': {
       padding: '4px 8px',
       fontWeight: 'bold',
-      resize: 'none'
+      resize: 'none',
+      minHeight: 36,
+      wordBreak: 'break-all'
     }
   }
 })
@@ -193,8 +196,8 @@ const BoardTitleButton = withStyles({
 })(Button)
 
 type Props = {
-  title: string
-  updateTitle: (
+  label: string
+  onUpdate: (
     e: React.FocusEvent<TitleElement> | React.KeyboardEvent<TitleElement>,
     close: () => void
   ) => void
