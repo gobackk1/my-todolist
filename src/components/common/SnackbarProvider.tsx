@@ -2,8 +2,7 @@ import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react'
 import {
   Snackbar as MuiSnackbar,
   SnackbarCloseReason,
-  SnackbarOrigin,
-  makeStyles
+  SnackbarOrigin
   // Slide
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'

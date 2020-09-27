@@ -1,9 +1,8 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/model/interface'
-import { Button, makeStyles, Typography, TextField } from '@material-ui/core'
+import { useDispatch } from 'react-redux'
+import { Button, makeStyles, Typography } from '@material-ui/core'
 import firebase from 'firebase'
-import { useHistory, Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
@@ -64,7 +63,6 @@ type FormValue = {
 }
 
 export const LoginView: React.FC<Props> = ({ setView }) => {
-  const userState = useSelector((state: I.ReduxState) => state.user)
   const dispatch = useDispatch()
   const history = useHistory()
   const { showSnackbar } = useSnackbarContext()
@@ -73,8 +71,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
     register,
     handleSubmit,
     errors,
-    formState: { isDirty, isSubmitting, isValid },
-    reset
+    formState: { isDirty, isSubmitting, isValid }
   } = useForm({ mode: 'onChange' })
 
   const onClickGoogleLogin = React.useCallback(async () => {

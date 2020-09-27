@@ -6,8 +6,6 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import firebase from 'firebase'
 import { OPTION } from '@/option'
 import { useSnackbarContext } from '@/scripts/hooks'
-import * as I from '@/scripts/model/interface'
-import { useSelector } from 'react-redux'
 import { css } from '@emotion/core'
 
 export const TEXT = {
@@ -56,11 +54,9 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
     register,
     handleSubmit,
     errors,
-    formState: { isDirty, isSubmitting, isValid },
-    reset
+    formState: { isDirty, isSubmitting, isValid }
   } = useForm({ mode: 'onChange' })
   const { showSnackbar } = useSnackbarContext()
-  const userState = useSelector((state: I.ReduxState) => state.user)
 
   const onSubmit: SubmitHandler<FormValue> = async ({ email, password }) => {
     try {

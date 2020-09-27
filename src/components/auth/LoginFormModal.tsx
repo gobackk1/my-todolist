@@ -1,23 +1,13 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
-import { LoadingSpinner, Modal, LoginView, SignUpView } from '@/components'
-import { Button, makeStyles, Typography } from '@material-ui/core'
+import { Modal, LoginView, SignUpView } from '@/components'
+import { Button } from '@material-ui/core'
 import firebase from 'firebase'
-import { useHistory, Link } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
-import { css } from '@emotion/core'
-import { theme } from '@/styles'
-
-const useStyles = makeStyles(() => ({
-  title: {
-    textAlign: 'center',
-    marginBottom: theme.spacing(3),
-    fontWeight: 'bold'
-  }
-}))
 
 export const LoginFormModal: React.FC = () => {
   const userState = useSelector((state: I.ReduxState) => state.user)
@@ -25,7 +15,6 @@ export const LoginFormModal: React.FC = () => {
   const history = useHistory()
   const { showSnackbar } = useSnackbarContext()
   const [view, setView] = React.useState<'login' | 'signup'>('login')
-  const muiStyles = useStyles()
 
   useEventListener('onModalClose', () => {
     setTimeout(() => {
