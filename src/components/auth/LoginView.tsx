@@ -11,14 +11,48 @@ import { css } from '@emotion/core'
 import { theme } from '@/styles'
 import { EMailField, PasswordField, LoginOrSignUpForm } from '@/components'
 import { useForm, SubmitHandler } from 'react-hook-form'
+import iconGoogle from '@/images/icon_google.png'
 
 const useStyles = makeStyles(() => ({
   title: {
     textAlign: 'center',
     marginBottom: theme.spacing(3),
     fontWeight: 'bold'
+  },
+  'sub-title': {
+    textAlign: 'center',
+    margin: `${theme.spacing(2)}px 0`
+  },
+  'button-google': {
+    '& img': {
+      marginRight: theme.spacing(1)
+    }
   }
 }))
+
+const styles = {
+  section: css`
+    width: 300px;
+
+    .MuiButtonBase-root {
+      margin-bottom: ${theme.spacing(2)}px;
+    }
+  `,
+  buttons: css`
+    display: flex;
+    justify-content: space-between;
+  `,
+  license: css`
+    margin-top: ${theme.spacing(2)}px;
+    font-size: 12px;
+    color: #8a8a8a;
+    text-align: center;
+
+    a {
+      color: inherit;
+    }
+  `
+}
 
 type Props = {
   setView: React.Dispatch<React.SetStateAction<'login' | 'signup'>>
@@ -110,7 +144,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
   }
 
   return (
-    <section id="modal-login">
+    <section id="modal-login" css={styles['section']}>
       <Typography variant="h3" className={muiStyles['title']}>
         ログイン
       </Typography>
@@ -119,29 +153,59 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         <br />
         <PasswordField errors={errors} register={register} />
         <br />
-        <Button
-          variant="contained"
-          disableElevation
-          type="submit"
-          disabled={!isDirty || isSubmitting || !isValid}
-        >
-          ログイン
-        </Button>
+        <div css={styles['buttons']}>
+          <Button
+            variant="contained"
+            disableElevation
+            type="submit"
+            disabled={!isDirty || isSubmitting || !isValid}
+          >
+            ログイン
+          </Button>
+          <Button
+            onClick={() => {
+              setView('signup')
+            }}
+            variant="contained"
+            disableElevation
+          >
+            新規登録へ
+          </Button>
+        </div>
       </LoginOrSignUpForm>
-      <button
+      <Typography variant="h4" className={muiStyles['sub-title']}>
+        または
+      </Typography>
+      <Button
         onClick={onClickGoogleLogin}
-        type="button"
         id="btn-login-with-google"
+        variant="contained"
+        fullWidth
+        className={muiStyles['button-google']}
       >
+        <img src={iconGoogle} alt="googleアイコン" />
         Google アカウントでログイン
-      </button>
-      <button
-        onClick={() => {
-          setView('signup')
-        }}
-      >
-        signup
-      </button>
+      </Button>
+      <p css={styles['license']}>
+        Icons made by
+        <a
+          href="https://www.flaticon.com/authors/freepik"
+          target="_blank"
+          rel="noreferrer"
+          title="Freepik"
+        >
+          Freepik
+        </a>
+        from
+        <a
+          href="https://www.flaticon.com/"
+          target="_blank"
+          rel="noreferrer"
+          title="Flaticon"
+        >
+          www.flaticon.com
+        </a>
+      </p>
     </section>
   )
 }

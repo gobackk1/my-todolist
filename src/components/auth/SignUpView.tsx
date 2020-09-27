@@ -8,6 +8,7 @@ import { OPTION } from '@/option'
 import { useSnackbarContext } from '@/scripts/hooks'
 import * as I from '@/scripts/model/interface'
 import { useSelector } from 'react-redux'
+import { css } from '@emotion/core'
 
 export const TEXT = {
   BUTTON: {
@@ -17,6 +18,20 @@ export const TEXT = {
   },
   REQUIRE_EMAIL: 'メールアドレスは必須です'
 } as const
+
+const styles = {
+  section: css`
+    width: 300px;
+
+    .MuiButtonBase-root {
+      margin-bottom: ${theme.spacing(2)}px;
+    }
+  `,
+  buttons: css`
+    display: flex;
+    justify-content: space-between;
+  `
+}
 
 const useStyles = makeStyles(() => ({
   title: {
@@ -84,31 +99,35 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
   }
 
   return (
-    <section>
+    <section css={styles['section']}>
       <Typography variant="h3" className={muiStyles['title']}>
-        サインアップ
+        新規登録
       </Typography>
       <LoginOrSignUpForm onSubmit={handleSubmit(onSubmit)}>
         <EMailField errors={errors} register={register} />
         <br />
         <PasswordField errors={errors} register={register} />
         <br />
-        <Button
-          type="submit"
-          variant="contained"
-          disableElevation
-          disabled={!isDirty || isSubmitting || !isValid}
-        >
-          登録
-        </Button>
+        <div css={styles['buttons']}>
+          <Button
+            type="submit"
+            variant="contained"
+            disableElevation
+            disabled={!isDirty || isSubmitting || !isValid}
+          >
+            登録
+          </Button>
+          <Button
+            onClick={() => {
+              setView('login')
+            }}
+            variant="contained"
+            disableElevation
+          >
+            ログインへ
+          </Button>
+        </div>
       </LoginOrSignUpForm>
-      <button
-        onClick={() => {
-          setView('login')
-        }}
-      >
-        login
-      </button>
     </section>
   )
 }

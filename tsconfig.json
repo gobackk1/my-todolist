@@ -19,10 +19,8 @@
       "@/*": ["src/*"],
       "~redux/*": ["src/scripts/redux/*"]
     },
-    "types": ["jest", "node"],
-    "typeRoots": ["types"],
-    "outDir": "./types"
+    "types": ["jest", "node"]
   },
-  "include": ["src", "test/e2e/test.e2e.ts", "e2e/test.e2e.ts"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

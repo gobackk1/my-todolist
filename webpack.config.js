@@ -44,6 +44,13 @@ module.exports = (env, argv) => {
           options: {
             eslintPath: 'eslint'
           }
+        },
+        {
+          test: /\.(jpg|png|gif)$/,
+          loader: 'file-loader',
+          options: {
+            name: 'images/[name].[ext]'
+          }
         }
       ]
     },
