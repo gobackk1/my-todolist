@@ -5,7 +5,7 @@ import { LoadingSpinner, Modal, LoginView, SignUpView } from '@/components'
 import { Button, makeStyles, Typography } from '@material-ui/core'
 import firebase from 'firebase'
 import { useHistory, Link } from 'react-router-dom'
-import { useSnackbarContext } from '@/scripts/hooks'
+import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
 import { css } from '@emotion/core'
@@ -27,6 +27,12 @@ export const LoginFormModal: React.FC = () => {
   const [view, setView] = React.useState<'login' | 'signup'>('login')
   const muiStyles = useStyles()
 
+  useEventListener('onModalClose', () => {
+    setTimeout(() => {
+      setView('login')
+    }, 500)
+  })
+
   const onClickLogout = React.useCallback(async () => {
     dispatch(setLoggingIn(true))
     try {
@@ -45,6 +51,7 @@ export const LoginFormModal: React.FC = () => {
       dispatch(setLoggingIn(false))
     }
   }, [history, showSnackbar, dispatch])
+
   return (
     <>
       {userState.user === null ? (

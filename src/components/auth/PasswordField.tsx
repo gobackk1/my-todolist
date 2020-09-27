@@ -3,14 +3,14 @@ import { TextField } from '@material-ui/core'
 import { DeepMap, FieldError } from 'react-hook-form'
 
 type Props = {
-  errors: DeepMap<Record<string, any>, FieldError>
+  errors?: DeepMap<Record<string, any>, FieldError>
   register: any
 }
 
 export const PasswordField: React.FC<Props> = ({ errors, register }) => {
   return (
     <TextField
-      error={!!errors.password}
+      error={errors ? !!errors.password : false}
       name="password"
       inputRef={register({
         required: 'パスワードは必須です',
@@ -29,7 +29,7 @@ export const PasswordField: React.FC<Props> = ({ errors, register }) => {
       })}
       type="password"
       label="パスワード"
-      helperText={errors.password && errors.password.message}
+      helperText={errors ? errors.password && errors.password.message : false}
       variant="filled"
       size="small"
       required={true}

@@ -151,7 +151,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
       <LoginOrSignUpForm onSubmit={handleSubmit(onSubmit)}>
         <EMailField errors={errors} register={register} />
         <br />
-        <PasswordField errors={errors} register={register} />
+        <PasswordField register={register} />
         <br />
         <div css={styles['buttons']}>
           <Button
@@ -187,7 +187,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         Google アカウントでログイン
       </Button>
       <p css={styles['license']}>
-        Icons made by
+        {`Icons made by `}
         <a
           href="https://www.flaticon.com/authors/freepik"
           target="_blank"
@@ -196,7 +196,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         >
           Freepik
         </a>
-        from
+        {` from `}
         <a
           href="https://www.flaticon.com/"
           target="_blank"

@@ -40,6 +40,7 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => {
+    window.dispatchEvent(new CustomEvent('onModalClose'))
     setOpen(false)
   }
   const onClick = () => handleOpen()
