@@ -8,6 +8,7 @@ import {
 import { css } from '@emotion/core'
 import { Close } from '@material-ui/icons'
 import { useEventListener } from '@/scripts/hooks'
+import { theme } from '@/styles'
 
 const styles = {
   modal: css`
@@ -18,6 +19,7 @@ const styles = {
   'modal-inner': css`
     background: #fff;
     padding: 20px;
+    border-radius: ${theme.borderRadius(1)}px;
   `,
   'modal-inner-header': css`
     text-align: right;
@@ -38,6 +40,7 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
 
   const handleOpen = () => setOpen(true)
   const handleClose = () => {
+    window.dispatchEvent(new CustomEvent('onModalClose'))
     setOpen(false)
   }
   const onClick = () => handleOpen()

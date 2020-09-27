@@ -2,8 +2,7 @@ import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react'
 import {
   Snackbar as MuiSnackbar,
   SnackbarCloseReason,
-  SnackbarOrigin,
-  makeStyles
+  SnackbarOrigin
   // Slide
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
@@ -54,10 +53,7 @@ export const SnackbarProvider: React.FC<Props> = ({
       { message, type, key: new Date().getTime() }
     ])
 
-    // NOTE: error 発生時は画面操作ができなくなるため、フィードバックを常に表示しておく
-    type === 'error'
-      ? setAutoHideSeconds(null)
-      : setAutoHideSeconds(autoHideDuration)
+    setAutoHideSeconds(autoHideDuration)
   }
 
   const closeSnackbar = (

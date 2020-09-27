@@ -5,7 +5,7 @@ import { IconButton, Button, Paper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { MoreHoriz, Add } from '@material-ui/icons'
 import { Menu, VariableInput } from '@/components'
-import * as T from '@/scripts/model/type'
+// import * as T from '@/scripts/model/type'
 import * as I from '@/scripts/model/interface'
 import { useDispatch, useSelector } from 'react-redux'
 import { archiveList } from '~redux/state/list/actions'
@@ -221,6 +221,8 @@ export const CardList: React.FC<Props> = ({ list }) => {
             <Button
               onClick={() => {
                 setCreating(true)
+                // 両エレメントはアンマウントしないので
+                /* eslint-disable-next-line */
                 inputRef.current!.querySelector('button')!.click()
               }}
               fullWidth

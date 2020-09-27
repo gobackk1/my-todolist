@@ -38,7 +38,7 @@ export type AppTheme = {
 
 const appTheme: AppTheme = {
   zIndex: {
-    snackbar: 20,
+    snackbar: 40,
     appHeader: 10,
     boardDrawer: 10,
     menu: 5,

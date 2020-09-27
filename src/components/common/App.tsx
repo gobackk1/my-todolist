@@ -39,22 +39,23 @@ export const App: React.FC = () => {
         <EmotionGlobal />
         <BrowserRouter>
           <ReduxProvider store={store}>
-            <Authentication>
-              <SnackbarProvider
-                autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
-                position={OPTION.SNACKBAR.POSITION}
-              >
-                <AppHeader />
+            <SnackbarProvider
+              autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
+              position={OPTION.SNACKBAR.POSITION}
+            >
+              <AppHeader />
+              <Authentication>
                 <Switch>
                   <Route
                     path={`${OPTION.PATH.BOARD}/:boardId`}
                     component={Board}
                   />
                   <Route path={OPTION.PATH.BOARD} component={Board} />
+                  <Route path="/login" exact component={Home} />
                   <Route path="/" exact component={Home} />
                 </Switch>
-              </SnackbarProvider>
-            </Authentication>
+              </Authentication>
+            </SnackbarProvider>
           </ReduxProvider>
         </BrowserRouter>
       </EmotionThemeProvider>

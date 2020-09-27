@@ -5,6 +5,9 @@ export const OPTION = {
     HOME: '/',
     BOARD: '/boards'
   },
+  URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${
+    document.domain ? '8080' : ''
+  }/boards`,
   SNACKBAR: {
     AUTO_HIDE_DURATION: 5000,
     POSITION: {
@@ -35,6 +38,17 @@ export const OPTION = {
         MAX_LENGTH_ERROR: 'タイトルは50字以内で指定してください',
         REQUIRED_ERROR: 'タイトルは必須です'
       }
+    },
+    AUTH: {
+      SEND_EMAIL_VERIFICATION:
+        '確認メールを送信しました。受信メールを確認し、アカウントを有効化してから画面を更新してください',
+      EMAIL_ALREADY_IN_USE:
+        'すでに利用されているメールアドレスです。別のメールアドレスを入力してください',
+      USER_NOT_FOUND:
+        'メールアドレスが見つかりませんでした。まずはサインインしてユーザーを登録してください',
+      USER_DISABLED:
+        'ロックされたアカウントです。ロックを解除するにはサポートに問い合わせてください',
+      WRONG_PASSWORD: 'パスワードが正しくありません。もう一度やり直してください'
     },
     ABORT:
       'state でエラーが発生しているか、board の fetch 中に呼び出そうとしました。'

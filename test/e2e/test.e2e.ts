@@ -4,7 +4,6 @@
  * EXPECT: expect() でチェックする箇所をまとめる
  */
 
-import { TEXT as AppHeader_TEXT } from '@/components/common/AppHeader'
 import { TEXT as ArchivedBoardModal_TEXT } from '@/components/board/ArchivedBoardModal'
 import { OPTION } from '@/option'
 import {
@@ -57,7 +56,7 @@ describe('E2Eテスト', () => {
       const buttonText = await (
         await buttonLogin.getProperty('textContent')
       ).jsonValue()
-      expect(buttonText).toContain(AppHeader_TEXT.BUTTON.LOGIN)
+      expect(buttonText).toContain('ログイン')
     })
 
     test('モーダルが閉じていること', async () => {
@@ -125,7 +124,7 @@ describe('E2Eテスト', () => {
         return img.src
       }, '#img-user-photo')
 
-      expect(buttonText).toContain(AppHeader_TEXT.BUTTON.LOGOUT)
+      expect(buttonText).toContain('ログアウト')
       expect(snackbarText).toBe(OPTION.MESSAGE.LOGIN.SUCCESS)
       expect(imageSrc).toContain('https://')
       expect(page.url()).toContain(OPTION.PATH.BOARD)
