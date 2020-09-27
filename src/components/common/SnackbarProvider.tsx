@@ -54,10 +54,7 @@ export const SnackbarProvider: React.FC<Props> = ({
       { message, type, key: new Date().getTime() }
     ])
 
-    // NOTE: error 発生時は画面操作ができなくなるため、フィードバックを常に表示しておく
-    type === 'error'
-      ? setAutoHideSeconds(null)
-      : setAutoHideSeconds(autoHideDuration)
+    setAutoHideSeconds(autoHideDuration)
   }
 
   const closeSnackbar = (

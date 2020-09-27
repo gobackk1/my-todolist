@@ -17,7 +17,7 @@ export const BeforeVerified: React.FC = () => {
         url: OPTION.URL_AFTER_EMAIL_CONFIRMATION
       })
       showSnackbar({
-        message: OPTION.MESSAGE.SEND_EMAIL_VERIFICATION,
+        message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
         type: 'info'
       })
     }

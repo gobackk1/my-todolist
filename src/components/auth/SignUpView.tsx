@@ -54,24 +54,32 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
        */
       await firebase.auth().createUserWithEmailAndPassword(email, password)
 
-      // すでにユーザーが登録済みだったらフィードバックを返す
-
-      const user = firebase.auth().currentUser
-
       /**
        * 登録後、確認メールを送信する
        */
+      const user = firebase.auth().currentUser
       if (user) {
-        user.sendEmailVerification({
+        await user.sendEmailVerification({
           url: OPTION.URL_AFTER_EMAIL_CONFIRMATION
         })
         showSnackbar({
-          message: OPTION.MESSAGE.SEND_EMAIL_VERIFICATION,
+          message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
           type: 'info'
         })
       }
     } catch (e) {
       console.log(e)
+      if (e.code === 'auth/email-already-in-use') {
+        showSnackbar({
+          message: OPTION.MESSAGE.AUTH.EMAIL_ALREADY_IN_USE,
+          type: 'info'
+        })
+      } else {
+        showSnackbar({
+          message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+          type: 'error'
+        })
+      }
     }
   }
 
