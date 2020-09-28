@@ -13,8 +13,7 @@ export const BoardWithBackground: React.FC = ({ children }) => {
   const index = boardState.boards.findIndex(board => board.id === boardId)
 
   const bgUrl = () => {
-    // init 追加する
-    if (index === -1) return ''
+    if (!boardState.init) return ''
     switch (boardState.boards[index].backgroundImage) {
       case 'bg_photo_1':
         return bg1

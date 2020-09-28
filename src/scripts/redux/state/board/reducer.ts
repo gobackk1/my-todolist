@@ -15,6 +15,7 @@ export interface Board {
   backgroundImage: string
 }
 export interface BoardState {
+  init: boolean
   isLoading: boolean
   error: Error | null
   boards: Board[]
@@ -22,6 +23,7 @@ export interface BoardState {
 }
 
 export const initialState: BoardState = {
+  init: false,
   isLoading: false,
   error: null,
   boards: [] as Board[],
@@ -81,14 +83,15 @@ export const boardReducer = reducerWithInitialState(initialState)
    * async.done
    */
   .case(fetchBoards.async.done, (state, payload) => {
-    return { ...state, isLoading: false, boards: payload.result }
+    return { ...state, init: true, isLoading: false, boards: payload.result }
   })
   .case(fetchArchivedBoards.async.done, (state, { result }) => {
-    return { ...state, isLoading: false, archivedBoards: result }
+    return { ...state, init: true, isLoading: false, archivedBoards: result }
   })
   .cases([createBoard.async.done], (state, { result }) => {
     return {
       ...state,
+      init: true,
       isLoading: false,
       boards: state.boards.concat(result)
     }
@@ -97,6 +100,7 @@ export const boardReducer = reducerWithInitialState(initialState)
     const index = state.boards.findIndex(board => board.id === result.id)
     return {
       ...state,
+      init: true,
       isLoading: false,
       boards: [
         ...state.boards.slice(0, index),
@@ -109,6 +113,7 @@ export const boardReducer = reducerWithInitialState(initialState)
     const index = state.boards.findIndex(board => board.id === result.id)
     return {
       ...state,
+      init: true,
       isLoading: false,
       boards: [
         ...state.boards.slice(0, index),
@@ -123,6 +128,7 @@ export const boardReducer = reducerWithInitialState(initialState)
     )
     return {
       ...state,
+      init: true,
       isLoading: false,
       boards: [...state.boards.concat(state.archivedBoards[index])],
       archivedBoards: [
@@ -135,6 +141,7 @@ export const boardReducer = reducerWithInitialState(initialState)
     const index = state.archivedBoards.findIndex(board => board.id === result)
     return {
       ...state,
+      init: true,
       isLoading: false,
       archivedBoards: [
         ...state.archivedBoards.slice(0, index),
