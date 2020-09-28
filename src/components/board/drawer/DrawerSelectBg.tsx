@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import * as I from '@/scripts/model/interface'
 import { useDispatch } from 'react-redux'
 import { updateBoard } from '~redux/state/board/actions'
@@ -17,7 +17,6 @@ export const DrawerSelectBg: React.FC<{
 
   return (
     <div>
-      DrawerBackground<Link to={`/boards/${boardId}`}>back</Link>
       <button onClick={() => onClick('bg_photo_1')}>set bg1</button>
       <button onClick={() => onClick('bg_photo_2')}>set bg2</button>
     </div>
