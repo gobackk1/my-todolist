@@ -12,6 +12,7 @@ import {
 export interface Board {
   id: string
   title: string
+  backgroundImage: string
 }
 export interface BoardState {
   isLoading: boolean

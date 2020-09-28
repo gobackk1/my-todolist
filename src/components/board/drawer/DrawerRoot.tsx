@@ -47,6 +47,9 @@ export const DrawerRoot: React.FC<{ setOpen: React.Dispatch<any> }> = ({
       <Button to={`/boards/${boardId}/archivedItem`} component={Link} fullWidth>
         アーカイブしたアイテム
       </Button>
+      <Button to={`/boards/${boardId}/background`} component={Link} fullWidth>
+        背景を変更する
+      </Button>
     </div>
   )
 }

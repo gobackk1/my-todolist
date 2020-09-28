@@ -49,7 +49,7 @@ module.exports = (env, argv) => {
           test: /\.(jpg|png|gif)$/,
           loader: 'file-loader',
           options: {
-            name: 'images/[name].[ext]'
+            name: 'images/[name].[hash:8].[ext]'
           }
         }
       ]

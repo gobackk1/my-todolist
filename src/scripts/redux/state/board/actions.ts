@@ -1,6 +1,6 @@
-import { asyncActionCreator } from '~redux/action'
+import { asyncActionCreator, actionCreator } from '~redux/action'
 import { store } from '~redux/store'
-import { Board } from '~redux/state/board/reducer'
+import { Board, BoardState } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
 import firebase from 'firebase'
@@ -24,9 +24,9 @@ export const fetchBoards = asyncActionCreator<any, Board[], Error>(
 
         snapshot.forEach(doc => {
           const { id } = doc
-          const { title } = doc.data()
+          const { title, backgroundImage } = doc.data()
 
-          boards.push({ id, title })
+          boards.push({ id, title, backgroundImage })
         })
       } catch (e) {
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
@@ -44,7 +44,7 @@ export const fetchBoards = asyncActionCreator<any, Board[], Error>(
  */
 export const createBoard = asyncActionCreator<
   Pick<Board, 'title'>,
-  Pick<Board, 'title' | 'id'>,
+  Board,
   Error
 >('CREATE_BOARD', async ({ title }) => {
   const { user }: UserState = store.getState().user
@@ -54,9 +54,9 @@ export const createBoard = asyncActionCreator<
       const { id }: firebase.firestore.DocumentReference = await firebase
         .firestore()
         .collection(`users/${user.uid}/boards`)
-        .add({ title })
+        .add({ title, backgroundImage: 'bg_photo_1' })
 
-      return { title, id }
+      return { title, id, backgroundImage: 'bg_photo_1' }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
@@ -68,22 +68,28 @@ export const createBoard = asyncActionCreator<
 /**
  * ボードをアップデートする
  */
-export const updateBoard = asyncActionCreator<Board, Board, Error>(
+export const updateBoard = asyncActionCreator<Partial<Board>, Board, Error>(
   'UPDATE_BOARD',
-  async ({ id, title }) => {
+  async params => {
     const { user }: UserState = store.getState().user
+    const { boards }: BoardState = store.getState().board
+
+    const index = boards.findIndex(board => board.id === params.id)
+    const target = boards[index]
+    const newBoard: Board = { ...target, ...params }
 
     if (user && user.uid) {
       try {
         const documentReference: any = await firebase
           .firestore()
           .collection(`users/${user.uid}/boards`)
-          .doc(id)
+          .doc(params.id)
 
-        documentReference.set({ title }, { merge: true })
+        documentReference.set({ ...newBoard }, { merge: true })
         //リストは board.data().list で
-        return { id, title }
+        return newBoard
       } catch (e) {
+        console.log(e)
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
       }
     } else {
@@ -238,8 +244,8 @@ export const fetchArchivedBoards = asyncActionCreator<void, Board[], Error>(
 
         snapshot.forEach(doc => {
           const { id } = doc
-          const { title } = doc.data()
-          boards.push({ id, title })
+          const { title, backgroundImage } = doc.data()
+          boards.push({ id, title, backgroundImage })
         })
       } catch (e) {
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)

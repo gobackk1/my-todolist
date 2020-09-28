@@ -4,7 +4,7 @@ import { fetchBoards } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 // import * as T from '@/scripts/model/type'
-import { LoadingSpinner, CardList } from '@/components'
+import { LoadingSpinner, CardList, BoardWithBackground } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { css } from '@emotion/core'
 import { BoardTitle, BoardDrawer } from '@/components'
@@ -76,7 +76,7 @@ export const Board: React.FC = () => {
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
   }
   return (
-    <div css={styles['root']} id="board">
+    <div id="board">
       {boardState.isLoading && <LoadingSpinner />}
       {!boardState.isLoading && (
         <div id="board-inner">
@@ -88,7 +88,7 @@ export const Board: React.FC = () => {
           <Route
             path={OPTION.PATH.BOARD + '/:boardId'}
             render={() => (
-              <>
+              <BoardWithBackground>
                 {boardState.boards.length ? (
                   <>
                     <div css={styles['board-header']}>
@@ -124,7 +124,7 @@ export const Board: React.FC = () => {
                 ) : (
                   'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
                 )}
-              </>
+              </BoardWithBackground>
             )}
           />
         </div>
@@ -135,10 +135,6 @@ export const Board: React.FC = () => {
 }
 
 const styles = {
-  root: css`
-    padding: 10px;
-    position: relative;
-  `,
   'board-header': css`
     margin-bottom: ${theme.spacing(1)}px;
   `,

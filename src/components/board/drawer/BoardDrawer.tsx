@@ -1,6 +1,6 @@
 import React from 'react'
 import { Drawer, Button, Paper, makeStyles } from '@material-ui/core'
-import { DrawerArchivedItem, DrawerRoot } from '@/components'
+import { DrawerArchivedItem, DrawerRoot, DrawerSelectBg } from '@/components'
 import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import { Route, Switch } from 'react-router-dom'
@@ -35,6 +35,10 @@ export const BoardDrawer: React.FC = () => {
           <Route
             path="/boards/:boardId/archivedItem"
             render={() => <DrawerArchivedItem open={open} setOpen={setOpen} />}
+          />
+          <Route
+            path="/boards/:boardId/background"
+            render={() => <DrawerSelectBg open={open} setOpen={setOpen} />}
           />
           <Route
             path="/boards/:boardId/"

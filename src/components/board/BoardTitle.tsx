@@ -48,6 +48,7 @@ export const BoardTitle: React.FC = () => {
       try {
         await dispatch(updateBoard({ title, id: boardId }))
       } catch (e) {
+        console.log(e)
         showSnackbar({
           message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
           type: 'error'
