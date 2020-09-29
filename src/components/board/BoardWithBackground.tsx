@@ -1,7 +1,5 @@
 import React from 'react'
 import { css } from '@emotion/core'
-import bg1 from '@/images/bg/bg_photo_1.jpg'
-import bg2 from '@/images/bg/bg_photo_2.jpg'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { useParams } from 'react-router-dom'
@@ -11,26 +9,14 @@ export const BoardWithBackground: React.FC = ({ children }) => {
   const { boardId } = useParams<I.UrlParams>()
 
   const index = boardState.boards.findIndex(board => board.id === boardId)
-
-  const bgUrl = () => {
-    if (!boardState.init) return ''
-    switch (boardState.boards[index].backgroundImage) {
-      case 'bg_photo_1':
-        return bg1
-      case 'bg_photo_2':
-        return bg2
-      default:
-        return bg1
-    }
-  }
+  const { init } = boardState
+  const bg = init ? boardState.boards[index].backgroundImage : ''
+  const style = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(bg)
+    ? { backgroundColor: bg }
+    : { backgroundImage: `url(${bg})` }
 
   return (
-    <div
-      css={styles['board']}
-      style={{
-        backgroundImage: `url(${bgUrl()})`
-      }}
-    >
+    <div css={styles['board']} style={style}>
       {children}
     </div>
   )

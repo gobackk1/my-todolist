@@ -21,8 +21,6 @@ export const BoardDrawer: React.FC = () => {
     'root'
   )
 
-  const back = () => setView('root')
-
   const renderTitle = () => {
     switch (view) {
       case 'archived':
@@ -68,13 +66,17 @@ export const BoardDrawer: React.FC = () => {
           </IconButton>
           {renderTitle()}
         </Typography>
-        {view === 'root' && <DrawerRoot setOpen={setOpen} setView={setView} />}
-        {view === 'archived' && (
-          <DrawerArchivedItem open={open} setOpen={setOpen} back={back} />
-        )}
-        {view === 'selectBg' && (
-          <DrawerSelectBg open={open} setOpen={setOpen} back={back} />
-        )}
+        <div css={styles['drawer-content']}>
+          {view === 'root' && (
+            <DrawerRoot setOpen={setOpen} setView={setView} />
+          )}
+          {view === 'archived' && (
+            <DrawerArchivedItem open={open} setOpen={setOpen} />
+          )}
+          {view === 'selectBg' && (
+            <DrawerSelectBg open={open} setOpen={setOpen} />
+          )}
+        </div>
       </Paper>
     </Drawer>
   )
@@ -86,18 +88,20 @@ const common = {
     position: absolute;
     top: 0;
     left: 0;
-    padding: 7px;
+    padding: 14px;
   `
 }
 
 const styles = {
   'drawer-button': css`
     position: absolute;
-    top: 8px;
+    top: 7px;
     left: -76%;
     visibility: visible;
   `,
-  'drawer-content': css``,
+  'drawer-content': css`
+    padding: 0 ${theme.spacing(1)}px ${theme.spacing(1)}px;
+  `,
   'button-back-visible': css`
     ${common['button-back']}
     opacity: 1;
@@ -124,13 +128,7 @@ const useStyles = makeStyles({
     },
     '& .MuiTypography-h4': {
       textAlign: 'center',
-      padding: theme.spacing(1)
+      padding: theme.spacing(2)
     }
-  },
-  'button-back': {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    padding: 7
   }
 })
