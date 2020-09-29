@@ -43,10 +43,10 @@ export const fetchBoards = asyncActionCreator<any, Board[], Error>(
  * ボードを新規作成する
  */
 export const createBoard = asyncActionCreator<
-  Pick<Board, 'title'>,
+  Pick<Board, 'title' | 'backgroundImage'>,
   Board,
   Error
->('CREATE_BOARD', async ({ title }) => {
+>('CREATE_BOARD', async ({ title, backgroundImage }) => {
   const { user }: UserState = store.getState().user
 
   if (user && user.uid) {
@@ -54,9 +54,9 @@ export const createBoard = asyncActionCreator<
       const { id }: firebase.firestore.DocumentReference = await firebase
         .firestore()
         .collection(`users/${user.uid}/boards`)
-        .add({ title, backgroundImage: 'bg_photo_1' })
+        .add({ title, backgroundImage })
 
-      return { title, id, backgroundImage: 'bg_photo_1' }
+      return { title, id, backgroundImage }
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }

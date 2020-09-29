@@ -15,14 +15,21 @@ const styles = {
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: ${theme.borderRadius(1)}px;
   `,
   'modal-inner': css`
+    position: relative;
     background: #fff;
-    padding: 20px;
     border-radius: ${theme.borderRadius(1)}px;
   `,
   'modal-inner-header': css`
     text-align: right;
+  `,
+  'modal-close': css`
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
   `
 }
 
@@ -71,16 +78,15 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
       >
         <Fade in={open}>
           <div css={styles['modal-inner']}>
-            <div css={styles['modal-inner-header']}>
-              {/* HACK: <BoardListMenu> からノードウォーキングで参照されている */}
-              <IconButton
-                size="small"
-                onClick={handleClose as any}
-                className="btn-modal-close"
-              >
-                <Close />
-              </IconButton>
-            </div>
+            {/* HACK: <BoardListMenu> からノードウォーキングで参照されている */}
+            <IconButton
+              size="small"
+              onClick={handleClose as any}
+              className="btn-modal-close"
+              css={styles['modal-close']}
+            >
+              <Close />
+            </IconButton>
             {children}
           </div>
         </Fade>

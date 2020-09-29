@@ -37,7 +37,9 @@ export const BoardListMenu: React.FC = () => {
     if (!user || board.error) return
 
     try {
-      const { id }: any = await dispatch(createBoard({ title }))
+      const { id }: any = await dispatch(
+        createBoard({ title, backgroundImage: OPTION.BOARD.BG.PHOTO[0].src })
+      )
       document.body.click()
       history.push(`/boards/${id}`)
     } catch ({ message }) {
