@@ -37,7 +37,10 @@ export const initialState: BoardState = {
   boards: {},
   archivedBoards: {},
   getBackgroundStyle(boardId) {
-    const { backgroundImage } = this.boards[boardId]
+    const backgroundImage = this.boards[boardId]
+      ? this.boards[boardId].backgroundImage
+      : null
+    if (!backgroundImage) return {} as React.CSSProperties
     const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
     return hexColorRegex.test(backgroundImage)
       ? { backgroundColor: backgroundImage }

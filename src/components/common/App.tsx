@@ -1,12 +1,11 @@
 import React from 'react'
 import {
-  AppHeader,
   BoardTop,
   BoardDetail,
   Home,
   SnackbarProvider,
-  Authentication,
-  EmotionGlobal
+  EmotionGlobal,
+  PageLayout
 } from '@/components'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import { theme } from '@/styles'
@@ -42,8 +41,7 @@ export const App: React.FC = () => {
             autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
             position={OPTION.SNACKBAR.POSITION}
           >
-            <AppHeader />
-            <Authentication>
+            <PageLayout>
               <Switch>
                 <Route
                   path={`${OPTION.PATH.BOARD}/:boardId`}
@@ -53,7 +51,7 @@ export const App: React.FC = () => {
                 <Route path="/login" exact component={Home} />
                 <Route path="/" exact component={Home} />
               </Switch>
-            </Authentication>
+            </PageLayout>
           </SnackbarProvider>
         </ReduxProvider>
       </BrowserRouter>

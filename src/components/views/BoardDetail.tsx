@@ -31,7 +31,7 @@ export const BoardDetail: React.FC = () => {
   )
 
   return (
-    <div id="board">
+    <BoardWithBackground>
       {!boardState.init && <LoadingSpinner />}
       {boardState.init && !boardState.boards[boardId] && (
         /**
@@ -40,24 +40,20 @@ export const BoardDetail: React.FC = () => {
         <Redirect to={redirect} />
       )}
       {boardState.init && boardState.boards[boardId] && (
-        <div id="board-inner">
-          <BoardWithBackground>
-            <div css={styles['board-header']}>
-              <BoardTitle />
-              <FavoriteButton
-                favorite={boardState.boards[boardId].favorite}
-                boardId={boardId}
-              />
-            </div>
-            {boardState.error && (
-              <>エラーメッセージ{boardState.error.message}</>
-            )}
-            <ListContainer boardId={boardId} />
-          </BoardWithBackground>
-        </div>
+        <>
+          <div css={styles['board-header']}>
+            <BoardTitle />
+            <FavoriteButton
+              favorite={boardState.boards[boardId].favorite}
+              boardId={boardId}
+            />
+          </div>
+          {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
+          <ListContainer boardId={boardId} />
+        </>
       )}
       <BoardDrawer />
-    </div>
+    </BoardWithBackground>
   )
 }
 

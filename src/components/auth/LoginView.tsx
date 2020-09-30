@@ -170,6 +170,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
           </Button>
         </div>
       </LoginOrSignUpForm>
+      {/* ここから下は切り出して良いかも */}
       <Typography variant="h4" className={muiStyles['sub-title']}>
         または
       </Typography>

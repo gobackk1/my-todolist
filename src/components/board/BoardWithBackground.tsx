@@ -3,13 +3,16 @@ import { css } from '@emotion/core'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { useParams } from 'react-router-dom'
+import { theme } from '@/styles'
 
 export const BoardWithBackground: React.FC = ({ children }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const { boardId } = useParams<I.UrlParams>()
 
+  const style = boardState.getBackgroundStyle(boardId) || {}
+
   return (
-    <div css={styles['board']} style={boardState.getBackgroundStyle(boardId)}>
+    <div css={styles['board']} style={style}>
       {children}
     </div>
   )
@@ -17,10 +20,10 @@ export const BoardWithBackground: React.FC = ({ children }) => {
 
 const styles = {
   board: css`
-    padding: 10px;
     position: relative;
-    min-height: calc(100vh - 64px);
     background-position: center;
     background-size: cover;
+    height: inherit;
+    padding: ${theme.spacing(1)}px;
   `
 }
