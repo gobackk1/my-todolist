@@ -8,7 +8,7 @@ import {
   BoardWithBackground,
   FavoriteButton
 } from '@/components'
-import { useFetchBoardAndList } from '@/scripts/hooks'
+import { useFetchBoard, useFetchList } from '@/scripts/hooks'
 import { css } from '@emotion/core'
 import { BoardTitle, BoardDrawer } from '@/components'
 import { OPTION } from '@/option'
@@ -18,7 +18,9 @@ export const BoardDetail: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const { boardId } = useParams<I.UrlParams>()
 
-  useFetchBoardAndList(boardId)
+  // todo: state に 対象がなかった時のみ取得する
+  useFetchBoard()
+  useFetchList(boardId)
 
   const redirect = React.useMemo(
     () => ({

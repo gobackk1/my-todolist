@@ -1,14 +1,13 @@
 import React from 'react'
-import { useParams, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { LoadingSpinner } from '@/components'
-import { useFetchBoardAndList, useSnackbarContext } from '@/scripts/hooks'
+import { useFetchBoard, useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 
 export const BoardTop: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
-  const { boardId } = useParams<I.UrlParams>()
   const { state } = useLocation<string | undefined>()
   const { showSnackbar } = useSnackbarContext()
 
@@ -26,7 +25,7 @@ export const BoardTop: React.FC = () => {
     }
   }, [state])
 
-  useFetchBoardAndList(boardId)
+  useFetchBoard()
 
   return (
     <div id="board">
