@@ -27,6 +27,7 @@ export interface BoardState {
   archivedBoards: {
     [i: string]: Board
   }
+  getBackgroundStyle: (id: string) => React.CSSProperties
 }
 
 export const initialState: BoardState = {
@@ -34,9 +35,15 @@ export const initialState: BoardState = {
   isLoading: false,
   error: null,
   boards: {},
-  archivedBoards: {}
+  archivedBoards: {},
+  getBackgroundStyle(boardId) {
+    const { backgroundImage } = this.boards[boardId]
+    const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
+    return hexColorRegex.test(backgroundImage)
+      ? { backgroundColor: backgroundImage }
+      : { backgroundImage: `url(${backgroundImage})` }
+  }
 }
-
 export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.started

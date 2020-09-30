@@ -31,7 +31,14 @@ export const BoardTop: React.FC = () => {
     <div id="board">
       {!boardState.init || (boardState.isLoading && <LoadingSpinner />)}
       {boardState.init && !boardState.isLoading && (
-        <div id="board-inner">BoardTop</div>
+        <div id="board-inner">
+          BoardTop
+          {Object.values(boardState.boards).length ? (
+            <>ここにボードを出す</>
+          ) : (
+            'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
+          )}
+        </div>
       )}
     </div>
   )

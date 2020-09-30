@@ -42,23 +42,17 @@ export const BoardDetail: React.FC = () => {
       {boardState.init && boardState.boards[boardId] && (
         <div id="board-inner">
           <BoardWithBackground>
-            {Object.values(boardState.boards).length ? (
-              <>
-                <div css={styles['board-header']}>
-                  <BoardTitle />
-                  <FavoriteButton
-                    favorite={boardState.boards[boardId].favorite}
-                    boardId={boardId}
-                  />
-                </div>
-                {boardState.error && (
-                  <>エラーメッセージ{boardState.error.message}</>
-                )}
-                <ListContainer boardId={boardId} />
-              </>
-            ) : (
-              'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
+            <div css={styles['board-header']}>
+              <BoardTitle />
+              <FavoriteButton
+                favorite={boardState.boards[boardId].favorite}
+                boardId={boardId}
+              />
+            </div>
+            {boardState.error && (
+              <>エラーメッセージ{boardState.error.message}</>
             )}
+            <ListContainer boardId={boardId} />
           </BoardWithBackground>
         </div>
       )}

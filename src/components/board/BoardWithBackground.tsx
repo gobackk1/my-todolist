@@ -8,14 +8,8 @@ export const BoardWithBackground: React.FC = ({ children }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const { boardId } = useParams<I.UrlParams>()
 
-  const { init } = boardState
-  const bg = init ? boardState.boards[boardId].backgroundImage : ''
-  const style = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(bg)
-    ? { backgroundColor: bg }
-    : { backgroundImage: `url(${bg})` }
-
   return (
-    <div css={styles['board']} style={style}>
+    <div css={styles['board']} style={boardState.getBackgroundStyle(boardId)}>
       {children}
     </div>
   )
