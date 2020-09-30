@@ -1,6 +1,6 @@
 import React from 'react'
 import { useParams, Route } from 'react-router-dom'
-import { fetchBoards } from '@/scripts/redux/state/board/actions'
+import { fetchBoards, updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 // import * as T from '@/scripts/model/type'
@@ -8,11 +8,13 @@ import { LoadingSpinner, CardList, BoardWithBackground } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { css } from '@emotion/core'
 import { BoardTitle, BoardDrawer } from '@/components'
-import { Button } from '@material-ui/core'
+import { Button, IconButton } from '@material-ui/core'
 import { fetchList, createList } from '@/scripts/redux/state/list/actions'
 import { OPTION } from '@/option'
 import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
+import StarBorderRoundedIcon from '@material-ui/icons/StarBorderRounded'
+import StarRoundedIcon from '@material-ui/icons/StarRounded'
 
 /**
  * ボードの View, 各種操作を管理する
@@ -75,10 +77,20 @@ export const Board: React.FC = () => {
     if (!userState.user || listState.error) return
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
   }
+
+  const onClickFavorite = (favorite: boolean): void => {
+    try {
+      dispatch(updateBoard({ id: boardId, favorite }))
+    } catch ({ message }) {
+      console.log(message)
+      showSnackbar({ message, type: 'error' })
+    }
+  }
+
   return (
     <div id="board">
-      {boardState.isLoading && <LoadingSpinner />}
-      {!boardState.isLoading && (
+      {!boardState.init && <LoadingSpinner />}
+      {boardState.init && (
         <div id="board-inner">
           <Route
             path={OPTION.PATH.BOARD}
@@ -89,10 +101,19 @@ export const Board: React.FC = () => {
             path={OPTION.PATH.BOARD + '/:boardId'}
             render={() => (
               <BoardWithBackground>
-                {boardState.boards.length ? (
+                {Object.values(boardState.boards).length ? (
                   <>
                     <div css={styles['board-header']}>
                       <BoardTitle />
+                      {boardState.boards[boardId].favorite ? (
+                        <IconButton onClick={() => onClickFavorite(false)}>
+                          <StarRoundedIcon />
+                        </IconButton>
+                      ) : (
+                        <IconButton onClick={() => onClickFavorite(true)}>
+                          <StarBorderRoundedIcon />
+                        </IconButton>
+                      )}
                     </div>
                     {boardState.error && (
                       <>エラーメッセージ{boardState.error.message}</>

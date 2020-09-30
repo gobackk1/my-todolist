@@ -31,9 +31,9 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
           isSearching: true
         }))
 
-    const result = boardState.boards.filter(board =>
-      RegExp(value).test(board.title)
-    )
+    const values = Object.values(boardState.boards)
+
+    const result = values.filter(board => RegExp(value).test(board.title))
     setState(state => ({
       ...state,
       result,

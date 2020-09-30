@@ -9,9 +9,6 @@ import { OPTION } from '@/option'
 import { VariableInput } from '@/components'
 
 export const BoardTitle: React.FC = () => {
-  const [currentBoard, setCurrentBoard] = React.useState<IBoard | null>(
-    {} as IBoard
-  )
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const { boardId } = useParams<I.UrlParams>()
   const { user, board } = useStore().getState()
@@ -23,13 +20,13 @@ export const BoardTitle: React.FC = () => {
       e: React.FocusEvent<any> | React.KeyboardEvent<any>,
       close: () => void
     ) => {
-      if (!user || board.error || !currentBoard) return
+      if (!user || board.error || !boardState.boards[boardId]) return
 
       const title = e.currentTarget.value
 
       close()
 
-      if (title === currentBoard.title) return
+      if (title === boardState.boards[boardId].title) return
 
       if (title.length > 50) {
         showSnackbar({
@@ -55,28 +52,21 @@ export const BoardTitle: React.FC = () => {
         })
       }
     },
-    [board.error, boardId, currentBoard, dispatch, showSnackbar, user]
+    [
+      board.error,
+      boardId,
+      boardState.boards[boardId],
+      dispatch,
+      showSnackbar,
+      user
+    ]
   )
-
-  /**
-   * 選択中のボードの情報を state で管理する
-   */
-  React.useEffect(() => {
-    if (!user.user) return
-
-    const current = boardState.boards.find(board => board.id === boardId)
-    if (current) {
-      setCurrentBoard(current)
-    } else {
-      setCurrentBoard(null)
-    }
-  }, [boardId, boardState, setCurrentBoard, user.user])
 
   return (
     <div className="js-title-area" id="board-title">
-      {currentBoard ? (
+      {boardState.boards[boardId] ? (
         <VariableInput
-          label={currentBoard.title}
+          label={boardState.boards[boardId].title}
           onUpdate={updateTitle}
           component="input"
         />

@@ -78,7 +78,6 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
       >
         <Fade in={open}>
           <div css={styles['modal-inner']}>
-            {/* HACK: <BoardListMenu> からノードウォーキングで参照されている */}
             <IconButton
               size="small"
               onClick={handleClose as any}

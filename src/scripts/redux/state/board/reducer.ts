@@ -6,28 +6,39 @@ import {
   deleteBoard,
   archiveBoard,
   fetchArchivedBoards,
-  restoreBoard
+  restoreBoard,
+  setBoard,
+  setArchivedBoard
 } from './actions'
 
 export interface Board {
   id: string
   title: string
   backgroundImage: string
+  favorite: boolean
 }
 export interface BoardState {
   init: boolean
   isLoading: boolean
   error: Error | null
-  boards: Board[]
-  archivedBoards: Board[]
+  boards: {
+    [i: string]: Board
+  }
+  archivedBoards: {
+    [i: string]: Board
+  }
 }
 
 export const initialState: BoardState = {
   init: false,
   isLoading: false,
   error: null,
-  boards: [] as Board[],
-  archivedBoards: [] as Board[]
+  boards: {
+    '': {} as Board
+  },
+  archivedBoards: {
+    '': {} as Board
+  }
 }
 
 export const boardReducer = reducerWithInitialState(initialState)
@@ -35,10 +46,10 @@ export const boardReducer = reducerWithInitialState(initialState)
    * async.started
    */
   .case(fetchBoards.async.started, state => {
-    return { ...state, isLoading: true, boards: [] }
+    return { ...state, isLoading: true }
   })
   .case(fetchArchivedBoards.async.started, state => {
-    return { ...state, isLoading: true, archivedBoards: [] }
+    return { ...state, isLoading: true }
   })
   .case(restoreBoard.async.started, state => {
     return { ...state, isLoading: true }
@@ -82,70 +93,95 @@ export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.done
    */
-  .case(fetchBoards.async.done, (state, payload) => {
-    return { ...state, init: true, isLoading: false, boards: payload.result }
+  .case(fetchBoards.async.done, state => {
+    return { ...state, init: true, isLoading: false }
   })
-  .case(fetchArchivedBoards.async.done, (state, { result }) => {
-    return { ...state, init: true, isLoading: false, archivedBoards: result }
+  .case(setBoard, (state, params) => {
+    return {
+      ...state,
+      boards: {
+        ...state.boards,
+        [params.id]: params
+      }
+    }
+  })
+  .case(fetchArchivedBoards.async.done, state => {
+    return { ...state, init: true, isLoading: false }
+  })
+  .case(setArchivedBoard, (state, params) => {
+    return {
+      ...state,
+      archivedBoards: {
+        ...state.archivedBoards,
+        [params.id]: params
+      }
+    }
   })
   .cases([createBoard.async.done], (state, { result }) => {
     return {
       ...state,
       init: true,
       isLoading: false,
-      boards: state.boards.concat(result)
+      boards: {
+        ...state.boards,
+        [result.id]: result
+      }
     }
   })
   .case(updateBoard.async.done, (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result.id)
     return {
       ...state,
       init: true,
       isLoading: false,
-      boards: [
-        ...state.boards.slice(0, index),
-        result,
-        ...state.boards.slice(index + 1)
-      ]
+      boards: {
+        ...state.boards,
+        [result.id]: result
+      }
     }
   })
   .cases([archiveBoard.async.done], (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result.id)
+    const board = state.boards[result.id]
+    const { [result.id]: _, ...newBoards } = state.boards
+
     return {
       ...state,
       init: true,
       isLoading: false,
-      boards: [
-        ...state.boards.slice(0, index),
-        ...state.boards.slice(index + 1)
-      ],
-      archivedBoards: [...state.archivedBoards.concat(state.boards[index])]
+      boards: {
+        ...newBoards
+      },
+      archivedBoards: {
+        ...state.archivedBoards,
+        [result.id]: board
+      }
     }
   })
   .cases([restoreBoard.async.done], (state, { result }) => {
-    const index = state.archivedBoards.findIndex(
-      board => board.id === result.id
-    )
+    const board = state.boards[result.id]
+    const { [result.id]: _, ...newArchivedBoards } = state.archivedBoards
+
     return {
       ...state,
       init: true,
       isLoading: false,
-      boards: [...state.boards.concat(state.archivedBoards[index])],
-      archivedBoards: [
-        ...state.archivedBoards.slice(0, index),
-        ...state.archivedBoards.slice(index + 1)
-      ]
+      boards: {
+        ...state.boards,
+        [result.id]: board
+      },
+      archivedBoards: {
+        ...newArchivedBoards
+      }
     }
   })
   .case(deleteBoard.async.done, (state, { result }) => {
-    const index = state.archivedBoards.findIndex(board => board.id === result)
+    const { [result]: _, ...newArchivedBoards } = state.archivedBoards
+
     return {
       ...state,
       init: true,
       isLoading: false,
-      archivedBoards: [
-        ...state.archivedBoards.slice(0, index),
-        ...state.archivedBoards.slice(index + 1)
-      ]
+      archivedBoards: {
+        ...newArchivedBoards
+      }
     }
   })

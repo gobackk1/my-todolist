@@ -95,7 +95,7 @@ export const BoardListMenu: React.FC = () => {
         ) : (
           <ul id="list-board-menu">
             {boardState.boards.length &&
-              boardState.boards.map((board, i) => {
+              Object.values(boardState.boards).map((board, i) => {
                 return (
                   <li css={styles['menu-content-item']} key={i}>
                     <Button
