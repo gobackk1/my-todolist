@@ -8,6 +8,8 @@ import { useHistory } from 'react-router-dom'
 import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
+import { css } from '@emotion/core'
+import { theme } from '@/styles'
 
 export const LoginFormModal: React.FC = () => {
   const userState = useSelector((state: I.ReduxState) => state.user)
@@ -51,11 +53,13 @@ export const LoginFormModal: React.FC = () => {
             </Button>
           )}
         >
-          {view === 'login' ? (
-            <LoginView setView={setView} />
-          ) : (
-            <SignUpView setView={setView} />
-          )}
+          <div css={styles['modal-login']}>
+            {view === 'login' ? (
+              <LoginView setView={setView} />
+            ) : (
+              <SignUpView setView={setView} />
+            )}
+          </div>
         </Modal>
       ) : (
         <>
@@ -72,4 +76,10 @@ export const LoginFormModal: React.FC = () => {
       )}
     </>
   )
+}
+
+const styles = {
+  'modal-login': css`
+    padding: ${theme.spacing(5)}px ${theme.spacing(3)}px ${theme.spacing(3)}px;
+  `
 }

@@ -33,12 +33,8 @@ export const initialState: BoardState = {
   init: false,
   isLoading: false,
   error: null,
-  boards: {
-    '': {} as Board
-  },
-  archivedBoards: {
-    '': {} as Board
-  }
+  boards: {},
+  archivedBoards: {}
 }
 
 export const boardReducer = reducerWithInitialState(initialState)

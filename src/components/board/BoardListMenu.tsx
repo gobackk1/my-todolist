@@ -94,7 +94,7 @@ export const BoardListMenu: React.FC = () => {
           <LoadingSpinner />
         ) : (
           <ul id="list-board-menu">
-            {boardState.boards.length &&
+            {Object.values(boardState.boards).length &&
               Object.values(boardState.boards).map((board, i) => {
                 return (
                   <li css={styles['menu-content-item']} key={i}>
