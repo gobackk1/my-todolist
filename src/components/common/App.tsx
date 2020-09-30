@@ -1,7 +1,8 @@
 import React from 'react'
 import {
   AppHeader,
-  Board,
+  BoardTop,
+  BoardDetail,
   Home,
   SnackbarProvider,
   Authentication,
@@ -13,7 +14,6 @@ import { OPTION } from '@/option'
 import { Provider as ReduxProvider } from 'react-redux'
 import { store } from '~redux/store'
 import { MuiThemeProvider } from '@material-ui/core/styles'
-import { ThemeProvider as EmotionThemeProvider } from 'emotion-theming'
 import firebase from 'firebase'
 import 'firebase/firestore'
 import 'firebase/auth'
@@ -35,30 +35,28 @@ firebase.initializeApp({
 export const App: React.FC = () => {
   return (
     <MuiThemeProvider theme={theme}>
-      <EmotionThemeProvider theme={theme}>
-        <EmotionGlobal />
-        <BrowserRouter>
-          <ReduxProvider store={store}>
-            <SnackbarProvider
-              autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
-              position={OPTION.SNACKBAR.POSITION}
-            >
-              <AppHeader />
-              <Authentication>
-                <Switch>
-                  <Route
-                    path={`${OPTION.PATH.BOARD}/:boardId`}
-                    component={Board}
-                  />
-                  <Route path={OPTION.PATH.BOARD} component={Board} />
-                  <Route path="/login" exact component={Home} />
-                  <Route path="/" exact component={Home} />
-                </Switch>
-              </Authentication>
-            </SnackbarProvider>
-          </ReduxProvider>
-        </BrowserRouter>
-      </EmotionThemeProvider>
+      <EmotionGlobal />
+      <BrowserRouter>
+        <ReduxProvider store={store}>
+          <SnackbarProvider
+            autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
+            position={OPTION.SNACKBAR.POSITION}
+          >
+            <AppHeader />
+            <Authentication>
+              <Switch>
+                <Route
+                  path={`${OPTION.PATH.BOARD}/:boardId`}
+                  component={BoardDetail}
+                />
+                <Route path={OPTION.PATH.BOARD} component={BoardTop} />
+                <Route path="/login" exact component={Home} />
+                <Route path="/" exact component={Home} />
+              </Switch>
+            </Authentication>
+          </SnackbarProvider>
+        </ReduxProvider>
+      </BrowserRouter>
     </MuiThemeProvider>
   )
 }

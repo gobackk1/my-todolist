@@ -1,12 +1,12 @@
 import React from 'react'
 import { useSnackbarContext } from '@/scripts/hooks'
-import { Board as IBoard } from '~redux/state/board/reducer'
 import { useParams } from 'react-router-dom'
 import { updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch, useStore } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { OPTION } from '@/option'
 import { VariableInput } from '@/components'
+import { css } from '@emotion/core'
 
 export const BoardTitle: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
@@ -63,7 +63,7 @@ export const BoardTitle: React.FC = () => {
   )
 
   return (
-    <div className="js-title-area" id="board-title">
+    <div className="js-title-area" id="board-title" css={styles['board-title']}>
       {boardState.boards[boardId] ? (
         <VariableInput
           label={boardState.boards[boardId].title}
@@ -73,4 +73,10 @@ export const BoardTitle: React.FC = () => {
       ) : null}
     </div>
   )
+}
+
+const styles = {
+  'board-title': css`
+    display: inline-block;
+  `
 }

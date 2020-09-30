@@ -1,9 +1,10 @@
 import { createMuiTheme } from '@material-ui/core/styles'
+import { yellow, grey } from '@material-ui/core/colors'
 
 /**
  * Material-UI のグローバルに適用するスタイル
  */
-const muiTheme = createMuiTheme({
+export const theme = createMuiTheme({
   typography: {
     button: {
       textTransform: 'none'
@@ -23,20 +24,13 @@ const muiTheme = createMuiTheme({
     h6: {
       fontSize: 11
     }
-  }
-})
-
-/**
- * Material-UI の Theme とマージする
- */
-export type AppTheme = {
-  zIndex: {
-    [i: string]: number
-  }
-  borderRadius: (value: number) => number
-}
-
-const appTheme: AppTheme = {
+  },
+  palette: {
+    favorite: {
+      on: yellow[500],
+      off: grey[300]
+    }
+  },
   zIndex: {
     snackbar: 40,
     appHeader: 10,
@@ -44,7 +38,5 @@ const appTheme: AppTheme = {
     menu: 5,
     modal: 30
   },
-  borderRadius: (value: number) => value * 5
-}
-
-export const theme = { ...muiTheme, ...appTheme }
+  borderRadius: (value: number) => value * 8
+})
