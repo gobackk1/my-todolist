@@ -1,5 +1,5 @@
 import React from 'react'
-import { useParams, Route } from 'react-router-dom'
+import { useParams, Route, useHistory } from 'react-router-dom'
 import { fetchBoards, updateBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
@@ -28,6 +28,7 @@ export const Board: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
   const { boardId } = useParams<I.UrlParams>()
   const [init, setInit] = React.useState(false)
+  const history = useHistory()
 
   /**
    * useEffect でコールする fetchBoard は１度のみ
@@ -72,6 +73,17 @@ export const Board: React.FC = () => {
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [boardId, dispatch, fetchList, userState.user, listState.error])
+
+  /**
+   * 存在しない boardId を指定したら、/boards へリダイレクトさせる
+   */
+  if (boardId && boardState.boards[boardId] === undefined) {
+    showSnackbar({
+      message: OPTION.MESSAGE.UNAUTHORIZED_OPERATION,
+      type: 'error'
+    })
+    history.push(OPTION.PATH.BOARD)
+  }
 
   const onClick = () => {
     if (!userState.user || listState.error) return
