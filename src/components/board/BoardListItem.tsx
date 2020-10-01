@@ -22,7 +22,7 @@ export const BoardListItem: React.FC<{ data: Board }> = ({ data }) => {
       component={Link}
       fullWidth={true}
       variant="contained"
-      className={muiStyles['button-board']}
+      className={`AppBoardListItem-root ${muiStyles['button-board']}`}
       onClick={() => {
         document.body.click()
       }}
