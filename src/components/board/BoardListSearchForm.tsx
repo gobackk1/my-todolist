@@ -9,7 +9,7 @@ import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
   //NOTE: inputRef はアンマウントしないので
   /* eslint @typescript-eslint/no-non-null-assertion: off */
   const inputRef = React.useRef(null)

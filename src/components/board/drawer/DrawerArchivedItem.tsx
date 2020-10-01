@@ -6,7 +6,7 @@ import {
 } from '~redux/state/list/actions'
 import { List } from '~redux/state/list/reducer'
 import { useParams } from 'react-router-dom'
-import { useDispatch, useStore } from 'react-redux'
+import { useDispatch, useStore, useSelector } from 'react-redux'
 import { useSnackbarContext } from '@/scripts/hooks'
 import * as I from '@/scripts/model/interface'
 
@@ -15,7 +15,8 @@ export const DrawerArchivedItem: React.FC<{
   setOpen: React.Dispatch<any>
 }> = ({ open, setOpen }) => {
   const { boardId } = useParams<I.UrlParams>()
-  const { user, list: listState } = useStore().getState()
+  const { user } = useSelector(state => state.user)
+  const { list: listState } = useStore().getState()
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
 

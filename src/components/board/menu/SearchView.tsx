@@ -1,16 +1,16 @@
 import React from 'react'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
-import { useStore } from 'react-redux'
+import { useStore, useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { Board } from '~redux/state/board/reducer'
 import { createBoard } from '@/scripts/redux/state/board/actions'
-import { useSnackbarContext, useReduxDispatch } from '@/scripts/hooks'
+import { useSnackbarContext } from '@/scripts/hooks'
 import { SearchState } from './BoardListMenu'
 import { BoardListItem } from '@/components'
 
 export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
-  const dispatch = useReduxDispatch()
+  const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const history = useHistory()
   const { user, board } = useStore().getState()
