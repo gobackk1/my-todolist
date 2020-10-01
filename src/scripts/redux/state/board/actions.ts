@@ -13,7 +13,6 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
   'FETCH_BOARDS',
   async (_, dispatch) => {
     const { user }: UserState = store.getState().user
-    // const boards: Board[] = [] as Board[]
 
     if (user && user.uid) {
       try {
@@ -26,7 +25,6 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
           const { id } = doc
           const { title, backgroundImage, favorite } = doc.data()
 
-          // boards.push({ id, title, backgroundImage, favorite })
           dispatch(setBoard({ id, title, backgroundImage, favorite }))
         })
       } catch (e) {
@@ -39,6 +37,39 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
     }
 
     return
+  }
+)
+
+export const fetchBoard = asyncActionCreator<string, void, Error>(
+  'FETCH_BOARD',
+  async (params, dispatch) => {
+    const { user }: UserState = store.getState().user
+    const boardState = store.getState().board
+
+    /**
+     * 存在していたらキャッシュを使う
+     */
+    if (params in boardState.boards) return
+
+    if (user && user.uid) {
+      try {
+        const documentReference = await firebase
+          .firestore()
+          .collection(`users/${user.uid}/boards`)
+          .doc(params)
+          .get()
+
+        const { id } = documentReference
+        const board = { id, ...documentReference.data() } as Board
+        dispatch(setBoard(board))
+      } catch (e) {
+        console.log(e)
+        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+      }
+    } else {
+      console.log('debug: FETCH_BOARDS error')
+      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+    }
   }
 )
 
@@ -87,14 +118,16 @@ export const updateBoard = asyncActionCreator<
     const { id: paramsId, ...paramsWithoutId } = params
 
     try {
-      const documentReference: any = await firebase
+      const documentReference = await firebase
         .firestore()
         .collection(`users/${user.uid}/boards`)
         .doc(paramsId)
 
-      const newBoard = { ...target, ...paramsWithoutId }
-      documentReference.set({ ...newBoard }, { merge: true })
-      return { id, ...newBoard }
+      const query = { ...target, ...paramsWithoutId }
+      documentReference.set({ ...query }, { merge: true })
+
+      const newBoard: Board = { id, ...query }
+      return newBoard
     } catch (e) {
       console.log(e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)

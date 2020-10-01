@@ -1,2 +1,2 @@
 export { FavoriteButton } from './FavoriteButton'
-export { HomeLinkButton } from './HomeLinkButton'
+export { BoardTopLinkButton } from './BoardTopLinkButton'

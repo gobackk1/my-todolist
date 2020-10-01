@@ -4,7 +4,7 @@ import {
   LoadingSpinner,
   BoardListMenu,
   LoginFormModal,
-  HomeLinkButton
+  BoardTopLinkButton
 } from '@/components'
 import { useSelector } from 'react-redux'
 import { theme } from '@/styles'
@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
       <Toolbar>
         {userState.user && (
           <>
-            <HomeLinkButton />
+            <BoardTopLinkButton />
             <BoardListMenu />
           </>
         )}

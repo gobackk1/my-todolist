@@ -19,7 +19,7 @@ export const BoardDetail: React.FC = () => {
   const { boardId } = useParams<I.UrlParams>()
 
   // todo: state に 対象がなかった時のみ取得する
-  useFetchBoard()
+  useFetchBoard(boardId)
   useFetchList(boardId)
 
   const redirect = React.useMemo(

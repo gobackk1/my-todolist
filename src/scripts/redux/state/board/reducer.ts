@@ -8,7 +8,8 @@ import {
   fetchArchivedBoards,
   restoreBoard,
   setBoard,
-  setArchivedBoard
+  setArchivedBoard,
+  fetchBoard
 } from './actions'
 
 export interface Board {
@@ -51,12 +52,16 @@ export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.started
    */
-  .case(fetchBoards.async.started, state => {
-    return { ...state, isLoading: true }
-  })
-  .case(fetchArchivedBoards.async.started, state => {
-    return { ...state, isLoading: true }
-  })
+  .cases(
+    [
+      fetchBoards.async.started,
+      fetchBoard.async.started,
+      fetchArchivedBoards.async.started
+    ],
+    state => {
+      return { ...state, isLoading: true }
+    }
+  )
   .case(restoreBoard.async.started, state => {
     return { ...state, isLoading: true }
   })
@@ -76,7 +81,11 @@ export const boardReducer = reducerWithInitialState(initialState)
    * async.failed
    */
   .cases(
-    [fetchBoards.async.failed, fetchArchivedBoards.async.failed],
+    [
+      fetchBoards.async.failed,
+      fetchArchivedBoards.async.failed,
+      fetchBoard.async.failed
+    ],
     (state, { error }) => {
       return { ...state, isLoading: false, error }
     }
@@ -99,7 +108,10 @@ export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.done
    */
-  .case(fetchBoards.async.done, state => {
+  .cases([fetchBoards.async.done], state => {
+    return { ...state, init: true, isLoading: false }
+  })
+  .cases([fetchBoard.async.done], state => {
     return { ...state, init: true, isLoading: false }
   })
   .case(setBoard, (state, params) => {

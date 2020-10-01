@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { LoadingSpinner } from '@/components'
-import { useFetchBoard, useSnackbarContext } from '@/scripts/hooks'
+import { useFetchBoards, useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 
 export const BoardTop: React.FC = () => {
@@ -12,7 +12,7 @@ export const BoardTop: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
 
   /**
-   * ボードがない理由でリダイレクトされた来たらフィードバックを返す
+   * ボードがない理由でリダイレクトされてきたらフィードバックを返す
    */
   React.useEffect(() => {
     if (!state) return
@@ -25,7 +25,7 @@ export const BoardTop: React.FC = () => {
     }
   }, [state])
 
-  useFetchBoard()
+  useFetchBoards()
 
   return (
     <div id="board">
@@ -33,11 +33,11 @@ export const BoardTop: React.FC = () => {
       {boardState.init && !boardState.isLoading && (
         <div id="board-inner">
           BoardTop
-          {Object.values(boardState.boards).length ? (
-            <>ここにボードを出す</>
-          ) : (
-            'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'
-          )}
+          {Object.values(boardState.boards).length
+            ? Object.values(boardState.boards).map((board, i) => {
+                return <div key={i}>{board.title}</div>
+              })
+            : 'まだボードがありません。「ボード一覧」から新しいボードを作成してください。'}
         </div>
       )}
     </div>

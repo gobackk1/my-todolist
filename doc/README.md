@@ -1,10 +1,10 @@
 ## カスタムイベントについて
 
 このアプリケーションで定義したカスタムイベントは以下
-|カスタムイベント名|概要|
-|--|--|
-|onMenuOpen|src/component/Menu が開いた時|
-|onMenuClose|src/component/Menu が閉じた時|
+| カスタムイベント名 | 概要                          |
+| ------------------ | ----------------------------- |
+| onMenuOpen         | src/component/Menu が開いた時 |
+| onMenuClose        | src/component/Menu が閉じた時 |
 
 ## テスト
 
@@ -18,7 +18,7 @@
 
 ### コンポーネント名
 
-XXXX コンポーネントは
+使い回しが予定される XXXX コンポーネントは
 
 ```
   <div className="AppXXXX-root"></div>

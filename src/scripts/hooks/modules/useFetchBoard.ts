@@ -1,40 +1,36 @@
 import React from 'react'
-import { fetchBoards } from '@/scripts/redux/state/board/actions'
+import { fetchBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { useSnackbarContext } from '@/scripts/hooks'
 
-export const useFetchBoard = () => {
+export const useFetchBoard = (boardId: string) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
-  const [init, setInit] = React.useState(false)
 
-  /**
-   * useEffect でコールする fetchBoard は１度のみ
-   */
-  React.useEffect(() => {
-    if (!userState.user || boardState.error || init) return
-    setInit(true)
-
-    const fetch = async () => {
-      try {
-        await dispatch(fetchBoards())
-      } catch ({ message }) {
-        console.log('debug: await dispatch(fetchBoards())')
-        showSnackbar({
-          message,
-          type: 'error'
-        })
-      }
+  const dispatchFetchBoard = React.useCallback(async () => {
+    try {
+      await dispatch(fetchBoard(boardId))
+    } catch ({ message }) {
+      console.log('debug: dispatchFetchBoard')
+      showSnackbar({
+        message,
+        type: 'error'
+      })
     }
-    fetch()
     /**
      * NOTE:
      * フィードバック表示・非表示のタイミングで画面を再レンダリングしたく無いので
      * showSnackbar を配列に加えない
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [userState.user, dispatch, boardState.error, init])
+  }, [dispatch, boardId])
+
+  React.useEffect(() => {
+    if (!userState.user || boardState.error) return
+
+    dispatchFetchBoard()
+  }, [userState.user, dispatchFetchBoard, boardState.error])
 }

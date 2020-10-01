@@ -4,7 +4,7 @@ import { IconButton } from '@material-ui/core'
 import { OPTION } from '@/option'
 import { useHistory } from 'react-router'
 
-export const HomeLinkButton: React.FC = () => {
+export const BoardTopLinkButton: React.FC = () => {
   const history = useHistory()
 
   const onClick = React.useCallback(() => {
