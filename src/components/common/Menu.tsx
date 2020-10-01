@@ -16,10 +16,10 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 
   /**
    * ボードリストの外側をクリックしたらリストを閉じる
-   * 内側と判定する要素は、js-menu-click-area で囲む
+   * 内側と判定する要素は、[data-click-area="menu"] で囲む
    */
   const onClickOffMenuList = (e: React.MouseEvent<HTMLElement>) => {
-    if ((e.target as HTMLElement).closest('.js-menu-click-area')) return
+    if ((e.target as HTMLElement).closest('[data-click-area="menu"]')) return
     toggleMenu(false)
   }
   useEventListener('click', onClickOffMenuList)
@@ -62,7 +62,7 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
 
   return (
     <div css={styles['menu']}>
-      <div className="js-menu-click-area">
+      <div data-click-area="menu">
         {render({
           ...providingProps
         })}
@@ -88,6 +88,7 @@ const styles = {
   `,
   'menu-inner': css`
     position: absolute;
+    border-radius: ${theme.borderRadius(1)}px;
   `
 }
 
