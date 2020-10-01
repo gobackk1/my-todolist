@@ -1,25 +1,28 @@
 import React from 'react'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
-import { useDispatch, useStore } from 'react-redux'
-import { Link, useHistory } from 'react-router-dom'
+import { useStore } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { Board } from '~redux/state/board/reducer'
 import { createBoard } from '@/scripts/redux/state/board/actions'
-import { useSnackbarContext } from '@/scripts/hooks'
+import { useSnackbarContext, useReduxDispatch } from '@/scripts/hooks'
 import { SearchState } from './BoardListMenu'
+import { BoardListItem } from '@/components'
 
 export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
-  const dispatch = useDispatch()
+  const dispatch = useReduxDispatch()
   const { showSnackbar } = useSnackbarContext()
   const history = useHistory()
   const { user, board } = useStore().getState()
-  const muiStyles = useStyles()
+  const styles = useStyles()
 
-  const onClickCreate = async ({ title }: Pick<Board, 'title'>) => {
+  const onClickCreate = async ({
+    title
+  }: Pick<Board, 'title'>): Promise<void> => {
     if (!user || board.error) return
 
     try {
-      const { id }: any = await dispatch(
+      const { id }: Board = await dispatch(
         createBoard({
           title,
           backgroundImage: OPTION.BOARD.BG.PHOTO[0].src
@@ -29,30 +32,19 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
       history.push(`/boards/${id}`)
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
+      console.log(message)
     }
   }
 
   return (
-    <div className={muiStyles['search-root']}>
+    <div className={`AppSearchListView-root ${styles.root}`}>
       <Typography>結果は{state.result.length}件です</Typography>
       {state.result.length ? (
-        <ul>
+        <ul className="AppSearchListView-result">
           {state.result.map((board, i) => {
             return (
               <li key={i}>
-                <Button
-                  to={`${OPTION.PATH.BOARD}/${board.id}`}
-                  component={Link}
-                  fullWidth={true}
-                  variant="contained"
-                  className={muiStyles['button-board']}
-                  onClick={() => {
-                    document.body.click()
-                  }}
-                  defaultValue=""
-                >
-                  {board.title}
-                </Button>
+                <BoardListItem data={board} />
               </li>
             )
           })}
@@ -63,7 +55,7 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
         onClick={() => {
           onClickCreate({ title: state.value })
         }}
-        className={muiStyles['create-board-button']}
+        className={styles.createButton}
       >
         「{state.value}」というタイトルのボードを作成
       </Button>
@@ -72,25 +64,17 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
-  'button-board': {
-    fontWeight: 'bold',
-    textAlign: 'left',
-    '& .MuiButton-label': {
-      display: 'block',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }
-  },
-  'search-root': {
-    '& .MuiButton-root': {
-      marginBottom: theme.spacing(2)
+  root: {
+    '& .AppSearchListView-result': {
+      '& .MuiButton-root': {
+        marginBottom: theme.spacing(2)
+      }
     },
     '& .MuiTypography-root': {
       marginBottom: theme.spacing(1)
     }
   },
-  'create-board-button': {
+  createButton: {
     textDecoration: 'underline',
     textAlign: 'left'
   }

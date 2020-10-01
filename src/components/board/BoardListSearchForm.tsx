@@ -6,6 +6,8 @@ import * as I from '@/scripts/model/interface'
 import { Board } from '~redux/state/board/reducer'
 import { useEventListener } from '@/scripts/hooks'
 import { useForm } from 'react-hook-form'
+import { makeStyles } from '@material-ui/styles'
+import { theme } from '@/styles'
 
 type Props = {
   state: SearchState
@@ -18,6 +20,7 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   /* eslint @typescript-eslint/no-non-null-assertion: off */
   const inputRef = React.useRef(null)
   const { reset } = useForm()
+  const styles = useStyles()
 
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.currentTarget
@@ -33,7 +36,13 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
 
     const values = Object.values(boardState.boards)
 
-    const result = values.filter(board => RegExp(value).test(board.title))
+    const result = values
+      .filter(board => RegExp(value).test(board.title))
+      /**
+       * favorite: true のものを上へ表示する
+       */
+      .sort((x, y) => (x.favorite === y.favorite ? 0 : x ? -1 : 1))
+
     setState(state => ({
       ...state,
       result,
@@ -58,7 +67,10 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   })
 
   return (
-    <form css={styles['search']}>
+    <form
+      css={styles['search']}
+      className={`AppBoardListSearchForm-root ${styles.root}`}
+    >
       <TextField
         ref={inputRef}
         // FIXME:
@@ -78,11 +90,11 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   )
 }
 
-const styles = {
-  search: css`
-    margin-bottom: 30px;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    marginBottom: theme.spacing(2)
+  }
+})
 
 type SearchState = {
   isSearching: boolean
