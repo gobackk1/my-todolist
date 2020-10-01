@@ -1,5 +1,4 @@
 import React from 'react'
-import { css } from '@emotion/core'
 import { TextField } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
@@ -8,11 +7,6 @@ import { useEventListener } from '@/scripts/hooks'
 import { useForm } from 'react-hook-form'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
-
-type Props = {
-  state: SearchState
-  setState: React.Dispatch<React.SetStateAction<SearchState>>
-}
 
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
@@ -95,6 +89,11 @@ const useStyles = makeStyles({
     marginBottom: theme.spacing(2)
   }
 })
+
+type Props = {
+  state: SearchState
+  setState: React.Dispatch<React.SetStateAction<SearchState>>
+}
 
 type SearchState = {
   isSearching: boolean

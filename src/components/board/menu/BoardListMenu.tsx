@@ -29,8 +29,8 @@ export const BoardListMenu: React.FC = () => {
       render={props => (
         <Button
           {...props}
+          variant="outlined"
           color="inherit"
-          variant="contained"
           className={muiStyles['button-open']}
           id="button-menu-open"
         >
