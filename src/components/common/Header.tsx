@@ -1,7 +1,12 @@
 import React from 'react'
 import { AppBar, Toolbar, makeStyles } from '@material-ui/core'
 import { css } from '@emotion/core'
-import { LoadingSpinner, BoardListMenu, LoginFormModal } from '@/components'
+import {
+  LoadingSpinner,
+  BoardListMenu,
+  LoginFormModal,
+  HomeLinkButton
+} from '@/components'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { theme } from '@/styles'
@@ -20,14 +25,19 @@ const styles = {
   `
 }
 
-export const AppHeader: React.FC = () => {
+export const Header: React.FC = () => {
   const userState = useSelector((state: I.ReduxState) => state.user)
   const muiStyles = useStyles()
 
   return (
     <AppBar position="static" className={muiStyles['root']}>
       <Toolbar>
-        {userState.user && <BoardListMenu />}
+        {userState.user && (
+          <>
+            <HomeLinkButton />
+            <BoardListMenu />
+          </>
+        )}
         <h1 css={styles['h1']}>Pacrello</h1>
         {userState.isLoggingIn && <LoadingSpinner />}
         {!userState.isLoggingIn && <LoginFormModal />}

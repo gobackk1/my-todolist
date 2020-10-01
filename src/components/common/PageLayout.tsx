@@ -1,11 +1,11 @@
 import React from 'react'
-import { AppHeader, Authentication } from '@/components'
+import { Header, Authentication } from '@/components'
 import { css } from '@emotion/core'
 
 export const PageLayout: React.FC = ({ children }) => {
   return (
     <>
-      <AppHeader />
+      <Header />
       <Authentication>
         <div css={style}>{children}</div>
       </Authentication>
