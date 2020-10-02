@@ -2,11 +2,17 @@ import React from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
-import { LoadingSpinner, PageContainer, BoardListItem } from '@/components'
+import {
+  LoadingSpinner,
+  PageContainer,
+  BoardListItem,
+  FavoriteIcon
+} from '@/components'
 import { useFetchBoards, useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { Typography, makeStyles } from '@material-ui/core'
 import { theme } from '@/styles'
+import PersonOutlineRoundedIcon from '@material-ui/icons/PersonOutlineRounded'
 
 export const BoardTop: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
@@ -45,7 +51,10 @@ export const BoardTop: React.FC = () => {
       {!boardState.init || (boardState.isLoading && <LoadingSpinner />)}
       {boardState.init && !boardState.isLoading && (
         <section id="board-inner">
-          <Typography variant="h2">お気に入りボード</Typography>
+          <Typography variant="h2">
+            <FavoriteIcon favorite={false} />
+            お気に入りボード
+          </Typography>
           {favoriteBoards.length ? (
             <ul className="AppPageContainer-list">
               {favoriteBoards.map((board, i) => (
@@ -57,7 +66,10 @@ export const BoardTop: React.FC = () => {
           ) : (
             'お気に入りは０'
           )}
-          <Typography variant="h2">パーソナルボード</Typography>
+          <Typography variant="h2">
+            <PersonOutlineRoundedIcon />
+            パーソナルボード
+          </Typography>
           {personalBoards.length ? (
             <ul className="AppPageContainer-list">
               {personalBoards.map((board, i) => (
@@ -79,7 +91,13 @@ const useStyles = makeStyles({
   root: {
     paddingTop: theme.spacing(5),
     '& .MuiTypography-root': {
-      marginBottom: theme.spacing(2)
+      marginBottom: theme.spacing(2),
+      '& > .MuiSvgIcon-root': {
+        fontSize: '2rem',
+        verticalAlign: 'bottom',
+        marginRight: theme.spacing(1),
+        color: 'inherit'
+      }
     },
     '& .AppPageContainer-list': {
       display: 'flex',
