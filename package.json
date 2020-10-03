@@ -8,6 +8,7 @@
     "start": "npx webpack-dev-server --open --hot --mode development",
     "build": "npx webpack --mode production",
     "deploy": "npx firebase deploy",
+    "deploy:functions": "npx firebase deploy --only functions",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

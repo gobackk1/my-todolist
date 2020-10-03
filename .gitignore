@@ -29,4 +29,6 @@ firestore.rules
 /screenshot
 firebase-adminsdk.json
 firestore-debug.log
+firebase-debug.log
 ui-debug.log
+/functions/serviceAccountKey.json

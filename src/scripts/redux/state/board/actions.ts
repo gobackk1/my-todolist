@@ -9,8 +9,43 @@ import {
 import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
 import firebase from 'firebase'
+import { addUser } from '~redux/state/users/actions'
+import { User } from '~redux/state/users/reducer'
 
 const db = firebase.firestore
+
+interface getUserResponse {
+  result: User
+}
+
+const getUser = async (uid: string): Promise<getUserResponse> => {
+  const initRequest = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      data: JSON.stringify({
+        uid
+      })
+    })
+  }
+
+  return new Promise((resolve, reject) => {
+    fetch(
+      ' https://asia-northeast1-todolist-b51fb.cloudfunctions.net/getUser',
+      initRequest
+    )
+      .then(response => response.body!.getReader())
+      .then(reader => reader!.read())
+      .then(({ done, value }) => {
+        const result = new TextDecoder().decode(value)
+        resolve(JSON.parse(result))
+      })
+      .catch(e => resolve())
+  })
+}
 
 /**
  * サーバーからボードを取得する
@@ -43,9 +78,12 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
             visibility
           } = doc.data()
 
-          await Object.keys(members).forEach(async (uid: any) => {
-            // const test = await admin.auth().getUser(uid)
-            console.log(test, 'test')
+          await Object.keys(members).forEach(async (uid: string) => {
+            const response = await getUser(uid)
+
+            if (response.result) {
+              dispatch(addUser(response.result))
+            }
           })
 
           dispatch(

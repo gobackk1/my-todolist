@@ -1,11 +1,15 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 import { addUser } from './actions'
-import firebase from 'firebase'
 
+export interface User {
+  displayName: string
+  photoURL: string
+  uid: string
+}
 export interface UsersState {
   isLoading: boolean
   users: {
-    [i: string]: firebase.User
+    [i: string]: User
   }
 }
 

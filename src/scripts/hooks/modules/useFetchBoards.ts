@@ -31,5 +31,5 @@ export const useFetchBoards = () => {
     if (!userState.user || boardState.error || boardState.init) return
 
     dispatchFetchBoards()
-  }, [userState.user, dispatchFetchBoards, boardState])
+  }, [userState.user, dispatchFetchBoards, boardState.init, boardState.error])
 }

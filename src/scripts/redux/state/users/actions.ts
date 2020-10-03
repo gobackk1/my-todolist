@@ -1,4 +1,4 @@
 import { actionCreator } from '~redux/action'
-import firebase from 'firebase'
+import { User } from './reducer'
 
-export const addUser = actionCreator<firebase.User>('ADD_USER')
+export const addUser = actionCreator<User>('ADD_USER')
