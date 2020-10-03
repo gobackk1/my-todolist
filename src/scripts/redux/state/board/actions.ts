@@ -1,9 +1,16 @@
 import { asyncActionCreator, actionCreator } from '~redux/action'
 import { store } from '~redux/store'
-import { Board, BoardState, BoardVisibility } from '~redux/state/board/reducer'
+import {
+  Board,
+  BoardState,
+  BoardVisibility,
+  BoardRole
+} from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
 import firebase from 'firebase'
+
+const db = firebase.firestore
 
 /**
  * サーバーからボードを取得する
@@ -19,10 +26,14 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
         const snapshot = await firebase
           .firestore()
           .collection(`boards_live`)
-          .where(`members.${user.uid}`, 'in', ['owner', 'editor', 'reader'])
+          .where(`members.${user.uid}.role`, 'in', [
+            'owner',
+            'editor',
+            'reader'
+          ])
           .get()
 
-        snapshot.forEach(doc => {
+        snapshot.forEach(async doc => {
           const { id } = doc
           const {
             title,
@@ -31,6 +42,11 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
             members,
             visibility
           } = doc.data()
+
+          await Object.keys(members).forEach(async (uid: any) => {
+            // const test = await admin.auth().getUser(uid)
+            console.log(test, 'test')
+          })
 
           dispatch(
             setBoard({
@@ -68,8 +84,7 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
 
     if (user && user.uid) {
       try {
-        const documentReference = await firebase
-          .firestore()
+        const documentReference = await db()
           .collection(`boards_live`)
           .doc(params)
           .get()
@@ -100,10 +115,10 @@ export const createBoard = asyncActionCreator<
   const { user }: UserState = store.getState().user
 
   if (user && user.uid) {
-    const members = {
-      [user.uid]: 'owner'
-    }
-
+    const userRef = db()
+      .collection('users')
+      .doc(user.uid)
+    const members = { [user.uid]: { userRef, role: 'owner' as BoardRole } }
     //todo: 選択できるようにする
     const visibility: BoardVisibility = 'members'
 
@@ -150,8 +165,7 @@ export const updateBoard = asyncActionCreator<
     const { id: paramsId, ...paramsWithoutId } = params
 
     try {
-      const documentReference = await firebase
-        .firestore()
+      const documentReference = await db()
         .collection(`boards_live`)
         .doc(paramsId)
 
@@ -179,8 +193,7 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
 
     if (user && user.uid) {
       try {
-        await firebase
-          .firestore()
+        await db()
           .collection(`board_archived`)
           .doc(id)
           .delete()
@@ -210,8 +223,7 @@ export const archiveBoard = asyncActionCreator<
 
     // NOTE: まずリファレンスを取得する
     try {
-      documentReference = await firebase
-        .firestore()
+      documentReference = await db()
         .collection(`boards_live`)
         .doc(id)
     } catch (e) {
@@ -225,13 +237,12 @@ export const archiveBoard = asyncActionCreator<
      * 3. boards から削除
      */
     try {
-      await firebase.firestore().runTransaction(async t => {
+      await db().runTransaction(async t => {
         const doc = await t.get(documentReference)
         const archiveBoard = doc.data()
         if (!archiveBoard || !user) return
 
-        await firebase
-          .firestore()
+        await db()
           .collection(`boards_archived`)
           .doc(id)
           .set(archiveBoard)
@@ -263,8 +274,7 @@ export const restoreBoard = asyncActionCreator<
 
     // NOTE: まずリファレンスを取得する
     try {
-      documentReference = await firebase
-        .firestore()
+      documentReference = await db()
         .collection(`boards_archived`)
         .doc(id)
     } catch (e) {
@@ -278,13 +288,12 @@ export const restoreBoard = asyncActionCreator<
      * 3. archivedBoards からを削除
      */
     try {
-      await firebase.firestore().runTransaction(async t => {
+      await db().runTransaction(async t => {
         const doc = await t.get(documentReference)
         const archiveBoard = doc.data()
         if (!archiveBoard || !user) return
 
-        await firebase
-          .firestore()
+        await db()
           .collection(`boards_live`)
           .doc(id)
           .set(archiveBoard)
@@ -311,10 +320,13 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
 
     if (user && user.uid) {
       try {
-        const snapshot = await firebase
-          .firestore()
+        const snapshot = await db()
           .collection(`boards_archived`)
-          .where(`members.${user.uid}`, 'in', ['owner', 'editor', 'reader'])
+          .where(`members.${user.uid}.role`, 'in', [
+            'owner',
+            'editor',
+            'reader'
+          ])
           .get()
 
         snapshot.forEach(doc => {

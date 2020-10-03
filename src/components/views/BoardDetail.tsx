@@ -29,6 +29,7 @@ export const BoardDetail: React.FC = () => {
     }),
     []
   )
+  console.log(boardState.boards[boardId] && boardState.boards[boardId].members)
 
   return (
     <BoardWithBackground>

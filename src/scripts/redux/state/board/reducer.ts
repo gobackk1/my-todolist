@@ -22,7 +22,8 @@ export interface Board {
   favorite: boolean
   visibility: BoardVisibility
   members: {
-    [i: string]: BoardRole
+    userRef: firebase.firestore.DocumentReference
+    role: BoardRole
   }
 }
 export interface BoardState {
