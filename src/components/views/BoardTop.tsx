@@ -8,16 +8,22 @@ import {
   BoardListItem,
   FavoriteIcon
 } from '@/components'
-import { useFetchBoards, useSnackbarContext } from '@/scripts/hooks'
+import {
+  useFetchBoards,
+  useSnackbarContext,
+  useCreateBoardModalContext
+} from '@/scripts/hooks'
 import { OPTION } from '@/option'
-import { Typography, makeStyles } from '@material-ui/core'
+import { Typography, makeStyles, Button } from '@material-ui/core'
 import { theme } from '@/styles'
 import PersonOutlineRoundedIcon from '@material-ui/icons/PersonOutlineRounded'
+import AddRoundedIcon from '@material-ui/icons/AddRounded'
 
 export const BoardTop: React.FC = () => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const { state } = useLocation<string | undefined>()
   const { showSnackbar } = useSnackbarContext()
+  const { openCreateBoardModal } = useCreateBoardModalContext()
   const style = useStyles()
 
   /**
@@ -55,34 +61,43 @@ export const BoardTop: React.FC = () => {
             <FavoriteIcon favorite={false} />
             お気に入りボード
           </Typography>
-          {favoriteBoards.length ? (
-            <ul className="AppPageContainer-list">
-              {favoriteBoards.map((board, i) => (
+          <ul className="AppPageContainer-list">
+            {favoriteBoards.length ? (
+              favoriteBoards.map((board, i) => (
                 <li key={i}>
                   <BoardListItem data={board} variant="block" />
                 </li>
-              ))}
-            </ul>
-          ) : (
-            <Typography variant="body2">
-              お気に入りのボードはありません
-            </Typography>
-          )}
+              ))
+            ) : (
+              <li className="AppPageContainer-listNotFound">
+                <Typography variant="body2">
+                  お気に入りのボードはありません
+                </Typography>
+              </li>
+            )}
+          </ul>
           <Typography variant="h2">
             <PersonOutlineRoundedIcon />
             パーソナルボード
           </Typography>
-          {personalBoards.length ? (
-            <ul className="AppPageContainer-list">
-              {personalBoards.map((board, i) => (
+          <ul className="AppPageContainer-list">
+            {personalBoards &&
+              personalBoards.map((board, i) => (
                 <li key={i}>
                   <BoardListItem data={board} variant="block" />
                 </li>
               ))}
-            </ul>
-          ) : (
-            'パーソナルボードは０'
-          )}
+            <li>
+              <Button
+                variant="contained"
+                onClick={openCreateBoardModal}
+                startIcon={<AddRoundedIcon />}
+                className="AppPageContainer-create"
+              >
+                新しいボード
+              </Button>
+            </li>
+          </ul>
         </section>
       )}
     </PageContainer>
@@ -111,7 +126,14 @@ const useStyles = makeStyles({
           marginRight: theme.spacing(2),
           marginBottom: theme.spacing(2)
         }
+      },
+      '& .AppPageContainer-listNotFound': {
+        width: '100%'
       }
+    },
+    '& .AppPageContainer-create': {
+      height: 100,
+      width: '100%'
     }
   }
 })
