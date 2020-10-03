@@ -182,9 +182,8 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
   .cases([restoreBoard.async.done], (state, { result }) => {
-    const board = state.boards[result.id]
+    const board = state.archivedBoards[result.id]
     const { [result.id]: _, ...newArchivedBoards } = state.archivedBoards
-
     return {
       ...state,
       init: true,

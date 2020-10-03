@@ -97,7 +97,7 @@ export const ArchivedBoardModal: React.FC = () => {
         {boardState.isLoading && <LoadingSpinner />}
         {!boardState.isLoading && (
           <ul css={styles['archived-list']} id="modal-archived-board-list">
-            {boardState.archivedBoards.length &&
+            {Object.values(boardState.archivedBoards).length &&
               Object.values(boardState.archivedBoards).map((board, i) => (
                 <li css={styles['archived-board']} key={i}>
                   <div css={styles['archived-board-title']}>{board.title}</div>

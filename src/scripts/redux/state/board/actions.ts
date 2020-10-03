@@ -44,11 +44,10 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
           )
         })
       } catch (e) {
-        console.log(e)
+        console.log('debug: FETCH_BOARDS', e)
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
       }
     } else {
-      console.log('FETCH_BOARDS')
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
 
@@ -71,31 +70,18 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
       try {
         const documentReference = await firebase
           .firestore()
-          .collection(`users/${user.uid}/boards`)
+          .collection(`boards_live`)
           .doc(params)
           .get()
 
-        // if (!documentReference.exists) {
-        //   const documentReference = await firebase
-        //     .firestore()
-        //     .collection(`/public/`)
-        //     .where(
-        //       'members',
-        //       'array-contains',
-        //       'ここにユーザーのリファレンスID'
-        //     )
-        //     .doc(params)
-        //     .get()
-        // }
         const { id } = documentReference
         const board = { id, ...documentReference.data() } as Board
         dispatch(setBoard(board))
       } catch (e) {
-        console.log(e)
+        console.log('debug: FETCH_BOARD', e)
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
       }
     } else {
-      console.log('debug: FETCH_BOARDS error')
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
   }
@@ -166,7 +152,7 @@ export const updateBoard = asyncActionCreator<
     try {
       const documentReference = await firebase
         .firestore()
-        .collection(`users/${user.uid}/boards`)
+        .collection(`boards_live`)
         .doc(paramsId)
 
       const query = { ...target, ...paramsWithoutId }
@@ -175,7 +161,7 @@ export const updateBoard = asyncActionCreator<
       const newBoard: Board = { id, ...query }
       return newBoard
     } catch (e) {
-      console.log(e)
+      console.log('debug: UPDATE_BOARD', e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   } else {
@@ -195,11 +181,12 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
       try {
         await firebase
           .firestore()
-          .collection(`users/${user.uid}/archivedBoards/`)
+          .collection(`board_archived`)
           .doc(id)
           .delete()
         return id
       } catch (e) {
+        console.log('debug: DELETE_BOARD', e)
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
       }
     } else {
@@ -225,7 +212,7 @@ export const archiveBoard = asyncActionCreator<
     try {
       documentReference = await firebase
         .firestore()
-        .collection(`users/${user.uid}/boards/`)
+        .collection(`boards_live`)
         .doc(id)
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
@@ -245,14 +232,15 @@ export const archiveBoard = asyncActionCreator<
 
         await firebase
           .firestore()
-          .collection(`users/${user.uid}/archivedBoards/`)
+          .collection(`boards_archived`)
           .doc(id)
           .set(archiveBoard)
 
-        await documentReference.delete()
+        await t.delete(documentReference)
       })
       return { id }
     } catch (e) {
+      console.log('debug: ARCHIVE_BOARD', e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   } else {
@@ -277,7 +265,7 @@ export const restoreBoard = asyncActionCreator<
     try {
       documentReference = await firebase
         .firestore()
-        .collection(`users/${user.uid}/archivedBoards/`)
+        .collection(`boards_archived`)
         .doc(id)
     } catch (e) {
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
@@ -297,14 +285,15 @@ export const restoreBoard = asyncActionCreator<
 
         await firebase
           .firestore()
-          .collection(`users/${user.uid}/boards/`)
+          .collection(`boards_live`)
           .doc(id)
           .set(archiveBoard)
 
-        await documentReference.delete()
+        await t.delete(documentReference)
       })
       return { id }
     } catch (e) {
+      console.log('debug: RESTORE_BOARD', e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   } else {
@@ -324,7 +313,8 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
       try {
         const snapshot = await firebase
           .firestore()
-          .collection(`users/${user.uid}/archivedBoards`)
+          .collection(`boards_archived`)
+          .where(`members.${user.uid}`, 'in', ['owner', 'editor', 'reader'])
           .get()
 
         snapshot.forEach(doc => {
@@ -348,6 +338,7 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
           )
         })
       } catch (e) {
+        console.log('debug: FETCH_ARCHIVED_BOARDS', e)
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
       }
     } else {
