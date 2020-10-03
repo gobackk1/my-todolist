@@ -16,6 +16,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles'
 import firebase from 'firebase'
 import 'firebase/firestore'
 import 'firebase/auth'
+import { CreateBoardModalProvider } from '../board/CreateBoardModalProvider'
 
 firebase.initializeApp({
   apiKey: process.env.API_KEY,
@@ -41,17 +42,19 @@ export const App: React.FC = () => {
             autoHideDuration={OPTION.SNACKBAR.AUTO_HIDE_DURATION}
             position={OPTION.SNACKBAR.POSITION}
           >
-            <PageLayout>
-              <Switch>
-                <Route
-                  path={`${OPTION.PATH.BOARD}/:boardId`}
-                  component={BoardDetail}
-                />
-                <Route path={OPTION.PATH.BOARD} component={BoardTop} />
-                <Route path="/login" exact component={Home} />
-                <Route path="/" exact component={Home} />
-              </Switch>
-            </PageLayout>
+            <CreateBoardModalProvider>
+              <PageLayout>
+                <Switch>
+                  <Route
+                    path={`${OPTION.PATH.BOARD}/:boardId`}
+                    component={BoardDetail}
+                  />
+                  <Route path={OPTION.PATH.BOARD} component={BoardTop} />
+                  <Route path="/login" exact component={Home} />
+                  <Route path="/" exact component={Home} />
+                </Switch>
+              </PageLayout>
+            </CreateBoardModalProvider>
           </SnackbarProvider>
         </ReduxProvider>
       </BrowserRouter>

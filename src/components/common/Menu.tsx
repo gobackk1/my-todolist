@@ -1,18 +1,19 @@
 import React from 'react'
-import { css } from '@emotion/core'
 import { useEventListener } from '@/scripts/hooks'
 import { Paper } from '@material-ui/core'
 import { theme } from '@/styles'
+import { makeStyles } from '@material-ui/styles'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
  * Menu が閉じた時に、onMenuClose イベントを発火させる
  * Menu コンポーネントが増えた時は、new CustomEvent('onMenuClose', { detail }) にする
  */
-export const Menu: React.FC<Props> = ({ children, render }) => {
+export const Menu: React.FC<Props> = ({ children, render, className }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const menuInnerRef = React.useRef(null)
   const openButtonRef = React.useRef(null)
+  const styles = useStyles()
 
   /**
    * ボードリストの外側をクリックしたらリストを閉じる
@@ -61,13 +62,13 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   }
 
   return (
-    <div css={styles['menu']}>
+    <div className={`${className || ''} ${styles.root}`}>
       <div data-click-area="menu">
         {render({
           ...providingProps
         })}
         <div
-          css={styles['menu-inner']}
+          className="AppMenu-content"
           ref={menuInnerRef}
           style={{
             display: isOpen ? 'block' : 'none'
@@ -81,17 +82,18 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   )
 }
 
-const styles = {
-  menu: css`
-    position: relative;
-    z-index: ${theme.zIndex.menu};
-  `,
-  'menu-inner': css`
-    position: absolute;
-    border-radius: ${theme.borderRadius(1)}px;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    position: 'relative',
+    zIndex: theme.zIndex.menu,
+    '& .AppMenu-content': {
+      position: 'absolute',
+      boarderRadius: theme.borderRadius(1)
+    }
+  }
+})
 
 type Props = {
   render: (props: any) => JSX.Element
+  className?: string
 }

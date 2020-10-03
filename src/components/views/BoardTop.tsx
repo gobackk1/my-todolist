@@ -64,7 +64,9 @@ export const BoardTop: React.FC = () => {
               ))}
             </ul>
           ) : (
-            'お気に入りは０'
+            <Typography variant="body2">
+              お気に入りのボードはありません
+            </Typography>
           )}
           <Typography variant="h2">
             <PersonOutlineRoundedIcon />

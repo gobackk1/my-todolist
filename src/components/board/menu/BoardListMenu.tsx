@@ -1,28 +1,27 @@
 import React from 'react'
 import {
   Menu,
-  CreateBoardModal,
   ArchivedBoardModal,
   BoardListSearchForm,
   SearchView,
   BoardListView
 } from '@/components'
-import { Button, makeStyles, Theme } from '@material-ui/core'
-// import * as I from '@/scripts/model/interface'
-import { css } from '@emotion/core'
+import { Button, makeStyles } from '@material-ui/core'
 import { Board } from '~redux/state/board/reducer'
 import { theme } from '@/styles'
+import { useCreateBoardModalContext } from '@/scripts/hooks'
 
 /**
  * ボード一覧ボタンと、押した時にでるメニュー
  */
 export const BoardListMenu: React.FC = () => {
-  const muiStyles = useStyles()
+  const styles = useStyles()
   const [state, setState] = React.useState<SearchState>({
     isSearching: false,
     value: '',
     result: []
   })
+  const { openCreateBoardModal } = useCreateBoardModalContext()
 
   return (
     <Menu
@@ -31,19 +30,25 @@ export const BoardListMenu: React.FC = () => {
           {...props}
           variant="outlined"
           color="inherit"
-          className={muiStyles['button-open']}
+          className="AppBoardListMenu-button-open"
           id="button-menu-open"
         >
           ボード一覧
         </Button>
       )}
+      className={styles.root}
     >
-      <div css={styles['menu-content']} id="menu-board-list">
+      <div className="AppBoardListMenu-content" id="menu-board-list">
         <div css={styles['board-list']}>
           <BoardListSearchForm state={state} setState={setState} />
           {state.isSearching ? <SearchView state={state} /> : <BoardListView />}
         </div>
-        <CreateBoardModal />
+        <Button
+          onClick={openCreateBoardModal}
+          className="AppBoardListMenu-button-create"
+        >
+          新しいボードを作成
+        </Button>
         <ArchivedBoardModal />
       </div>
     </Menu>
@@ -51,27 +56,29 @@ export const BoardListMenu: React.FC = () => {
 }
 
 const useStyles = makeStyles({
-  'button-open': {
-    padding: 0,
+  root: {
+    position: 'relative',
+    '& .AppBoardListMenu-button-open': {
+      padding: 0,
 
-    '& .MuiButton-label': {
-      padding: 5
+      '& .MuiButton-label': {
+        padding: 5
+      }
+    },
+    '& .AppBoardListMenu-button-create': {
+      '& .MuiButton-label': {
+        textDecoration: 'underline'
+      }
+    },
+    '& .AppBoardListMenu-content': {
+      background: '#fff',
+      color: '#000',
+      padding: theme.spacing(2),
+      width: 300,
+      boarderRadius: theme.borderRadius(1)
     }
   }
 })
-
-const styles = {
-  'menu-content': css`
-    background: #fff;
-    color: #000;
-    padding: 20px;
-    width: 300px;
-    border-radius: ${theme.borderRadius(1)}px;
-  `,
-  'board-list': css`
-    margin-bottom: 20px;
-  `
-}
 
 export type SearchState = {
   isSearching: boolean

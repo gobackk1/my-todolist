@@ -6,7 +6,7 @@ import {
   // Slide
 } from '@material-ui/core'
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert'
-import * as Snackbar from '@/scripts/context'
+import * as Snackbar from '@/scripts/context/SnackbarContext'
 import * as I from '@/scripts/model/interface'
 // import { TransitionProps } from '@material-ui/core/transitions'
 
