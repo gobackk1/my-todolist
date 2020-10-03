@@ -1,6 +1,6 @@
 import { asyncActionCreator, actionCreator } from '~redux/action'
 import { store } from '~redux/store'
-import { Board, BoardState } from '~redux/state/board/reducer'
+import { Board, BoardState, BoardVisibility } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
 import firebase from 'firebase'
@@ -18,14 +18,30 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
       try {
         const snapshot = await firebase
           .firestore()
-          .collection(`users/${user.uid}/boards`)
+          .collection(`boards_live`)
+          .where(`members.${user.uid}`, 'in', ['owner', 'editor', 'reader'])
           .get()
 
         snapshot.forEach(doc => {
           const { id } = doc
-          const { title, backgroundImage, favorite } = doc.data()
+          const {
+            title,
+            backgroundImage,
+            favorite,
+            members,
+            visibility
+          } = doc.data()
 
-          dispatch(setBoard({ id, title, backgroundImage, favorite }))
+          dispatch(
+            setBoard({
+              id,
+              title,
+              backgroundImage,
+              favorite,
+              members,
+              visibility
+            })
+          )
         })
       } catch (e) {
         console.log(e)
@@ -59,6 +75,18 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
           .doc(params)
           .get()
 
+        // if (!documentReference.exists) {
+        //   const documentReference = await firebase
+        //     .firestore()
+        //     .collection(`/public/`)
+        //     .where(
+        //       'members',
+        //       'array-contains',
+        //       'ここにユーザーのリファレンスID'
+        //     )
+        //     .doc(params)
+        //     .get()
+        // }
         const { id } = documentReference
         const board = { id, ...documentReference.data() } as Board
         dispatch(setBoard(board))
@@ -86,14 +114,29 @@ export const createBoard = asyncActionCreator<
   const { user }: UserState = store.getState().user
 
   if (user && user.uid) {
+    const members = {
+      [user.uid]: 'owner'
+    }
+
+    //todo: 選択できるようにする
+    const visibility: BoardVisibility = 'members'
+
     try {
       const { id }: firebase.firestore.DocumentReference = await firebase
         .firestore()
-        .collection(`users/${user.uid}/boards`)
-        .add({ title, backgroundImage, favorite: false })
+        .collection(`boards_live`)
+        .add({ title, backgroundImage, favorite: false, members, visibility })
 
-      return { title, id, backgroundImage, favorite: false }
+      return {
+        title,
+        id,
+        backgroundImage,
+        favorite: false,
+        members,
+        visibility
+      }
     } catch (e) {
+      console.log('debug: CREATE_BOARD', e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   } else {
@@ -106,7 +149,10 @@ export const createBoard = asyncActionCreator<
  */
 type PartiallyPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export const updateBoard = asyncActionCreator<
-  PartiallyPartial<Board, 'title' | 'backgroundImage' | 'favorite'>,
+  PartiallyPartial<
+    Board,
+    'title' | 'backgroundImage' | 'favorite' | 'members' | 'visibility'
+  >,
   Board,
   Error
 >('UPDATE_BOARD', async params => {
@@ -283,8 +329,23 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
 
         snapshot.forEach(doc => {
           const { id } = doc
-          const { title, backgroundImage, favorite } = doc.data()
-          dispatch(setArchivedBoard({ id, title, backgroundImage, favorite }))
+          const {
+            title,
+            backgroundImage,
+            favorite,
+            members,
+            visibility
+          } = doc.data()
+          dispatch(
+            setArchivedBoard({
+              id,
+              title,
+              backgroundImage,
+              favorite,
+              members,
+              visibility
+            })
+          )
         })
       } catch (e) {
         throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)

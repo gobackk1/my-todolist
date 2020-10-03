@@ -12,11 +12,18 @@ import {
   fetchBoard
 } from './actions'
 
+export type BoardRole = 'owner' | 'editor' | 'reader'
+export type BoardVisibility = 'public' | 'members'
+
 export interface Board {
   id: string
   title: string
   backgroundImage: string
   favorite: boolean
+  visibility: BoardVisibility
+  members: {
+    [i: string]: BoardRole
+  }
 }
 export interface BoardState {
   init: boolean

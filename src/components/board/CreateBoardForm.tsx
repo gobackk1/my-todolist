@@ -41,7 +41,7 @@ export const CreateBoardForm: React.FC = () => {
     try {
       const newBoard = await dispatch(createBoard({ title, backgroundImage }))
       reset()
-      history.push(`/boards/${(newBoard as any).id}`)
+      history.push(`/boards/${newBoard.id}`)
     } catch (e) {
       showSnackbar({
         message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,

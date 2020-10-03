@@ -28,3 +28,4 @@ firestore.rules
 
 /screenshot
 firebase-adminsdk.json
+.log

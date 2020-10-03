@@ -62,7 +62,7 @@ export const fetchList = asyncActionCreator<
 
       // アーカイブリストのカードはどうする？
     } catch (e) {
-      console.log(e)
+      console.log('FETCH_LIST', e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
 
@@ -123,6 +123,7 @@ export const createList = asyncActionCreator<
       // dispatch(setCardList(id))
       return { ...params, id }
     } catch (e) {
+      console.log('CREATE_LIST', e)
       throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   } else {
