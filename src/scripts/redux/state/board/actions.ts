@@ -312,3 +312,41 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
 )
 
 export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
+
+/**
+ * ボードメンバーを削除する
+ */
+
+export const deleteBoardMember = asyncActionCreator<
+  { boardId: string; uid: string },
+  Board,
+  Error
+>('DELETE_BOARD_MEMBER', async ({ boardId, uid }) => {
+  getUserStateIfLogin()
+  const { boards }: BoardState = store.getState().board
+  const target = boards[boardId]
+  // 他に良い方法が見つかるまで
+  /* eslint-disable-next-line */
+  const { [uid]: _, ...newMembers } = target.members
+  const newBoard = { ...target, members: { ...newMembers } }
+
+  try {
+    const documentReference = await db()
+      .collection(PATH.BOARDS_LIVE)
+      .doc(boardId)
+
+    await documentReference.set(
+      {
+        members: {
+          [uid]: firebase.firestore.FieldValue.delete()
+        }
+      },
+      { merge: true }
+    )
+
+    return newBoard
+  } catch (e) {
+    console.log('debug: UPDATE_BOARD', e)
+    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+  }
+})

@@ -5,7 +5,7 @@ import { updateBoard } from '~redux/state/board/actions'
 import { Menu, LoadingSpinner, EMailField, UserIcon } from '@/components'
 import { Button, Typography } from '@material-ui/core'
 import { callCloudFunctions } from '@/scripts/firebase'
-import { useCustomEvent } from '@/scripts/hooks'
+import { useCustomEvent, useSnackbarContext } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { useForm } from 'react-hook-form'
@@ -32,20 +32,26 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
     errors,
     formState: { isValid }
   } = useForm({ mode: 'onChange' })
+  const { showSnackbar } = useSnackbarContext()
 
   const addMember = React.useCallback(() => {
     try {
       dispatch(
         updateBoard({
           ...board,
-          members: { ...board.members, [state.user.uid]: { role: 'reader' } }
+          members: {
+            ...board.members,
+            [state.user.uid]: { role: 'reader' }
+          }
         })
       )
       dispatchCustomEvent('close_menu')
+      showSnackbar({ message: 'ボードにメンバーを追加しました', type: 'info' })
     } catch ({ message }) {
       console.log('debug: InvitationMenu addMember', message)
+      showSnackbar({ message, type: 'error' })
     }
-  }, [dispatch, board, state, dispatchCustomEvent])
+  }, [dispatch, board, state, dispatchCustomEvent, showSnackbar])
 
   const searchUser = React.useCallback(
     async email => {
@@ -122,7 +128,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
                 </Button>
               </div>
             )}
-            <Typography variant="body2">{state.message}</Typography>
+            <Typography>{state.message}</Typography>
           </div>
         )}
       </section>

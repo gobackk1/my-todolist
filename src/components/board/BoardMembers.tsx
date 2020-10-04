@@ -16,7 +16,7 @@ export const BoardMembers: React.FC<{ data: Board }> = ({ data }) => {
           .map(uid => users[uid])
           .filter(Boolean)
       : []
-  }, [boardState.init, data, users])
+  }, [boardState, data, users])
 
   return (
     <ul className={`AppBoardMembers-root ${styles.root}`}>
