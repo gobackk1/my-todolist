@@ -44,7 +44,7 @@ export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
     }))
   }
 
-  useEventListener('onMenuClose', () => {
+  useEventListener('menu_close', () => {
     reset()
     /**
      * HACK: <TextField inputRef={register} /> だと、defaultValueを使っていても

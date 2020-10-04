@@ -7,4 +7,5 @@ export { usePrevious } from './modules/usePrevious'
 export { useFetchBoard } from './modules/useFetchBoard'
 export { useFetchBoards } from './modules/useFetchBoards'
 export { useFetchList } from './modules/useFetchList'
+export { useCustomEvent } from './modules/useCustomEvent'
 // export { useReduxDispatch } from './modules/useReduxDispatch

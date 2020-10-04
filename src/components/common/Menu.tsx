@@ -6,8 +6,8 @@ import { makeStyles } from '@material-ui/styles'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
- * Menu が閉じた時に、onMenuClose イベントを発火させる
- * Menu コンポーネントが増えた時は、new CustomEvent('onMenuClose', { detail }) にする
+ * Menu が閉じた時に、menu_close イベントを発火させる
+ * Menu コンポーネントが増えた時は、new CustomEvent('menu_close', { detail }) にする
  */
 export const Menu: React.FC<Props> = ({ children, render, className }) => {
   const [isOpen, setIsOpen] = React.useState(false)
@@ -28,11 +28,12 @@ export const Menu: React.FC<Props> = ({ children, render, className }) => {
   /**
    * 他のメニューが開いたら、このメニューを閉じる
    */
-  const onMenuOpen = () => {
+  const closeMenu = () => {
     toggleMenu(false)
   }
-  useEventListener('onMenuOpen', onMenuOpen)
-  useEventListener('onMenuArchived', onMenuOpen)
+
+  useEventListener('menu_open', closeMenu)
+  useEventListener('close_menu', closeMenu)
 
   /**
    * render に渡ってきたボタンに props を付与する
@@ -48,15 +49,15 @@ export const Menu: React.FC<Props> = ({ children, render, className }) => {
     // NOTE: 省略した時は toggle
     if (typeof status === 'undefined') {
       isOpen
-        ? dispatchEvent(new CustomEvent('onMenuClose'))
-        : dispatchEvent(new CustomEvent('onMenuOpen'))
+        ? dispatchEvent(new CustomEvent('menu_close'))
+        : dispatchEvent(new CustomEvent('menu_open'))
       setIsOpen(!isOpen)
     }
 
     if (typeof status === 'boolean') {
       status
-        ? dispatchEvent(new CustomEvent('onMenuOpen'))
-        : dispatchEvent(new CustomEvent('onMenuClose'))
+        ? dispatchEvent(new CustomEvent('menu_open'))
+        : dispatchEvent(new CustomEvent('menu_close'))
       setIsOpen(status)
     }
   }

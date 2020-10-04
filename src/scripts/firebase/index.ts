@@ -1,17 +1,35 @@
-import firebase from 'firebase'
-import 'firebase/firestore'
-import 'firebase/auth'
+/**
+ * Cloud Function と param を渡して、Cloud Function をコールする
+ */
+export const callCloudFunctions = async (
+  cloudFunction: string,
+  params: any
+): Promise<{
+  result: any
+}> => {
+  const meta = {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      data: JSON.stringify(params)
+    })
+  }
 
-// const firebaseConfig = {
-//   apiKey: process.env.API_KEY,
-//   authDomain: process.env.AUTH_DOMAIN,
-//   databaseURL: process.env.DATABASE_URL,
-//   projectId: process.env.PROJECT_ID,
-//   storageBucket: process.env.STORAGE_BUCKET,
-//   messagingSenderId: process.env.MESSAGING_SENDER_ID,
-//   appId: process.env.APP_ID
-// }
-
-// firebase.initializeApp(firebaseConfig)
-
-export default firebase
+  return new Promise((resolve, reject) => {
+    fetch(
+      //TODO: APP_URL
+      `https://asia-northeast1-todolist-b51fb.cloudfunctions.net/${cloudFunction}`,
+      meta
+    )
+      .then(response => response.body!.getReader())
+      .then(reader => reader!.read())
+      .then(({ value }) => {
+        const result = new TextDecoder().decode(value)
+        resolve(JSON.parse(result))
+      })
+      .catch(e => resolve(e))
+  })
+}

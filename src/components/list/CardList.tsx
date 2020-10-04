@@ -33,7 +33,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
 
     try {
       await dispatch(archiveList(list))
-      dispatchEvent(new CustomEvent('onMenuArchived'))
+      dispatchEvent(new CustomEvent('close_menu'))
     } catch ({ message }) {
       showSnackbar({ message, type: 'error' })
     }

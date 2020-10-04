@@ -120,16 +120,22 @@ export const boardReducer = reducerWithInitialState(initialState)
    * async.done
    */
   .cases(
-    [
-      fetchBoards.async.done,
-      createBoard.async.done,
-      fetchBoard.async.done,
-      updateBoard.async.done
-    ],
+    [fetchBoards.async.done, createBoard.async.done, fetchBoard.async.done],
     state => {
       return { ...state, init: true, isLoading: false }
     }
   )
+  .case(updateBoard.async.done, (state, { result }) => {
+    return {
+      ...state,
+      init: true,
+      isLoading: false,
+      boards: {
+        ...state.boards,
+        [result.id]: result
+      }
+    }
+  })
   .case(setBoard, (state, params) => {
     return {
       ...state,

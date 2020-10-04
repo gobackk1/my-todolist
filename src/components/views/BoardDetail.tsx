@@ -7,7 +7,8 @@ import {
   ListContainer,
   BoardWithBackground,
   FavoriteButton,
-  UserIcon
+  MemberButton,
+  InvitationMenu
 } from '@/components'
 import { useFetchBoard, useFetchList } from '@/scripts/hooks'
 import { css } from '@emotion/core'
@@ -44,8 +45,6 @@ export const BoardDetail: React.FC = () => {
       : []
   }, [boardState.init, currentBoard, users])
 
-  console.log(boardMembers)
-
   return (
     <BoardWithBackground>
       {!boardState.init && <LoadingSpinner />}
@@ -67,10 +66,13 @@ export const BoardDetail: React.FC = () => {
               {boardMembers.map((member, i) => {
                 return (
                   <li key={i}>
-                    <UserIcon data={member} />
+                    <MemberButton data={member} />
                   </li>
                 )
               })}
+              <li>
+                <InvitationMenu board={currentBoard} />
+              </li>
             </ul>
           </div>
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}

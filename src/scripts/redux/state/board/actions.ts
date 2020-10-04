@@ -10,9 +10,8 @@ import { OPTION } from '@/option'
 import { UserState } from '~redux/state/user/reducer'
 import firebase from 'firebase'
 import { addUser } from '~redux/state/users/actions'
-import { User } from '~redux/state/users/reducer'
 import { Member } from './reducer'
-
+import { callCloudFunctions } from '@/scripts/firebase'
 const db = firebase.firestore
 
 const PATH = {
@@ -20,41 +19,10 @@ const PATH = {
   BOARDS_ARCHIVED: 'boards_archived'
 } as const
 
-interface getUserResponse {
-  result: User
-}
-
 /**
  * uid を渡して、サーバーからユーザーを取得する
  */
-const fetchUser = async (uid: string): Promise<getUserResponse> => {
-  const initRequest = {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      data: JSON.stringify({
-        uid
-      })
-    })
-  }
-
-  return new Promise((resolve, reject) => {
-    fetch(
-      ' https://asia-northeast1-todolist-b51fb.cloudfunctions.net/getUser',
-      initRequest
-    )
-      .then(response => response.body!.getReader())
-      .then(reader => reader!.read())
-      .then(({ done, value }) => {
-        const result = new TextDecoder().decode(value)
-        resolve(JSON.parse(result))
-      })
-      .catch(e => resolve())
-  })
-}
+const fetchUser = (uid: string) => callCloudFunctions('getUser', { uid })
 
 /**
  * 渡した members を元にユーザーを取得し、users state に登録する
@@ -198,7 +166,7 @@ export const updateBoard = asyncActionCreator<
     Board,
     'title' | 'backgroundImage' | 'favorite' | 'members' | 'visibility'
   >,
-  void,
+  Board,
   Error
 >('UPDATE_BOARD', async (params, dispatch) => {
   getUserStateIfLogin()
@@ -211,8 +179,9 @@ export const updateBoard = asyncActionCreator<
       .collection(PATH.BOARDS_LIVE)
       .doc(paramsId)
     const query = { ...target, ...paramsWithoutId }
-    documentReference.set({ ...query }, { merge: true })
-    dispatch(setBoard({ id, ...query }))
+    await documentReference.set({ ...query }, { merge: true })
+    const newBoard: Board = { id, ...query }
+    return newBoard
   } catch (e) {
     console.log('debug: UPDATE_BOARD', e)
     throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
