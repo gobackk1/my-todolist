@@ -40,7 +40,7 @@ export const BoardDetail: React.FC = () => {
   return (
     <BoardWithBackground>
       {!boardState.init && <LoadingSpinner />}
-      {boardState.init && !boardState.boards[boardId] && !boardState.isLoading && (
+      {boardState.init && !boardState.boards[boardId] && (
         /**
          * 存在しない boardId を指定したら、/boards へリダイレクトさせる
          */

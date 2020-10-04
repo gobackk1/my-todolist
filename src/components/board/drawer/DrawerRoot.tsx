@@ -28,9 +28,13 @@ export const DrawerRoot: React.FC<{
     if (!window.confirm('ボードをアーカイブしてもよろしいですか？')) return
 
     try {
-      await dispatch(archiveBoard({ id: boardId }))
       history.push(OPTION.PATH.BOARD)
       setOpen(false)
+      await dispatch(archiveBoard({ id: boardId }))
+      showSnackbar({
+        message: 'ボードをアーカイブしました',
+        type: 'info'
+      })
     } catch ({ message }) {
       console.log('debug: DrawerRoot onClickArchive', message)
       showSnackbar({
