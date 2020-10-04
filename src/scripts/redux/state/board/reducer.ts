@@ -22,6 +22,7 @@ export interface Member {
 
 export interface Board {
   id: string
+  author: string
   title: string
   backgroundImage: string
   favorite: boolean

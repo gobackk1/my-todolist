@@ -142,7 +142,8 @@ export const createBoard = asyncActionCreator<
       backgroundImage,
       favorite: false,
       members,
-      visibility
+      visibility,
+      author: user.uid
     }
     const { id } = await firebase
       .firestore()
@@ -164,7 +165,12 @@ type PartiallyPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export const updateBoard = asyncActionCreator<
   PartiallyPartial<
     Board,
-    'title' | 'backgroundImage' | 'favorite' | 'members' | 'visibility'
+    | 'title'
+    | 'backgroundImage'
+    | 'favorite'
+    | 'members'
+    | 'visibility'
+    | 'author'
   >,
   Board,
   Error

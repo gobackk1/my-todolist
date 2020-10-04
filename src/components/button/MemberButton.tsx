@@ -75,14 +75,6 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
     currentLoginUserRole
   ])
 
-  const isOnlyOneOwner = React.useMemo(
-    () =>
-      Object.values(currentBoard.members).filter(
-        member => member.role === 'owner'
-      ).length === 1,
-    [currentBoard.members]
-  )
-
   /**
    * 同期処理にすると、.closest([data-click-area="menu"]) が null になる
    */
@@ -116,21 +108,28 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
     [dispatch, currentBoard, data, showSnackbar, dispatchCustomEvent]
   )
 
+  const isAuthor = React.useMemo(() => data.uid === currentBoard.author, [
+    data.uid,
+    currentBoard
+  ])
+
   const checkForAuthority = React.useCallback(
-    /**
-     * 以下の場合はボタンを非活性にする
-     * - 管理者が1人しかいない時に、管理者を変更しようとしている
-     * - 管理者でない
-     * - 現在の権限と、設定する権限が同じ
-     */
     role => {
-      if (currentTargetRole === 'owner' && isOnlyOneOwner) {
+      if (isAuthor) {
+        /**
+         * 対象がボード作成者の場合、ボタンを非活性にする
+         */
         return true
       } else {
+        /**
+         * 以下の場合、ボタンを非活性にする
+         * - 管理者でない
+         * - 現在の権限と、設定する権限が同じ
+         */
         return !isOwner || currentTargetRole === role
       }
     },
-    [isOnlyOneOwner, isOwner, currentTargetRole]
+    [isOwner, currentTargetRole, isAuthor]
   )
 
   return (
@@ -155,7 +154,11 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
                 OPTION.ROLE[currentBoard.members[data.uid].role]
               }）`}
             </Button>
-            <Button fullWidth onClick={() => onClickDeleteMember(data)}>
+            <Button
+              fullWidth
+              onClick={() => onClickDeleteMember(data)}
+              disabled={isAuthor}
+            >
               メンバーの削除
             </Button>
           </>
@@ -192,9 +195,9 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
               購読者へ変更
             </Button>
             <Divider className={styles.bottom} />
-            {isOnlyOneOwner && currentTargetRole === 'owner' ? (
+            {data.uid === currentBoard.author ? (
               <Typography variant="body1">
-                最低でも1人の管理者が必要です。このユーザーを管理者以外に変更できません。
+                ボード作成者の権限は、管理者から変更できません。
               </Typography>
             ) : (
               <Typography variant="body1">

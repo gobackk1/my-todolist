@@ -1,6 +1,6 @@
 import React from 'react'
 import { Board } from '@/scripts/redux/state/board/reducer'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { updateBoard } from '~redux/state/board/actions'
 import { Menu, LoadingSpinner, EMailField, UserIcon } from '@/components'
 import { Button, Typography } from '@material-ui/core'
@@ -9,6 +9,7 @@ import { useCustomEvent, useSnackbarContext } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { useForm } from 'react-hook-form'
+import { getUser } from '~redux/state/users/actions'
 
 const initialUser = {
   displayName: '',
@@ -33,6 +34,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
     formState: { isValid }
   } = useForm({ mode: 'onChange' })
   const { showSnackbar } = useSnackbarContext()
+  const { users } = useSelector(state => state.users)
 
   const addMember = React.useCallback(() => {
     try {
@@ -45,6 +47,9 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
           }
         })
       )
+      if (!(state.user.uid in users)) {
+        dispatch(getUser(state.user.uid))
+      }
       dispatchCustomEvent('close_menu')
       showSnackbar({ message: 'ボードにメンバーを追加しました', type: 'info' })
     } catch ({ message }) {
