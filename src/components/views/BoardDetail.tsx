@@ -6,7 +6,8 @@ import {
   LoadingSpinner,
   ListContainer,
   BoardWithBackground,
-  FavoriteButton
+  FavoriteButton,
+  UserIcon
 } from '@/components'
 import { useFetchBoard, useFetchList } from '@/scripts/hooks'
 import { css } from '@emotion/core'
@@ -31,11 +32,19 @@ export const BoardDetail: React.FC = () => {
     []
   )
 
-  // if (boardState.init) {
-  //   const members = Object.keys(boardState.boards[boardId].members).map(uid =>
-  //     console.log(users[uid] && users[uid].displayName)
-  //   )
-  // }
+  const currentBoard = React.useMemo(() => boardState.boards[boardId], [
+    boardState.boards
+  ])
+
+  const boardMembers = React.useMemo(() => {
+    return boardState.init
+      ? Object.keys(currentBoard.members)
+          .map(uid => users[uid])
+          .filter(Boolean)
+      : []
+  }, [boardState.init, currentBoard, users])
+
+  console.log(boardMembers)
 
   return (
     <BoardWithBackground>
@@ -54,6 +63,15 @@ export const BoardDetail: React.FC = () => {
               favorite={boardState.boards[boardId].favorite}
               boardId={boardId}
             />
+            <ul>
+              {boardMembers.map((member, i) => {
+                return (
+                  <li key={i}>
+                    <UserIcon data={member} />
+                  </li>
+                )
+              })}
+            </ul>
           </div>
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
           <ListContainer boardId={boardId} />

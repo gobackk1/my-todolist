@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
-import { Modal, LoginView, SignUpView } from '@/components'
+import { Modal, LoginView, SignUpView, UserIcon } from '@/components'
 import { Button } from '@material-ui/core'
 import firebase from 'firebase'
 import { useHistory } from 'react-router-dom'
@@ -66,12 +66,7 @@ export const LoginFormModal: React.FC = () => {
           <Button color="inherit" onClick={onClickLogout} id="btn-logout">
             ログアウト
           </Button>
-          <img
-            src={userState.user.photoURL as string}
-            alt={userState.user.displayName as string}
-            width="40"
-            id="img-user-photo"
-          />
+          <UserIcon data={userState.user} />
         </>
       )}
     </>
