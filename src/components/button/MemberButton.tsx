@@ -1,5 +1,5 @@
 import React from 'react'
-import { IconButton, Button, Typography } from '@material-ui/core'
+import { IconButton, Button, Typography, Divider } from '@material-ui/core'
 import { UserIcon, Menu } from '@/components'
 import { User } from '@/scripts/redux/state/users/reducer'
 import { makeStyles } from '@material-ui/styles'
@@ -23,6 +23,7 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
   const dispatchCustomEvent = useCustomEvent()
   const [view, setView] = React.useState<'root' | 'changeRole'>('root')
   const boardState = useSelector(state => state.board)
+  const { user } = useSelector(state => state.user)
 
   const onClickDeleteMember = React.useCallback(
     ({ uid, displayName }) => {
@@ -60,10 +61,27 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
     boardId
   ])
 
-  const currentRole = React.useMemo(() => currentBoard.members[data.uid].role, [
-    currentBoard.members,
-    data.uid
+  const currentTargetRole = React.useMemo(
+    () => currentBoard.members[data.uid].role,
+    [currentBoard.members, data.uid]
+  )
+
+  const currentLoginUserRole = React.useMemo(() => {
+    if (!user) return null
+    return currentBoard.members[user.uid].role
+  }, [currentBoard.members, user])
+
+  const isOwner = React.useMemo(() => currentLoginUserRole === 'owner', [
+    currentLoginUserRole
   ])
+
+  const isOnlyOneOwner = React.useMemo(
+    () =>
+      Object.values(currentBoard.members).filter(
+        member => member.role === 'owner'
+      ).length === 1,
+    [currentBoard.members]
+  )
 
   /**
    * 同期処理にすると、.closest([data-click-area="menu"]) が null になる
@@ -96,6 +114,23 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
       }
     },
     [dispatch, currentBoard, data, showSnackbar, dispatchCustomEvent]
+  )
+
+  const checkForAuthority = React.useCallback(
+    /**
+     * 以下の場合はボタンを非活性にする
+     * - 管理者が1人しかいない時に、管理者を変更しようとしている
+     * - 管理者でない
+     * - 現在の権限と、設定する権限が同じ
+     */
+    role => {
+      if (currentTargetRole === 'owner' && isOnlyOneOwner) {
+        return true
+      } else {
+        return !isOwner || currentTargetRole === role
+      }
+    },
+    [isOnlyOneOwner, isOwner, currentTargetRole]
   )
 
   return (
@@ -134,27 +169,38 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
               </IconButton>
               権限変更
             </Typography>
+            <Divider className={styles.upper} />
             <Button
               onClick={() => onClickChangeRoleTo('owner')}
               fullWidth
-              disabled={currentRole === 'owner'}
+              disabled={checkForAuthority('owner')}
             >
               管理者へ変更
             </Button>
             <Button
               onClick={() => onClickChangeRoleTo('editor')}
               fullWidth
-              disabled={currentRole === 'editor'}
+              disabled={checkForAuthority('editor')}
             >
               編集者へ変更
             </Button>
             <Button
               onClick={() => onClickChangeRoleTo('reader')}
               fullWidth
-              disabled={currentRole === 'reader'}
+              disabled={checkForAuthority('reader')}
             >
               購読者へ変更
             </Button>
+            <Divider className={styles.bottom} />
+            {isOnlyOneOwner && currentTargetRole === 'owner' ? (
+              <Typography variant="body1">
+                最低でも1人の管理者が必要です。このユーザーを管理者以外に変更できません。
+              </Typography>
+            ) : (
+              <Typography variant="body1">
+                権限の変更は管理者のみが行えます。
+              </Typography>
+            )}
           </div>
         )}
       </div>
@@ -199,6 +245,15 @@ const useStyles = makeStyles({
         top: 0,
         left: 0
       }
+    },
+    '& .MuiTypography-body1': {
+      textAlign: 'left'
     }
+  },
+  upper: {
+    marginBottom: theme.spacing(1)
+  },
+  bottom: {
+    marginTop: theme.spacing(1)
   }
 })

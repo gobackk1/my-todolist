@@ -23,6 +23,12 @@ export const theme = createMuiTheme({
     },
     h6: {
       fontSize: 11
+    },
+    body1: {
+      fontSize: 14
+    },
+    body2: {
+      fontSize: 14
     }
   },
   palette: {
