@@ -1,22 +1,23 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { createList } from '@/scripts/redux/state/list/actions'
 import { Button } from '@material-ui/core'
 import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
 import { css } from '@emotion/core'
 import { CardList } from '@/components'
+import { useBoardAuthority } from '@/scripts/hooks'
 
 export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
-  const userState = useSelector((state: I.ReduxState) => state.user)
-  const listState = useSelector((state: I.ReduxState) => state.list)
+  const { user } = useSelector(state => state.user)
+  const listState = useSelector(state => state.list)
   const dispatch = useDispatch()
+  const { isOneOfRoles } = useBoardAuthority(boardId)
 
   const onClick = React.useCallback(() => {
-    if (!userState.user || listState.error) return
+    if (!user || listState.error) return
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
-  }, [userState.user, listState.error, boardId, dispatch])
+  }, [user, listState.error, boardId, dispatch])
 
   return (
     <ul css={styles['card-list-container']}>
@@ -30,7 +31,12 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
           )
         })}
       <li>
-        <Button onClick={onClick} startIcon={<Add />} variant="contained">
+        <Button
+          onClick={onClick}
+          startIcon={<Add />}
+          variant="contained"
+          disabled={isOneOfRoles(['reader'])}
+        >
           リストを追加
         </Button>
       </li>

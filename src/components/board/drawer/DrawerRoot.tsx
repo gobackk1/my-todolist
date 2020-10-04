@@ -2,7 +2,7 @@ import React from 'react'
 import { archiveBoard } from '@/scripts/redux/state/board/actions'
 import { useDispatch, useStore } from 'react-redux'
 import { useParams, useHistory } from 'react-router-dom'
-import { useSnackbarContext } from '@/scripts/hooks'
+import { useSnackbarContext, useBoardAuthority } from '@/scripts/hooks'
 import { Button } from '@material-ui/core'
 import {
   ArchiveSharp,
@@ -22,6 +22,7 @@ export const DrawerRoot: React.FC<{
   const { showSnackbar } = useSnackbarContext()
   const { boardId } = useParams<I.UrlParams>()
   const { user, board } = useStore().getState()
+  const { isOneOfRoles } = useBoardAuthority(boardId)
 
   const onClickArchive = async () => {
     if (!boardId || !user || board.error) return
@@ -51,6 +52,7 @@ export const DrawerRoot: React.FC<{
         fullWidth
         id="btn-archive-board"
         startIcon={<ArchiveSharp />}
+        disabled={isOneOfRoles(['reader', 'editor'])}
       >
         このボードをアーカイブ
       </Button>
@@ -65,6 +67,7 @@ export const DrawerRoot: React.FC<{
         onClick={() => setView('selectBg')}
         startIcon={<PhotoSizeSelectActualRounded />}
         fullWidth
+        disabled={isOneOfRoles(['reader', 'editor'])}
       >
         背景を変更する...
       </Button>

@@ -11,7 +11,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import * as I from '@/scripts/model/interface'
-import { useSnackbarContext, useCustomEvent } from '@/scripts/hooks'
+import {
+  useSnackbarContext,
+  useCustomEvent,
+  useBoardAuthority
+} from '@/scripts/hooks'
 import { KeyboardBackspaceRounded } from '@material-ui/icons/'
 import { OPTION } from '@/option'
 
@@ -23,7 +27,7 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
   const dispatchCustomEvent = useCustomEvent()
   const [view, setView] = React.useState<'root' | 'changeRole'>('root')
   const boardState = useSelector(state => state.board)
-  const { user } = useSelector(state => state.user)
+  const { getRole, isAuthor, isOneOfRoles } = useBoardAuthority(boardId)
 
   const onClickDeleteMember = React.useCallback(
     ({ uid, displayName }) => {
@@ -61,20 +65,6 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
     boardId
   ])
 
-  const currentTargetRole = React.useMemo(
-    () => currentBoard.members[data.uid].role,
-    [currentBoard.members, data.uid]
-  )
-
-  const currentLoginUserRole = React.useMemo(() => {
-    if (!user) return null
-    return currentBoard.members[user.uid].role
-  }, [currentBoard.members, user])
-
-  const isOwner = React.useMemo(() => currentLoginUserRole === 'owner', [
-    currentLoginUserRole
-  ])
-
   /**
    * 同期処理にすると、.closest([data-click-area="menu"]) が null になる
    */
@@ -108,14 +98,9 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
     [dispatch, currentBoard, data, showSnackbar, dispatchCustomEvent]
   )
 
-  const isAuthor = React.useMemo(() => data.uid === currentBoard.author, [
-    data.uid,
-    currentBoard
-  ])
-
   const checkForAuthority = React.useCallback(
     role => {
-      if (isAuthor) {
+      if (isAuthor(data.uid)) {
         /**
          * 対象がボード作成者の場合、ボタンを非活性にする
          */
@@ -126,10 +111,10 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
          * - 管理者でない
          * - 現在の権限と、設定する権限が同じ
          */
-        return !isOwner || currentTargetRole === role
+        return !isOneOfRoles(['owner']) || getRole(data.uid) === role
       }
     },
-    [isOwner, currentTargetRole, isAuthor]
+    [getRole, isAuthor, data.uid, isOneOfRoles]
   )
 
   return (
@@ -157,7 +142,7 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
             <Button
               fullWidth
               onClick={() => onClickDeleteMember(data)}
-              disabled={isAuthor}
+              disabled={isAuthor(data.uid)}
             >
               メンバーの削除
             </Button>

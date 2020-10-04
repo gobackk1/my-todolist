@@ -9,3 +9,4 @@ export { useFetchBoards } from './modules/useFetchBoards'
 export { useFetchList } from './modules/useFetchList'
 export { useCustomEvent } from './modules/useCustomEvent'
 // export { useReduxDispatch } from './modules/useReduxDispatch
+export * from './modules/useBoardAuthority'

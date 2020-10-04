@@ -1,7 +1,6 @@
 import { actionCreator, asyncActionCreator } from '~redux/action'
 import { User } from './reducer'
 import { callCloudFunctions } from '@/scripts/firebase'
-import { store } from '~redux/store'
 
 /**
  * uid を渡して、サーバーからユーザーを取得する

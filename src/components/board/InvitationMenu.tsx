@@ -5,7 +5,11 @@ import { updateBoard } from '~redux/state/board/actions'
 import { Menu, LoadingSpinner, EMailField, UserIcon } from '@/components'
 import { Button, Typography } from '@material-ui/core'
 import { callCloudFunctions } from '@/scripts/firebase'
-import { useCustomEvent, useSnackbarContext } from '@/scripts/hooks'
+import {
+  useCustomEvent,
+  useSnackbarContext,
+  useBoardAuthority
+} from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { useForm } from 'react-hook-form'
@@ -35,6 +39,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
   } = useForm({ mode: 'onChange' })
   const { showSnackbar } = useSnackbarContext()
   const { users } = useSelector(state => state.users)
+  const { isOneOfRoles } = useBoardAuthority(board.id)
 
   const addMember = React.useCallback(() => {
     try {
@@ -56,7 +61,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
       console.log('debug: InvitationMenu addMember', message)
       showSnackbar({ message, type: 'error' })
     }
-  }, [dispatch, board, state, dispatchCustomEvent, showSnackbar])
+  }, [dispatch, board, state, dispatchCustomEvent, showSnackbar, users])
 
   const searchUser = React.useCallback(
     async email => {
@@ -101,7 +106,11 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
   return (
     <Menu
       render={props => (
-        <Button variant="contained" {...props}>
+        <Button
+          variant="contained"
+          {...props}
+          disabled={isOneOfRoles(['reader', 'editor'])}
+        >
           招待
         </Button>
       )}
