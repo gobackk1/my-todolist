@@ -6,6 +6,6 @@ type CustomEvent =
   // src/component/Menu を閉じる依頼が dispatch された時
   | 'close_menu'
 
-export const useCustomEvent = () => {
+export const useCustomEvent = (): ((event: CustomEvent) => boolean) => {
   return (event: CustomEvent) => dispatchEvent(new CustomEvent(event))
 }

@@ -17,7 +17,7 @@ import firebase from 'firebase/app'
 import 'firebase/firestore'
 import 'firebase/auth'
 import { CreateBoardModalProvider } from '../board/CreateBoardModalProvider'
-console.log(process.env.API_KEY)
+
 firebase.initializeApp({
   apiKey: process.env.API_KEY,
   authDomain: process.env.AUTH_DOMAIN,

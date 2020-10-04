@@ -9,7 +9,7 @@ export const BoardTopLinkButton: React.FC = () => {
 
   const onClick = React.useCallback(() => {
     history.push(OPTION.PATH.BOARD)
-  }, [history, OPTION])
+  }, [history])
 
   return (
     <IconButton onClick={onClick} color="inherit">

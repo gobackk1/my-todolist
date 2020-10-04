@@ -16,7 +16,7 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
   const onClick = React.useCallback(() => {
     if (!userState.user || listState.error) return
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
-  }, [userState.user, listState.error, createList, boardId])
+  }, [userState.user, listState.error, boardId, dispatch])
 
   return (
     <ul css={styles['card-list-container']}>

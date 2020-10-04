@@ -2,13 +2,13 @@ import React from 'react'
 import { Board } from '@/scripts/redux/state/board/reducer'
 import { useDispatch } from 'react-redux'
 import { updateBoard } from '~redux/state/board/actions'
-import { Menu, LoadingSpinner, EMailField } from '@/components'
-import { Button, Typography, TextField } from '@material-ui/core'
+import { Menu, LoadingSpinner, EMailField, UserIcon } from '@/components'
+import { Button, Typography } from '@material-ui/core'
 import { callCloudFunctions } from '@/scripts/firebase'
 import { useCustomEvent } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 const initialUser = {
   displayName: '',
@@ -18,8 +18,9 @@ const initialUser = {
 
 export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
   const dispatch = useDispatch()
-  const inputRef = React.useRef<HTMLInputElement>(null)
-  const [result, setResult] = React.useState({
+  // const inputRef = React.useRef<HTMLInputElement>(null)
+  const timer = React.useRef(0)
+  const [state, setState] = React.useState({
     isLoading: false,
     message: '',
     user: initialUser
@@ -37,56 +38,62 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
       dispatch(
         updateBoard({
           ...board,
-          members: { ...board.members, [result.user.uid]: { role: 'reader' } }
+          members: { ...board.members, [state.user.uid]: { role: 'reader' } }
         })
       )
       dispatchCustomEvent('close_menu')
     } catch ({ message }) {
       console.log('debug: InvitationMenu addMember', message)
     }
-  }, [dispatch, board, result, dispatchCustomEvent])
+  }, [dispatch, board, state, dispatchCustomEvent])
 
   const searchUser = React.useCallback(
     async email => {
       // input value を元に、サーバーに問い合わせる
-      setResult(state => ({ ...state, isLoading: true }))
+      setState(state => ({ ...state, isLoading: true }))
       const { result } = await callCloudFunctions('getUserByEmail', {
         email
       })
-      console.log(result, email)
 
       if (result.error) {
-        setResult(state => ({
+        setState(state => ({
           ...state,
           isLoading: false,
           message: 'ユーザーが見つかりませんでした',
           user: initialUser
         }))
       } else {
-        setResult(state => ({
+        const message =
+          result.data.uid in board.members ? 'すでにメンバーです' : ''
+
+        setState(state => ({
           ...state,
           isLoading: false,
-          message: '',
+          message,
           user: result.data
         }))
       }
     },
-    [inputRef.current, setResult]
+    [setState, board.members]
   )
 
-  const timer = React.useRef(0)
   const onChange = e => {
     e.persist()
     clearTimeout(timer.current)
     if (e.target.value === '' || !isValid) return
+
     timer.current = window.setTimeout(() => {
       searchUser(e.target.value)
-    }, 1000)
+    }, 300)
   }
 
   return (
     <Menu
-      render={props => <Button {...props}>招待</Button>}
+      render={props => (
+        <Button variant="contained" {...props}>
+          招待
+        </Button>
+      )}
       className={styles.root}
     >
       <section className="AppInvitationMenu-inner">
@@ -98,16 +105,24 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
             onChange(e)
           }}
         />
-        {result.isLoading && <LoadingSpinner />}
-        {!result.isLoading && (
+        {state.isLoading && <LoadingSpinner />}
+        {!state.isLoading && (
           <div>
-            <div>{result.message}</div>
-            <div>{result.user.displayName}</div>
-            <div>{result.user.photoURL}</div>
-            <div>{result.user.uid}</div>
-            {result.user.uid && (
-              <button onClick={addMember}>ユーザーを追加</button>
+            {state.user.uid && (
+              <div className={styles.result}>
+                <UserIcon data={state.user} />
+                <div>{state.user.displayName}</div>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={addMember}
+                  disabled={state.user.uid in board.members}
+                >
+                  追加
+                </Button>
+              </div>
             )}
+            <Typography variant="body2">{state.message}</Typography>
           </div>
         )}
       </section>
@@ -118,7 +133,26 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
 const useStyles = makeStyles({
   root: {
     '& .AppInvitationMenu-inner': {
-      padding: theme.spacing(2)
+      padding: theme.spacing(2),
+      width: 300
+    },
+    '& .MuiTypography-root': {
+      marginBottom: theme.spacing(2),
+      textAlign: 'center'
+    },
+    '& .AppEMailField-root': {
+      marginBottom: theme.spacing(1)
+    }
+  },
+  result: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    '& .MuiButtonBase-root': {},
+    '& > div': {
+      display: 'flex',
+      flex: 1,
+      alignItems: 'center',
+      paddingLeft: theme.spacing(1)
     }
   }
 })

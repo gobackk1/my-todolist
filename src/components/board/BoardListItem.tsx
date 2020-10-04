@@ -1,12 +1,11 @@
 import React from 'react'
-import { Button, makeStyles, Theme } from '@material-ui/core'
+import { Button, makeStyles } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { Link } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { Board } from '~redux/state/board/reducer'
 import { FavoriteIcon } from '@/components'
-import { css } from '@emotion/core'
 
 export const BoardListItem: React.FC<{
   data: Board
@@ -15,7 +14,7 @@ export const BoardListItem: React.FC<{
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const style = useStyles()
   const bg = React.useMemo(() => boardState.getBackgroundStyle(data.id), [
-    boardState.getBackgroundStyle,
+    boardState,
     data
   ])
 
@@ -39,7 +38,7 @@ export const BoardListItem: React.FC<{
   )
 }
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({
   root: {
     fontWeight: 'bold',
     textAlign: 'left',
@@ -100,11 +99,4 @@ const useStyles = makeStyles((theme: Theme) => ({
       zIndex: 0
     }
   }
-}))
-
-const styles = {
-  favorite: css`
-    position: absolute;
-    right: 5px;
-  `
-}
+})

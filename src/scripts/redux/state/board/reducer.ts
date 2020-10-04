@@ -159,6 +159,7 @@ export const boardReducer = reducerWithInitialState(initialState)
   })
   .cases([archiveBoard.async.done], (state, { result }) => {
     const board = state.boards[result.id]
+    /* eslint-disable-next-line */
     const { [result.id]: _, ...newBoards } = state.boards
 
     return {
@@ -176,6 +177,7 @@ export const boardReducer = reducerWithInitialState(initialState)
   })
   .cases([restoreBoard.async.done], (state, { result }) => {
     const board = state.archivedBoards[result.id]
+    /* eslint-disable-next-line */
     const { [result.id]: _, ...newArchivedBoards } = state.archivedBoards
     return {
       ...state,
@@ -191,8 +193,8 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
   .case(deleteBoard.async.done, (state, { result }) => {
+    /* eslint-disable-next-line */
     const { [result]: _, ...newArchivedBoards } = state.archivedBoards
-
     return {
       ...state,
       init: true,

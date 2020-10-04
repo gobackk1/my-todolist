@@ -4,7 +4,7 @@ import * as I from '@/scripts/model/interface'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { fetchList } from '@/scripts/redux/state/list/actions'
 
-export const useFetchList = (boardId: string) => {
+export const useFetchList = (boardId: string): void => {
   const userState = useSelector((state: I.ReduxState) => state.user)
   const listState = useSelector((state: I.ReduxState) => state.list)
   const { showSnackbar } = useSnackbarContext()

@@ -3,7 +3,9 @@
  */
 export const callCloudFunctions = async (
   cloudFunction: string,
-  params: any
+  params: {
+    [i: string]: any
+  }
 ): Promise<{
   result: any
 }> => {
@@ -24,12 +26,20 @@ export const callCloudFunctions = async (
       `https://asia-northeast1-todolist-b51fb.cloudfunctions.net/${cloudFunction}`,
       meta
     )
-      .then(response => response.body!.getReader())
-      .then(reader => reader!.read())
+      .then(response => {
+        if (response.ok && response.body) return response.body.getReader()
+      })
+      .then(reader => {
+        if (reader) {
+          return reader.read()
+        } else {
+          throw new Error('response error')
+        }
+      })
       .then(({ value }) => {
         const result = new TextDecoder().decode(value)
         resolve(JSON.parse(result))
       })
-      .catch(e => resolve(e))
+      .catch(e => reject(e))
   })
 }

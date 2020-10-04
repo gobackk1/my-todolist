@@ -7,8 +7,7 @@ import {
   ListContainer,
   BoardWithBackground,
   FavoriteButton,
-  MemberButton,
-  InvitationMenu
+  BoardMembers
 } from '@/components'
 import { useFetchBoard, useFetchList } from '@/scripts/hooks'
 import { css } from '@emotion/core'
@@ -18,7 +17,6 @@ import { theme } from '@/styles'
 
 export const BoardDetail: React.FC = () => {
   const boardState = useSelector(state => state.board)
-  const { users } = useSelector(state => state.users)
   const { boardId } = useParams<I.UrlParams>()
 
   // todo: state に 対象がなかった時のみ取得する
@@ -34,16 +32,9 @@ export const BoardDetail: React.FC = () => {
   )
 
   const currentBoard = React.useMemo(() => boardState.boards[boardId], [
-    boardState.boards
+    boardState.boards,
+    boardId
   ])
-
-  const boardMembers = React.useMemo(() => {
-    return boardState.init
-      ? Object.keys(currentBoard.members)
-          .map(uid => users[uid])
-          .filter(Boolean)
-      : []
-  }, [boardState.init, currentBoard, users])
 
   return (
     <BoardWithBackground>
@@ -62,18 +53,7 @@ export const BoardDetail: React.FC = () => {
               favorite={boardState.boards[boardId].favorite}
               boardId={boardId}
             />
-            <ul>
-              {boardMembers.map((member, i) => {
-                return (
-                  <li key={i}>
-                    <MemberButton data={member} />
-                  </li>
-                )
-              })}
-              <li>
-                <InvitationMenu board={currentBoard} />
-              </li>
-            </ul>
+            <BoardMembers data={currentBoard} />
           </div>
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
           <ListContainer boardId={boardId} />

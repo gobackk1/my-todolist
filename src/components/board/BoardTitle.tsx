@@ -52,14 +52,7 @@ export const BoardTitle: React.FC = () => {
         })
       }
     },
-    [
-      board.error,
-      boardId,
-      boardState.boards[boardId],
-      dispatch,
-      showSnackbar,
-      user
-    ]
+    [board.error, boardId, boardState.boards, dispatch, showSnackbar, user]
   )
 
   return (

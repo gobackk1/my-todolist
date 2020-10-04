@@ -6,7 +6,6 @@ import { usersReducer } from '~redux/state/users/reducer'
 import { listReducer } from '~redux/state/list/reducer'
 import { cardReducer } from '~redux/state/card/reducer'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import * as I from '@/scripts/model/interface'
 
 const enhancer =
   process.env.NODE_ENV === 'development'

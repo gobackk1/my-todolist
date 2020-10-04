@@ -26,6 +26,9 @@ const useStyles = makeStyles({
   root: {
     '& .AppMemberButton-inner': {
       padding: theme.spacing(1)
+    },
+    '& .MuiButtonBase-root': {
+      padding: 0
     }
   }
 })

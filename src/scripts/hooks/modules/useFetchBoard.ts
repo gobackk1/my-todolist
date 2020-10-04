@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { useSnackbarContext } from '@/scripts/hooks'
 
-export const useFetchBoard = (boardId: string) => {
+export const useFetchBoard = (boardId: string): void => {
   const boardState = useSelector((state: I.ReduxState) => state.board)
   const userState = useSelector((state: I.ReduxState) => state.user)
   const { showSnackbar } = useSnackbarContext()

@@ -1,13 +1,14 @@
 import React from 'react'
 import { TextField } from '@material-ui/core'
 import { useSelector } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { Board } from '~redux/state/board/reducer'
 import { useEventListener } from '@/scripts/hooks'
 import { useForm } from 'react-hook-form'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 
+//様子見
+/* eslint-disable-next-line */
 export const BoardListSearchForm: React.FC<Props> = ({ state, setState }) => {
   const boardState = useSelector(state => state.board)
   //NOTE: inputRef はアンマウントしないので

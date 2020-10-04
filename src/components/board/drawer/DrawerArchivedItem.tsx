@@ -13,6 +13,8 @@ import * as I from '@/scripts/model/interface'
 export const DrawerArchivedItem: React.FC<{
   open: boolean
   setOpen: React.Dispatch<any>
+  // 様子見
+  /* eslint-disable-next-line */
 }> = ({ open, setOpen }) => {
   const { boardId } = useParams<I.UrlParams>()
   const { user } = useSelector(state => state.user)

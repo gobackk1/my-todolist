@@ -41,6 +41,7 @@ export const EMailField: React.FC<Props> = ({
       defaultValue=""
       onChange={onChange}
       fullWidth
+      className="AppEMailField-root"
     />
   )
 }

@@ -38,7 +38,7 @@ export const BoardTop: React.FC = () => {
       })
       history.replaceState(null, '')
     }
-  }, [state])
+  }, [state, showSnackbar])
 
   useFetchBoards()
 

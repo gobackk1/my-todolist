@@ -21,7 +21,7 @@ export const FavoriteButton: React.FC<{
         showSnackbar({ message, type: 'error' })
       }
     },
-    [updateBoard, boardId, favorite]
+    [boardId, dispatch, showSnackbar]
   )
 
   return (

@@ -168,7 +168,7 @@ export const updateBoard = asyncActionCreator<
   >,
   Board,
   Error
->('UPDATE_BOARD', async (params, dispatch) => {
+>('UPDATE_BOARD', async params => {
   getUserStateIfLogin()
   const { boards }: BoardState = store.getState().board
   const { id, ...target } = boards[params.id]
@@ -230,6 +230,8 @@ export const archiveBoard = asyncActionCreator<
       const doc = await t.get(documentReference)
 
       if (!doc.exists || !user) return
+      // existsで見てるので
+      /* eslint-disable-next-line */
       const archiveBoard = doc.data()!
       await db()
         .collection(PATH.BOARDS_ARCHIVED)
@@ -266,6 +268,8 @@ export const restoreBoard = asyncActionCreator<
       const doc = await t.get(documentReference)
 
       if (!doc.exists || !user) return
+      // existsで見てるので
+      /* eslint-disable-next-line */
       const archiveBoard = doc.data()!
       await db()
         .collection(PATH.BOARDS_LIVE)
