@@ -21,6 +21,7 @@ const initialState: UsersState = {
 export const usersReducer = reducerWithInitialState(initialState).case(
   addUser,
   (state, params) => {
+    //todo: すでにユーザーがいた時
     return {
       ...state,
       users: {

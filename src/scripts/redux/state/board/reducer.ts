@@ -14,6 +14,10 @@ import {
 
 export type BoardRole = 'owner' | 'editor' | 'reader'
 export type BoardVisibility = 'public' | 'members'
+export interface Member {
+  // userRef: firebase.firestore.DocumentReference
+  role: BoardRole
+}
 
 export interface Board {
   id: string
@@ -22,8 +26,7 @@ export interface Board {
   favorite: boolean
   visibility: BoardVisibility
   members: {
-    userRef: firebase.firestore.DocumentReference
-    role: BoardRole
+    [i: string]: Member
   }
 }
 export interface BoardState {
@@ -116,12 +119,17 @@ export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.done
    */
-  .cases([fetchBoards.async.done], state => {
-    return { ...state, init: true, isLoading: false }
-  })
-  .cases([fetchBoard.async.done], state => {
-    return { ...state, init: true, isLoading: false }
-  })
+  .cases(
+    [
+      fetchBoards.async.done,
+      createBoard.async.done,
+      fetchBoard.async.done,
+      updateBoard.async.done
+    ],
+    state => {
+      return { ...state, init: true, isLoading: false }
+    }
+  )
   .case(setBoard, (state, params) => {
     return {
       ...state,
@@ -140,28 +148,6 @@ export const boardReducer = reducerWithInitialState(initialState)
       archivedBoards: {
         ...state.archivedBoards,
         [params.id]: params
-      }
-    }
-  })
-  .cases([createBoard.async.done], (state, { result }) => {
-    return {
-      ...state,
-      init: true,
-      isLoading: false,
-      boards: {
-        ...state.boards,
-        [result.id]: result
-      }
-    }
-  })
-  .case(updateBoard.async.done, (state, { result }) => {
-    return {
-      ...state,
-      init: true,
-      isLoading: false,
-      boards: {
-        ...state.boards,
-        [result.id]: result
       }
     }
   })

@@ -11,14 +11,23 @@ import { UserState } from '~redux/state/user/reducer'
 import firebase from 'firebase'
 import { addUser } from '~redux/state/users/actions'
 import { User } from '~redux/state/users/reducer'
+import { Member } from './reducer'
 
 const db = firebase.firestore
+
+const PATH = {
+  BOARDS_LIVE: 'boards_live',
+  BOARDS_ARCHIVED: 'boards_archived'
+} as const
 
 interface getUserResponse {
   result: User
 }
 
-const getUser = async (uid: string): Promise<getUserResponse> => {
+/**
+ * uid を渡して、サーバーからユーザーを取得する
+ */
+const fetchUser = async (uid: string): Promise<getUserResponse> => {
   const initRequest = {
     method: 'POST',
     headers: {
@@ -48,71 +57,77 @@ const getUser = async (uid: string): Promise<getUserResponse> => {
 }
 
 /**
+ * 渡した members を元にユーザーを取得し、users state に登録する
+ */
+const fetchMembersAndDispatchAddUser = async (members: {
+  [i: string]: Member
+}) => {
+  await Object.keys(members).forEach(async (uid: string) => {
+    const response = await fetchUser(uid)
+
+    if (response.result) {
+      store.dispatch(addUser(response.result))
+    }
+  })
+}
+
+/**
+ * ドキュメントを渡して Board に整形する
+ */
+const getBoard = (doc: firebase.firestore.DocumentData): Board => {
+  const data = doc.data()
+  return { id: doc.id, ...data } as Board
+}
+
+/**
+ * ログインしていたら user をリターンする
+ */
+const getUserStateIfLogin = () => {
+  const { user }: UserState = store.getState().user
+  if (!user) {
+    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  } else {
+    return user
+  }
+}
+
+/**
+ * TODO: board visibility ごとに api コールを作る
+ */
+
+/**
  * サーバーからボードを取得する
  * state.boards をクリアしてから、新しく取得したボードを state.boards 割り当てる
  */
 export const fetchBoards = asyncActionCreator<void, void, Error>(
   'FETCH_BOARDS',
   async (_, dispatch) => {
-    const { user }: UserState = store.getState().user
+    const user = getUserStateIfLogin()
 
-    if (user && user.uid) {
-      try {
-        const snapshot = await firebase
-          .firestore()
-          .collection(`boards_live`)
-          .where(`members.${user.uid}.role`, 'in', [
-            'owner',
-            'editor',
-            'reader'
-          ])
-          .get()
+    try {
+      const snapshot = await db()
+        .collection(PATH.BOARDS_LIVE)
+        .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
+        .get()
 
-        snapshot.forEach(async doc => {
-          const { id } = doc
-          const {
-            title,
-            backgroundImage,
-            favorite,
-            members,
-            visibility
-          } = doc.data()
+      snapshot.forEach(async doc => {
+        if (!doc.exists) return
 
-          await Object.keys(members).forEach(async (uid: string) => {
-            const response = await getUser(uid)
-
-            if (response.result) {
-              dispatch(addUser(response.result))
-            }
-          })
-
-          dispatch(
-            setBoard({
-              id,
-              title,
-              backgroundImage,
-              favorite,
-              members,
-              visibility
-            })
-          )
-        })
-      } catch (e) {
-        console.log('debug: FETCH_BOARDS', e)
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-    } else {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+        const board = getBoard(doc)
+        fetchMembersAndDispatchAddUser(board.members)
+        dispatch(setBoard(board))
+      })
+    } catch (e) {
+      console.log('debug: FETCH_BOARDS', e)
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
-
-    return
   }
 )
 
 export const fetchBoard = asyncActionCreator<string, void, Error>(
   'FETCH_BOARD',
   async (params, dispatch) => {
-    const { user }: UserState = store.getState().user
+    getUserStateIfLogin()
     const boardState = store.getState().board
 
     /**
@@ -120,22 +135,20 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
      */
     if (params in boardState.boards) return
 
-    if (user && user.uid) {
-      try {
-        const documentReference = await db()
-          .collection(`boards_live`)
-          .doc(params)
-          .get()
+    try {
+      const documentReference = await db()
+        .collection(PATH.BOARDS_LIVE)
+        .doc(params)
+        .get()
 
-        const { id } = documentReference
-        const board = { id, ...documentReference.data() } as Board
-        dispatch(setBoard(board))
-      } catch (e) {
-        console.log('debug: FETCH_BOARD', e)
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-    } else {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+      if (!documentReference.exists) return
+
+      const board = getBoard(documentReference)
+      fetchMembersAndDispatchAddUser(board.members)
+      dispatch(setBoard(board))
+    } catch (e) {
+      console.log('debug: FETCH_BOARD', e)
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   }
 )
@@ -147,39 +160,32 @@ export const setBoard = actionCreator<Board>('SET_BOARD')
  */
 export const createBoard = asyncActionCreator<
   Pick<Board, 'title' | 'backgroundImage'>,
-  Board,
+  Pick<Board, 'id'>,
   Error
->('CREATE_BOARD', async ({ title, backgroundImage }) => {
-  const { user }: UserState = store.getState().user
+>('CREATE_BOARD', async ({ title, backgroundImage }, dispatch) => {
+  const user = getUserStateIfLogin()
+  const members = { [user.uid]: { role: 'owner' as BoardRole } }
+  //todo: 選択できるようにする
+  const visibility: BoardVisibility = 'members'
 
-  if (user && user.uid) {
-    const userRef = db()
-      .collection('users')
-      .doc(user.uid)
-    const members = { [user.uid]: { userRef, role: 'owner' as BoardRole } }
-    //todo: 選択できるようにする
-    const visibility: BoardVisibility = 'members'
-
-    try {
-      const { id }: firebase.firestore.DocumentReference = await firebase
-        .firestore()
-        .collection(`boards_live`)
-        .add({ title, backgroundImage, favorite: false, members, visibility })
-
-      return {
-        title,
-        id,
-        backgroundImage,
-        favorite: false,
-        members,
-        visibility
-      }
-    } catch (e) {
-      console.log('debug: CREATE_BOARD', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+  try {
+    const board = {
+      title,
+      backgroundImage,
+      favorite: false,
+      members,
+      visibility
     }
-  } else {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+    const { id } = await firebase
+      .firestore()
+      .collection(PATH.BOARDS_LIVE)
+      .add(board)
+
+    dispatch(setBoard({ id, ...board }))
+    return { id }
+  } catch (e) {
+    console.log('debug: CREATE_BOARD', e)
+    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
   }
 })
 
@@ -192,32 +198,24 @@ export const updateBoard = asyncActionCreator<
     Board,
     'title' | 'backgroundImage' | 'favorite' | 'members' | 'visibility'
   >,
-  Board,
+  void,
   Error
->('UPDATE_BOARD', async params => {
-  const { user }: UserState = store.getState().user
+>('UPDATE_BOARD', async (params, dispatch) => {
+  getUserStateIfLogin()
   const { boards }: BoardState = store.getState().board
+  const { id, ...target } = boards[params.id]
+  const { id: paramsId, ...paramsWithoutId } = params
 
-  if (user && user.uid) {
-    const { id, ...target } = boards[params.id]
-    const { id: paramsId, ...paramsWithoutId } = params
-
-    try {
-      const documentReference = await db()
-        .collection(`boards_live`)
-        .doc(paramsId)
-
-      const query = { ...target, ...paramsWithoutId }
-      documentReference.set({ ...query }, { merge: true })
-
-      const newBoard: Board = { id, ...query }
-      return newBoard
-    } catch (e) {
-      console.log('debug: UPDATE_BOARD', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
-  } else {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  try {
+    const documentReference = await db()
+      .collection(PATH.BOARDS_LIVE)
+      .doc(paramsId)
+    const query = { ...target, ...paramsWithoutId }
+    documentReference.set({ ...query }, { merge: true })
+    dispatch(setBoard({ id, ...query }))
+  } catch (e) {
+    console.log('debug: UPDATE_BOARD', e)
+    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
   }
 })
 
@@ -227,21 +225,17 @@ export const updateBoard = asyncActionCreator<
 export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
   'DELETE_BOARD',
   async ({ id }) => {
-    const { user }: UserState = store.getState().user
+    getUserStateIfLogin()
 
-    if (user && user.uid) {
-      try {
-        await db()
-          .collection(`board_archived`)
-          .doc(id)
-          .delete()
-        return id
-      } catch (e) {
-        console.log('debug: DELETE_BOARD', e)
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-    } else {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+    try {
+      await db()
+        .collection(PATH.BOARDS_ARCHIVED)
+        .doc(id)
+        .delete()
+      return id
+    } catch (e) {
+      console.log('debug: DELETE_BOARD', e)
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   }
 )
@@ -254,46 +248,31 @@ export const archiveBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('ARCHIVE_BOARD', async ({ id }) => {
-  const { user }: UserState = store.getState().user
+  const user = getUserStateIfLogin()
+  const documentReference = await db()
+    .collection(PATH.BOARDS_LIVE)
+    .doc(id)
 
-  if (user && user.uid) {
-    let documentReference: firebase.firestore.DocumentReference
+  try {
+    await db().runTransaction(async t => {
+      /**
+       * ドキュメントを live から archived へ移動する
+       */
+      const doc = await t.get(documentReference)
 
-    // NOTE: まずリファレンスを取得する
-    try {
-      documentReference = await db()
-        .collection(`boards_live`)
+      if (!doc.exists || !user) return
+      const archiveBoard = doc.data()!
+      await db()
+        .collection(PATH.BOARDS_ARCHIVED)
         .doc(id)
-    } catch (e) {
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
+        .set(archiveBoard)
 
-    /**
-     * リファレンス取得後、
-     * 1. document 読み取り
-     * 2. archivedBoards collection に追加
-     * 3. boards から削除
-     */
-    try {
-      await db().runTransaction(async t => {
-        const doc = await t.get(documentReference)
-        const archiveBoard = doc.data()
-        if (!archiveBoard || !user) return
-
-        await db()
-          .collection(`boards_archived`)
-          .doc(id)
-          .set(archiveBoard)
-
-        await t.delete(documentReference)
-      })
-      return { id }
-    } catch (e) {
-      console.log('debug: ARCHIVE_BOARD', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
-  } else {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+      await t.delete(documentReference)
+    })
+    return { id }
+  } catch (e) {
+    console.log('debug: ARCHIVE_BOARD', e)
+    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
   }
 })
 
@@ -305,46 +284,31 @@ export const restoreBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('RESTORE_BOARD', async ({ id }) => {
-  const { user }: UserState = store.getState().user
+  const user = getUserStateIfLogin()
+  const documentReference = await db()
+    .collection(PATH.BOARDS_ARCHIVED)
+    .doc(id)
 
-  if (user && user.uid) {
-    let documentReference: firebase.firestore.DocumentReference
+  try {
+    await db().runTransaction(async t => {
+      /**
+       * ドキュメントを archived から live へ移動する
+       */
+      const doc = await t.get(documentReference)
 
-    // NOTE: まずリファレンスを取得する
-    try {
-      documentReference = await db()
-        .collection(`boards_archived`)
+      if (!doc.exists || !user) return
+      const archiveBoard = doc.data()!
+      await db()
+        .collection(PATH.BOARDS_LIVE)
         .doc(id)
-    } catch (e) {
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
+        .set(archiveBoard)
 
-    /**
-     * リファレンス取得後、
-     * 1. document 読み取り
-     * 2. boards collection に追加
-     * 3. archivedBoards からを削除
-     */
-    try {
-      await db().runTransaction(async t => {
-        const doc = await t.get(documentReference)
-        const archiveBoard = doc.data()
-        if (!archiveBoard || !user) return
-
-        await db()
-          .collection(`boards_live`)
-          .doc(id)
-          .set(archiveBoard)
-
-        await t.delete(documentReference)
-      })
-      return { id }
-    } catch (e) {
-      console.log('debug: RESTORE_BOARD', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
-  } else {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+      await t.delete(documentReference)
+    })
+    return { id }
+  } catch (e) {
+    console.log('debug: RESTORE_BOARD', e)
+    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
   }
 })
 
@@ -354,45 +318,22 @@ export const restoreBoard = asyncActionCreator<
 export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
   'FETCH_ARCHIVED_BOARDS',
   async (_, dispatch) => {
-    const { user }: UserState = store.getState().user
+    const user = getUserStateIfLogin()
 
-    if (user && user.uid) {
-      try {
-        const snapshot = await db()
-          .collection(`boards_archived`)
-          .where(`members.${user.uid}.role`, 'in', [
-            'owner',
-            'editor',
-            'reader'
-          ])
-          .get()
+    try {
+      const snapshot = await db()
+        .collection(PATH.BOARDS_ARCHIVED)
+        .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
+        .get()
 
-        snapshot.forEach(doc => {
-          const { id } = doc
-          const {
-            title,
-            backgroundImage,
-            favorite,
-            members,
-            visibility
-          } = doc.data()
-          dispatch(
-            setArchivedBoard({
-              id,
-              title,
-              backgroundImage,
-              favorite,
-              members,
-              visibility
-            })
-          )
-        })
-      } catch (e) {
-        console.log('debug: FETCH_ARCHIVED_BOARDS', e)
-        throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-      }
-    } else {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+      snapshot.forEach(doc => {
+        const board = getBoard(doc)
+        fetchMembersAndDispatchAddUser(board.members)
+        dispatch(setArchivedBoard(board))
+      })
+    } catch (e) {
+      console.log('debug: FETCH_ARCHIVED_BOARDS', e)
+      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
     }
   }
 )

@@ -15,7 +15,8 @@ import { OPTION } from '@/option'
 import { theme } from '@/styles'
 
 export const BoardDetail: React.FC = () => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
+  const { users } = useSelector(state => state.users)
   const { boardId } = useParams<I.UrlParams>()
 
   // todo: state に 対象がなかった時のみ取得する
@@ -29,12 +30,17 @@ export const BoardDetail: React.FC = () => {
     }),
     []
   )
-  console.log(boardState.boards[boardId] && boardState.boards[boardId].members)
+
+  // if (boardState.init) {
+  //   const members = Object.keys(boardState.boards[boardId].members).map(uid =>
+  //     console.log(users[uid] && users[uid].displayName)
+  //   )
+  // }
 
   return (
     <BoardWithBackground>
       {!boardState.init && <LoadingSpinner />}
-      {boardState.init && !boardState.boards[boardId] && (
+      {boardState.init && !boardState.boards[boardId] && !boardState.isLoading && (
         /**
          * 存在しない boardId を指定したら、/boards へリダイレクトさせる
          */

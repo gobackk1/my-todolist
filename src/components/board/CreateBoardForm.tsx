@@ -39,10 +39,11 @@ export const CreateBoardForm: React.FC = () => {
     e.target.previousSibling.children[0].click()
 
     try {
-      const newBoard = await dispatch(createBoard({ title, backgroundImage }))
+      const { id } = await dispatch(createBoard({ title, backgroundImage }))
       reset()
-      history.push(`/boards/${newBoard.id}`)
+      history.push(`/boards/${id}`)
     } catch (e) {
+      console.log('debug: CreateBoardForm onSubmit', e)
       showSnackbar({
         message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
         type: 'error'
