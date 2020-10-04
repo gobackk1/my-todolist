@@ -19,3 +19,4 @@ export const getUser = asyncActionCreator<string, void, Error>(
 )
 
 export const addUser = actionCreator<User>('ADD_USER')
+export const resetUsers = actionCreator('RESET_USERS')

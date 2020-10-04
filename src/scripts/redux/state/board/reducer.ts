@@ -10,7 +10,8 @@ import {
   setBoard,
   setArchivedBoard,
   fetchBoard,
-  deleteBoardMember
+  deleteBoardMember,
+  resetBoard
 } from './actions'
 
 export type BoardRole = 'owner' | 'editor' | 'reader'
@@ -71,13 +72,9 @@ export const boardReducer = reducerWithInitialState(initialState)
       fetchBoard.async.started,
       fetchArchivedBoards.async.started
     ],
-    state => {
-      return { ...state, isLoading: true }
-    }
+    state => ({ ...state, isLoading: true })
   )
-  .case(restoreBoard.async.started, state => {
-    return { ...state, isLoading: true }
-  })
+  .case(restoreBoard.async.started, state => ({ ...state, isLoading: true }))
   .cases(
     [
       createBoard.async.started,
@@ -86,9 +83,7 @@ export const boardReducer = reducerWithInitialState(initialState)
       archiveBoard.async.started,
       deleteBoardMember.async.started
     ],
-    state => {
-      return { ...state, isLoading: true }
-    }
+    state => ({ ...state, isLoading: true })
   )
 
   /**
@@ -101,9 +96,7 @@ export const boardReducer = reducerWithInitialState(initialState)
       fetchBoard.async.failed,
       deleteBoardMember.async.failed
     ],
-    (state, { error }) => {
-      return { ...state, isLoading: false, error }
-    }
+    (state, { error }) => ({ ...state, isLoading: false, error })
   )
   .cases(
     [
@@ -112,58 +105,45 @@ export const boardReducer = reducerWithInitialState(initialState)
       deleteBoard.async.failed,
       archiveBoard.async.failed
     ],
-    (state, { error }) => {
-      return { ...state, isLoading: false, error }
-    }
+    (state, { error }) => ({ ...state, isLoading: false, error })
   )
-  .case(restoreBoard.async.failed, (state, { error }) => {
-    return { ...state, isLoading: false, error }
-  })
+  .case(restoreBoard.async.failed, (state, { error }) => ({
+    ...state,
+    isLoading: false,
+    error
+  }))
 
   /**
    * async.done
    */
   .cases(
     [fetchBoards.async.done, createBoard.async.done, fetchBoard.async.done],
-    state => {
-      return { ...state, init: true, isLoading: false }
-    }
+    state => ({ ...state, init: true, isLoading: false })
   )
   .cases(
     [updateBoard.async.done, deleteBoardMember.async.done],
-    (state, { result }) => {
-      return {
-        ...state,
-        init: true,
-        isLoading: false,
-        boards: {
-          ...state.boards,
-          [result.id]: result
-        }
-      }
-    }
-  )
-  .case(setBoard, (state, params) => {
-    return {
+    (state, { result }) => ({
       ...state,
+      init: true,
+      isLoading: false,
       boards: {
         ...state.boards,
-        [params.id]: params
+        [result.id]: result
       }
+    })
+  )
+  .case(fetchArchivedBoards.async.done, state => ({
+    ...state,
+    init: true,
+    isLoading: false
+  }))
+  .case(setArchivedBoard, (state, params) => ({
+    ...state,
+    archivedBoards: {
+      ...state.archivedBoards,
+      [params.id]: params
     }
-  })
-  .case(fetchArchivedBoards.async.done, state => {
-    return { ...state, init: true, isLoading: false }
-  })
-  .case(setArchivedBoard, (state, params) => {
-    return {
-      ...state,
-      archivedBoards: {
-        ...state.archivedBoards,
-        [params.id]: params
-      }
-    }
-  })
+  }))
   .cases([archiveBoard.async.done], (state, { result }) => {
     const board = state.boards[result.id]
     /* eslint-disable-next-line */
@@ -211,3 +191,15 @@ export const boardReducer = reducerWithInitialState(initialState)
       }
     }
   })
+
+  /**
+   * sync
+   */
+  .case(setBoard, (state, params) => ({
+    ...state,
+    boards: {
+      ...state.boards,
+      [params.id]: params
+    }
+  }))
+  .case(resetBoard, () => ({ ...initialState }))

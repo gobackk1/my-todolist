@@ -1,5 +1,5 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
-import { addUser, getUser } from './actions'
+import { addUser, getUser, resetUsers } from './actions'
 
 export interface User {
   displayName: string
@@ -19,20 +19,17 @@ const initialState: UsersState = {
 }
 
 export const usersReducer = reducerWithInitialState(initialState)
-  .case(addUser, (state, params) => {
-    //todo: すでにユーザーがいた時
-    return {
-      ...state,
-      users: {
-        ...state.users,
-        [params.uid]: params
-      }
+  .case(addUser, (state, params) => ({
+    ...state,
+    users: {
+      ...state.users,
+      [params.uid]: params
     }
-  })
-  .case(getUser.async.started, state => {
-    return { ...state, isLoading: true }
-  })
+  }))
+  .case(resetUsers, () => ({ ...initialState }))
+  .case(getUser.async.started, state => ({ ...state, isLoading: true }))
   //todo: エラーハンドリング
-  .cases([getUser.async.failed, getUser.async.done], state => {
-    return { ...state, isLoading: true }
-  })
+  .cases([getUser.async.failed, getUser.async.done], state => ({
+    ...state,
+    isLoading: true
+  }))

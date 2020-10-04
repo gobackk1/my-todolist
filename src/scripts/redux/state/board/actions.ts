@@ -354,3 +354,8 @@ export const deleteBoardMember = asyncActionCreator<
     throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
   }
 })
+
+/**
+ * ログアウト時など、stateを初期化する
+ */
+export const resetBoard = actionCreator('RESET_BOARD')
