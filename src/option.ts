@@ -94,5 +94,10 @@ export const OPTION = {
     },
     ABORT:
       'state でエラーが発生しているか、board の fetch 中に呼び出そうとしました。'
+  },
+  ROLE: {
+    owner: '管理者',
+    editor: '編集者',
+    reader: '購読者'
   }
 } as const
