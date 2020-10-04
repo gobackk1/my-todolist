@@ -3,7 +3,7 @@ import { store } from '~redux/store'
 import {
   Board,
   BoardState,
-  BoardVisibility,
+  // BoardVisibility,
   BoardRole
 } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
@@ -127,14 +127,12 @@ export const setBoard = actionCreator<Board>('SET_BOARD')
  * ボードを新規作成する
  */
 export const createBoard = asyncActionCreator<
-  Pick<Board, 'title' | 'backgroundImage'>,
+  Pick<Board, 'title' | 'backgroundImage' | 'visibility'>,
   Pick<Board, 'id'>,
   Error
->('CREATE_BOARD', async ({ title, backgroundImage }, dispatch) => {
+>('CREATE_BOARD', async ({ title, backgroundImage, visibility }, dispatch) => {
   const user = getUserStateIfLogin()
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
-  //todo: 選択できるようにする
-  const visibility: BoardVisibility = 'members'
 
   try {
     const board = {

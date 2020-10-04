@@ -7,7 +7,8 @@ import {
   ListContainer,
   BoardWithBackground,
   FavoriteButton,
-  BoardMembers
+  BoardMembers,
+  BoardVisibilitySelection
 } from '@/components'
 import { useFetchBoard, useFetchList } from '@/scripts/hooks'
 import { css } from '@emotion/core'
@@ -54,6 +55,7 @@ export const BoardDetail: React.FC = () => {
               boardId={boardId}
             />
             <BoardMembers data={currentBoard} />
+            <BoardVisibilitySelection data={currentBoard} />
           </div>
           {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
           <ListContainer boardId={boardId} />

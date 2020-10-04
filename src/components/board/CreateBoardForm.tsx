@@ -4,9 +4,11 @@ import {
   TextField,
   makeStyles,
   Radio,
-  RadioGroup
+  RadioGroup,
+  Select,
+  MenuItem
 } from '@material-ui/core'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler, Controller } from 'react-hook-form'
 import { createBoard } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useStore } from 'react-redux'
@@ -24,7 +26,8 @@ export const CreateBoardForm: React.FC = () => {
     handleSubmit,
     errors,
     formState: { isDirty, isSubmitting, isValid },
-    reset
+    reset,
+    control
   } = useForm({ mode: 'onChange' })
   const history = useHistory()
   const { user, board } = useStore().getState()
@@ -32,14 +35,16 @@ export const CreateBoardForm: React.FC = () => {
   const [bg, setBg] = React.useState(defaultBg)
 
   const onSubmit: SubmitHandler<FormValue> = async (
-    { title, backgroundImage },
+    { title, backgroundImage, visibility },
     e: any
   ) => {
     if (!user || board.error) return
     e.target.previousSibling.children[0].click()
 
     try {
-      const { id } = await dispatch(createBoard({ title, backgroundImage }))
+      const { id } = await dispatch(
+        createBoard({ title, backgroundImage, visibility })
+      )
       reset()
       history.push(`/boards/${id}`)
     } catch (e) {
@@ -119,6 +124,17 @@ export const CreateBoardForm: React.FC = () => {
           )
         })}
       </RadioGroup>
+      <Controller
+        as={
+          <Select fullWidth label="公開範囲" variant="filled">
+            <MenuItem value="members">メンバーのみ</MenuItem>
+            <MenuItem value="public">公開</MenuItem>
+          </Select>
+        }
+        control={control}
+        name="visibility"
+        defaultValue="members"
+      />
       <Button
         type="submit"
         variant="contained"
@@ -140,6 +156,9 @@ const useStyles = makeStyles({
     backgroundSize: 'cover',
     borderRadius: theme.borderRadius(1),
     '& .MuiTextField-root': {
+      marginBottom: theme.spacing(1)
+    },
+    '& .MuiSelect-root': {
       marginBottom: theme.spacing(1)
     },
     '&::before': {
@@ -177,4 +196,5 @@ const useStyles = makeStyles({
 type FormValue = {
   title: string
   backgroundImage: string
+  visibility: string
 }
