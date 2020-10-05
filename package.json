@@ -10,6 +10,7 @@
     "deploy": "npx firebase deploy",
     "deploy:functions": "npx firebase deploy --only functions",
     "deploy:rules": "npx firebase deploy --only firestore:rules",
+    "emulator:firestore": "npx firebase emulators:start --only firestore",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },

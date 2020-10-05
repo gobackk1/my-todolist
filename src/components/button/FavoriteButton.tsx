@@ -1,7 +1,7 @@
 import React from 'react'
 import { IconButton } from '@material-ui/core'
 import { useDispatch } from 'react-redux'
-import { updateBoard } from '@/scripts/redux/state/board/actions'
+import { changeFavoriteRelations } from '@/scripts/redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { FavoriteIcon } from '@/components'
 
@@ -15,7 +15,7 @@ export const FavoriteButton: React.FC<{
   const onClickFavorite = React.useCallback(
     (favorite: boolean): void => {
       try {
-        dispatch(updateBoard({ id: boardId, favorite }))
+        dispatch(changeFavoriteRelations({ favorite, boardId }))
       } catch ({ message }) {
         console.log(message)
         showSnackbar({ message, type: 'error' })
@@ -25,7 +25,7 @@ export const FavoriteButton: React.FC<{
   )
 
   return (
-    <IconButton onClick={() => onClickFavorite(!favorite)}>
+    <IconButton onClick={() => onClickFavorite(favorite)}>
       <FavoriteIcon favorite={favorite} />
     </IconButton>
   )

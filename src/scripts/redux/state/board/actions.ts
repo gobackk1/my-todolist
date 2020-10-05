@@ -16,48 +16,100 @@ const db = firebase.firestore
 
 const PATH = {
   BOARDS_LIVE: 'boards_live',
-  BOARDS_ARCHIVED: 'boards_archived'
+  BOARDS_ARCHIVED: 'boards_archived',
+  RELATIONSHIPS_FAVORITE: 'relationships_favorite',
+  USERS: 'users'
 } as const
 
-/**
- * uid を渡して、サーバーからユーザーを取得する
- */
-const fetchUser = (uid: string) => callCloudFunctions('getUser', { uid })
+const mixin = (() => {
+  /**
+   * uid を渡して、サーバーからユーザーを取得する
+   */
+  const fetchUser = (uid: string) => callCloudFunctions('getUser', { uid })
 
-/**
- * 渡した members を元にユーザーを取得し、users state に登録する
- */
-const fetchMembersAndDispatchAddUser = async (members: {
-  [i: string]: Member
-}) => {
-  await Object.keys(members).forEach(async (uid: string) => {
-    const response = await fetchUser(uid)
+  /**
+   * 渡した members を元にユーザーを取得し、users state に登録する
+   */
+  const fetchMembersAndDispatchAddUser = async (members: {
+    [i: string]: Member
+  }) => {
+    await Object.keys(members).forEach(async (uid: string) => {
+      const response = await fetchUser(uid)
 
-    if (response.result) {
-      store.dispatch(addUser(response.result))
-    }
-  })
-}
-
-/**
- * ドキュメントを渡して Board に整形する
- */
-const getBoard = (doc: firebase.firestore.DocumentData): Board => {
-  const data = doc.data()
-  return { id: doc.id, ...data } as Board
-}
-
-/**
- * ログインしていたら user をリターンする
- */
-const getUserStateIfLogin = () => {
-  const { user }: UserState = store.getState().user
-  if (!user) {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
-  } else {
-    return user
+      if (response.result) {
+        store.dispatch(addUser(response.result))
+      }
+    })
   }
-}
+
+  /**
+   * ドキュメントを渡して Board に整形する
+   */
+  const getBoard = (doc: firebase.firestore.DocumentData): Board => {
+    const data = doc.data()
+    return { id: doc.id, ...data } as Board
+  }
+
+  /**
+   * ログインしていたら user をリターンする
+   */
+  const getUserStateIfLogin = () => {
+    const { user }: UserState = store.getState().user
+    if (!user) {
+      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+    } else {
+      return user
+    }
+  }
+
+  /**
+   * favorite 中間テーブルをクエリし、
+   * ユーザーがお気に入りにしているボードのIDを格納した配列をリターンする
+   */
+  const getFavorites = async (uid: string): Promise<string[]> => {
+    const relationshipSnapshot = await db()
+      .collection(PATH.RELATIONSHIPS_FAVORITE)
+      .where('uid', '==', uid)
+      .get()
+
+    const favorites: string[] = []
+    relationshipSnapshot.forEach(doc => {
+      const { boardId } = doc.data()
+      favorites.push(boardId)
+    })
+
+    return favorites
+  }
+
+  /**
+   * Board の favorite をクライアントサイドジョインする
+   */
+  const setFavorite = (board: Board, favorites: string[]): Board => ({
+    ...board,
+    favorite: favorites.includes(board.id) ? true : false
+  })
+
+  /**
+   *
+   */
+  const queryWithJunctionTable = async (
+    callback: Promise<
+      firebase.firestore.QuerySnapshot | firebase.firestore.DocumentSnapshot
+    >,
+    uid: string
+  ): Promise<[any, any]> => {
+    return await Promise.all([callback, getFavorites(uid)])
+  }
+
+  return {
+    fetchUser,
+    fetchMembersAndDispatchAddUser,
+    getBoard,
+    getUserStateIfLogin,
+    setFavorite,
+    queryWithJunctionTable
+  }
+})()
 
 /**
  * TODO: board visibility ごとに api コールを作る
@@ -70,19 +122,46 @@ const getUserStateIfLogin = () => {
 export const fetchBoards = asyncActionCreator<void, void, Error>(
   'FETCH_BOARDS',
   async (_, dispatch) => {
-    const user = getUserStateIfLogin()
+    const { uid } = mixin.getUserStateIfLogin()
 
-    const snapshot = await db()
-      .collection(PATH.BOARDS_LIVE)
-      .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
-      .get()
+    const [snapshot, favorites] = await mixin.queryWithJunctionTable(
+      db()
+        .collection(PATH.BOARDS_LIVE)
+        .where(`members.${uid}.role`, 'in', ['owner', 'editor', 'reader'])
+        .get(),
+      uid
+    )
 
     snapshot.forEach(async doc => {
       if (!doc.exists) return
 
-      const board = getBoard(doc)
-      fetchMembersAndDispatchAddUser(board.members)
-      dispatch(setBoard(board))
+      const board = mixin.getBoard(doc)
+      mixin.fetchMembersAndDispatchAddUser(board.members)
+      dispatch(setBoard(mixin.setFavorite(board, favorites)))
+    })
+  }
+)
+
+/**
+ * サーバーからアーカイブしたボードを取得する
+ */
+export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
+  'FETCH_ARCHIVED_BOARDS',
+  async (_, dispatch) => {
+    const { uid } = mixin.getUserStateIfLogin()
+
+    const [snapshot, favorites] = await mixin.queryWithJunctionTable(
+      db()
+        .collection(PATH.BOARDS_ARCHIVED)
+        .where(`members.${uid}.role`, 'in', ['owner', 'editor', 'reader'])
+        .get(),
+      uid
+    )
+
+    snapshot.forEach(doc => {
+      const board = mixin.getBoard(doc)
+      mixin.fetchMembersAndDispatchAddUser(board.members)
+      dispatch(setArchivedBoard(mixin.setFavorite(board, favorites)))
     })
   }
 )
@@ -90,7 +169,7 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
 export const fetchBoard = asyncActionCreator<string, void, Error>(
   'FETCH_BOARD',
   async (params, dispatch) => {
-    getUserStateIfLogin()
+    const { uid } = mixin.getUserStateIfLogin()
     const boardState = store.getState().board
 
     /**
@@ -98,16 +177,19 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
      */
     if (params in boardState.boards) return
 
-    const documentReference = await db()
-      .collection(PATH.BOARDS_LIVE)
-      .doc(params)
-      .get()
+    const [documentReference, favorites] = await mixin.queryWithJunctionTable(
+      db()
+        .collection(PATH.BOARDS_LIVE)
+        .doc(params)
+        .get(),
+      uid
+    )
 
     if (!documentReference.exists) return
 
-    const board = getBoard(documentReference)
-    fetchMembersAndDispatchAddUser(board.members)
-    dispatch(setBoard(board))
+    const board = mixin.getBoard(documentReference)
+    mixin.fetchMembersAndDispatchAddUser(board.members)
+    dispatch(setBoard(mixin.setFavorite(board, favorites)))
   }
 )
 
@@ -121,7 +203,7 @@ export const createBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('CREATE_BOARD', async ({ title, backgroundImage, visibility }, dispatch) => {
-  const user = getUserStateIfLogin()
+  const user = mixin.getUserStateIfLogin()
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
 
   const board = {
@@ -155,10 +237,10 @@ export const updateBoard = asyncActionCreator<
     | 'visibility'
     | 'author'
   >,
-  Board,
+  void,
   Error
->('UPDATE_BOARD', async params => {
-  getUserStateIfLogin()
+>('UPDATE_BOARD', async (params, dispatch) => {
+  mixin.getUserStateIfLogin()
   const { boards }: BoardState = store.getState().board
   const { id, ...target } = boards[params.id]
   const { id: paramsId, ...paramsWithoutId } = params
@@ -169,7 +251,7 @@ export const updateBoard = asyncActionCreator<
   const query = { ...target, ...paramsWithoutId }
   await documentReference.set({ ...query }, { merge: true })
   const newBoard: Board = { id, ...query }
-  return newBoard
+  dispatch(updateBoardInState(newBoard))
 })
 
 /**
@@ -178,12 +260,13 @@ export const updateBoard = asyncActionCreator<
 export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
   'DELETE_BOARD',
   async ({ id }) => {
-    getUserStateIfLogin()
+    mixin.getUserStateIfLogin()
 
     await db()
       .collection(PATH.BOARDS_ARCHIVED)
       .doc(id)
       .delete()
+
     return id
   }
 )
@@ -196,7 +279,7 @@ export const archiveBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('ARCHIVE_BOARD', async ({ id }) => {
-  const user = getUserStateIfLogin()
+  const user = mixin.getUserStateIfLogin()
   const documentReference = await db()
     .collection(PATH.BOARDS_LIVE)
     .doc(id)
@@ -229,7 +312,7 @@ export const restoreBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('RESTORE_BOARD', async ({ id }) => {
-  const user = getUserStateIfLogin()
+  const user = mixin.getUserStateIfLogin()
   const documentReference = await db()
     .collection(PATH.BOARDS_ARCHIVED)
     .doc(id)
@@ -254,27 +337,6 @@ export const restoreBoard = asyncActionCreator<
   return { id }
 })
 
-/**
- * サーバーからアーカイブしたボードを取得する
- */
-export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
-  'FETCH_ARCHIVED_BOARDS',
-  async (_, dispatch) => {
-    const user = getUserStateIfLogin()
-
-    const snapshot = await db()
-      .collection(PATH.BOARDS_ARCHIVED)
-      .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
-      .get()
-
-    snapshot.forEach(doc => {
-      const board = getBoard(doc)
-      fetchMembersAndDispatchAddUser(board.members)
-      dispatch(setArchivedBoard(board))
-    })
-  }
-)
-
 export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
 
 /**
@@ -283,16 +345,21 @@ export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
 
 export const deleteBoardMember = asyncActionCreator<
   { boardId: string; uid: string },
-  Board,
+  void,
   Error
->('DELETE_BOARD_MEMBER', async ({ boardId, uid }) => {
-  getUserStateIfLogin()
+>('DELETE_BOARD_MEMBER', async ({ boardId, uid }, dispatch) => {
+  mixin.getUserStateIfLogin()
   const { boards }: BoardState = store.getState().board
   const target = boards[boardId]
   // 他に良い方法が見つかるまで
   /* eslint-disable-next-line */
   const { [uid]: _, ...newMembers } = target.members
-  const newBoard = { ...target, members: { ...newMembers } }
+  const newBoard = {
+    ...target,
+    members: {
+      ...newMembers
+    }
+  }
 
   const documentReference = await db()
     .collection(PATH.BOARDS_LIVE)
@@ -306,11 +373,42 @@ export const deleteBoardMember = asyncActionCreator<
     },
     { merge: true }
   )
-
-  return newBoard
+  dispatch(updateBoardInState(newBoard))
 })
 
 /**
  * ログアウト時など、stateを初期化する
  */
 export const resetBoard = actionCreator('RESET_BOARD')
+
+/**
+ * お気に入りを変更する
+ */
+export const changeFavoriteRelations = asyncActionCreator<
+  { favorite: boolean; boardId: string },
+  void,
+  Error
+>('CHANGE_FAVORITE_RELATIONS', async ({ favorite, boardId }, dispatch) => {
+  const { uid } = mixin.getUserStateIfLogin()
+  const { boards }: BoardState = store.getState().board
+
+  if (favorite) {
+    await db()
+      .collection(PATH.RELATIONSHIPS_FAVORITE)
+      .doc(`${uid}_${boardId}`)
+      .delete()
+    const newBoard = { ...boards[boardId], favorite: false }
+    dispatch(updateBoardInState(newBoard))
+  } else {
+    const createdAt = db.FieldValue.serverTimestamp()
+
+    await db()
+      .collection(PATH.RELATIONSHIPS_FAVORITE)
+      .doc(`${uid}_${boardId}`)
+      .set({ uid, boardId, createdAt })
+    const newBoard = { ...boards[boardId], favorite: true }
+    dispatch(updateBoardInState(newBoard))
+  }
+})
+
+export const updateBoardInState = actionCreator<Board>('UPDATE_BOARD_IN_STATE')

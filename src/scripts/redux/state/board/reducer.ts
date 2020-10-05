@@ -11,7 +11,9 @@ import {
   setArchivedBoard,
   fetchBoard,
   deleteBoardMember,
-  resetBoard
+  resetBoard,
+  changeFavoriteRelations,
+  updateBoardInState
 } from './actions'
 
 export type BoardRole = 'owner' | 'editor' | 'reader'
@@ -70,11 +72,15 @@ export const boardReducer = reducerWithInitialState(initialState)
     [
       fetchBoards.async.started,
       fetchBoard.async.started,
-      fetchArchivedBoards.async.started
+      fetchArchivedBoards.async.started,
+      changeFavoriteRelations.async.started
     ],
     state => ({ ...state, isLoading: true })
   )
-  .case(restoreBoard.async.started, state => ({ ...state, isLoading: true }))
+  .case(restoreBoard.async.started, state => ({
+    ...state,
+    isLoading: true
+  }))
   .cases(
     [
       createBoard.async.started,
@@ -107,30 +113,28 @@ export const boardReducer = reducerWithInitialState(initialState)
     ],
     (state, { error }) => ({ ...state, isLoading: false, error })
   )
-  .case(restoreBoard.async.failed, (state, { error }) => ({
-    ...state,
-    isLoading: false,
-    error
-  }))
+  .cases(
+    [restoreBoard.async.failed, changeFavoriteRelations.async.failed],
+    (state, { error }) => ({
+      ...state,
+      isLoading: false,
+      error
+    })
+  )
 
   /**
    * async.done
    */
   .cases(
-    [fetchBoards.async.done, createBoard.async.done, fetchBoard.async.done],
+    [
+      fetchBoards.async.done,
+      createBoard.async.done,
+      fetchBoard.async.done,
+      changeFavoriteRelations.async.done,
+      updateBoard.async.done,
+      deleteBoardMember.async.done
+    ],
     state => ({ ...state, init: true, isLoading: false })
-  )
-  .cases(
-    [updateBoard.async.done, deleteBoardMember.async.done],
-    (state, { result }) => ({
-      ...state,
-      init: true,
-      isLoading: false,
-      boards: {
-        ...state.boards,
-        [result.id]: result
-      }
-    })
   )
   .case(fetchArchivedBoards.async.done, state => ({
     ...state,
@@ -203,3 +207,12 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   }))
   .case(resetBoard, () => ({ ...initialState }))
+  .case(updateBoardInState, (state, params) => ({
+    ...state,
+    init: true,
+    isLoading: false,
+    boards: {
+      ...state.boards,
+      [params.id]: params
+    }
+  }))
