@@ -72,23 +72,18 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
   async (_, dispatch) => {
     const user = getUserStateIfLogin()
 
-    try {
-      const snapshot = await db()
-        .collection(PATH.BOARDS_LIVE)
-        .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
-        .get()
+    const snapshot = await db()
+      .collection(PATH.BOARDS_LIVE)
+      .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
+      .get()
 
-      snapshot.forEach(async doc => {
-        if (!doc.exists) return
+    snapshot.forEach(async doc => {
+      if (!doc.exists) return
 
-        const board = getBoard(doc)
-        fetchMembersAndDispatchAddUser(board.members)
-        dispatch(setBoard(board))
-      })
-    } catch (e) {
-      console.log('debug: FETCH_BOARDS', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
+      const board = getBoard(doc)
+      fetchMembersAndDispatchAddUser(board.members)
+      dispatch(setBoard(board))
+    })
   }
 )
 
@@ -103,21 +98,16 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
      */
     if (params in boardState.boards) return
 
-    try {
-      const documentReference = await db()
-        .collection(PATH.BOARDS_LIVE)
-        .doc(params)
-        .get()
+    const documentReference = await db()
+      .collection(PATH.BOARDS_LIVE)
+      .doc(params)
+      .get()
 
-      if (!documentReference.exists) return
+    if (!documentReference.exists) return
 
-      const board = getBoard(documentReference)
-      fetchMembersAndDispatchAddUser(board.members)
-      dispatch(setBoard(board))
-    } catch (e) {
-      console.log('debug: FETCH_BOARD', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
+    const board = getBoard(documentReference)
+    fetchMembersAndDispatchAddUser(board.members)
+    dispatch(setBoard(board))
   }
 )
 
@@ -134,26 +124,21 @@ export const createBoard = asyncActionCreator<
   const user = getUserStateIfLogin()
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
 
-  try {
-    const board = {
-      title,
-      backgroundImage,
-      favorite: false,
-      members,
-      visibility,
-      author: user.uid
-    }
-    const { id } = await firebase
-      .firestore()
-      .collection(PATH.BOARDS_LIVE)
-      .add(board)
-
-    dispatch(setBoard({ id, ...board }))
-    return { id }
-  } catch (e) {
-    console.log('debug: CREATE_BOARD', e)
-    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
+  const board = {
+    title,
+    backgroundImage,
+    favorite: false,
+    members,
+    visibility,
+    author: user.uid
   }
+  const { id } = await firebase
+    .firestore()
+    .collection(PATH.BOARDS_LIVE)
+    .add(board)
+
+  dispatch(setBoard({ id, ...board }))
+  return { id }
 })
 
 /**
@@ -178,18 +163,13 @@ export const updateBoard = asyncActionCreator<
   const { id, ...target } = boards[params.id]
   const { id: paramsId, ...paramsWithoutId } = params
 
-  try {
-    const documentReference = await db()
-      .collection(PATH.BOARDS_LIVE)
-      .doc(paramsId)
-    const query = { ...target, ...paramsWithoutId }
-    await documentReference.set({ ...query }, { merge: true })
-    const newBoard: Board = { id, ...query }
-    return newBoard
-  } catch (e) {
-    console.log('debug: UPDATE_BOARD', e)
-    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-  }
+  const documentReference = await db()
+    .collection(PATH.BOARDS_LIVE)
+    .doc(paramsId)
+  const query = { ...target, ...paramsWithoutId }
+  await documentReference.set({ ...query }, { merge: true })
+  const newBoard: Board = { id, ...query }
+  return newBoard
 })
 
 /**
@@ -200,16 +180,11 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
   async ({ id }) => {
     getUserStateIfLogin()
 
-    try {
-      await db()
-        .collection(PATH.BOARDS_ARCHIVED)
-        .doc(id)
-        .delete()
-      return id
-    } catch (e) {
-      console.log('debug: DELETE_BOARD', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
+    await db()
+      .collection(PATH.BOARDS_ARCHIVED)
+      .doc(id)
+      .delete()
+    return id
   }
 )
 
@@ -226,29 +201,24 @@ export const archiveBoard = asyncActionCreator<
     .collection(PATH.BOARDS_LIVE)
     .doc(id)
 
-  try {
-    await db().runTransaction(async t => {
-      /**
-       * ドキュメントを live から archived へ移動する
-       */
-      const doc = await t.get(documentReference)
+  await db().runTransaction(async t => {
+    /**
+     * ドキュメントを live から archived へ移動する
+     */
+    const doc = await t.get(documentReference)
 
-      if (!doc.exists || !user) return
-      // existsで見てるので
-      /* eslint-disable-next-line */
-      const archiveBoard = doc.data()!
-      await db()
-        .collection(PATH.BOARDS_ARCHIVED)
-        .doc(id)
-        .set(archiveBoard)
+    if (!doc.exists || !user) return
+    // existsで見てるので
+    /* eslint-disable-next-line */
+    const archiveBoard = doc.data()!
+    await db()
+      .collection(PATH.BOARDS_ARCHIVED)
+      .doc(id)
+      .set(archiveBoard)
 
-      await t.delete(documentReference)
-    })
-    return { id }
-  } catch (e) {
-    console.log('debug: ARCHIVE_BOARD', e)
-    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-  }
+    await t.delete(documentReference)
+  })
+  return { id }
 })
 
 /**
@@ -264,29 +234,24 @@ export const restoreBoard = asyncActionCreator<
     .collection(PATH.BOARDS_ARCHIVED)
     .doc(id)
 
-  try {
-    await db().runTransaction(async t => {
-      /**
-       * ドキュメントを archived から live へ移動する
-       */
-      const doc = await t.get(documentReference)
+  await db().runTransaction(async t => {
+    /**
+     * ドキュメントを archived から live へ移動する
+     */
+    const doc = await t.get(documentReference)
 
-      if (!doc.exists || !user) return
-      // existsで見てるので
-      /* eslint-disable-next-line */
-      const archiveBoard = doc.data()!
-      await db()
-        .collection(PATH.BOARDS_LIVE)
-        .doc(id)
-        .set(archiveBoard)
+    if (!doc.exists || !user) return
+    // existsで見てるので
+    /* eslint-disable-next-line */
+    const archiveBoard = doc.data()!
+    await db()
+      .collection(PATH.BOARDS_LIVE)
+      .doc(id)
+      .set(archiveBoard)
 
-      await t.delete(documentReference)
-    })
-    return { id }
-  } catch (e) {
-    console.log('debug: RESTORE_BOARD', e)
-    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-  }
+    await t.delete(documentReference)
+  })
+  return { id }
 })
 
 /**
@@ -297,21 +262,16 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
   async (_, dispatch) => {
     const user = getUserStateIfLogin()
 
-    try {
-      const snapshot = await db()
-        .collection(PATH.BOARDS_ARCHIVED)
-        .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
-        .get()
+    const snapshot = await db()
+      .collection(PATH.BOARDS_ARCHIVED)
+      .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
+      .get()
 
-      snapshot.forEach(doc => {
-        const board = getBoard(doc)
-        fetchMembersAndDispatchAddUser(board.members)
-        dispatch(setArchivedBoard(board))
-      })
-    } catch (e) {
-      console.log('debug: FETCH_ARCHIVED_BOARDS', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
+    snapshot.forEach(doc => {
+      const board = getBoard(doc)
+      fetchMembersAndDispatchAddUser(board.members)
+      dispatch(setArchivedBoard(board))
+    })
   }
 )
 
@@ -334,25 +294,20 @@ export const deleteBoardMember = asyncActionCreator<
   const { [uid]: _, ...newMembers } = target.members
   const newBoard = { ...target, members: { ...newMembers } }
 
-  try {
-    const documentReference = await db()
-      .collection(PATH.BOARDS_LIVE)
-      .doc(boardId)
+  const documentReference = await db()
+    .collection(PATH.BOARDS_LIVE)
+    .doc(boardId)
 
-    await documentReference.set(
-      {
-        members: {
-          [uid]: firebase.firestore.FieldValue.delete()
-        }
-      },
-      { merge: true }
-    )
+  await documentReference.set(
+    {
+      members: {
+        [uid]: firebase.firestore.FieldValue.delete()
+      }
+    },
+    { merge: true }
+  )
 
-    return newBoard
-  } catch (e) {
-    console.log('debug: UPDATE_BOARD', e)
-    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-  }
+  return newBoard
 })
 
 /**
