@@ -9,7 +9,7 @@ import { CardList } from '@/components'
 import { useBoardAuthority } from '@/scripts/hooks'
 
 export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
-  const { user } = useSelector(state => state.user)
+  const { user } = useSelector(state => state.currentUser)
   const listState = useSelector(state => state.list)
   const dispatch = useDispatch()
   const { isOneOfRoles } = useBoardAuthority(boardId)

@@ -1,5 +1,5 @@
 import { actionCreator, asyncActionCreator } from '~redux/action'
-import { User } from './reducer'
+import { User } from '~redux/state/currentUser/reducer'
 import { callCloudFunctions } from '@/scripts/firebase'
 
 /**

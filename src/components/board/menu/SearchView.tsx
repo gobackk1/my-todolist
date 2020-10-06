@@ -13,13 +13,13 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const history = useHistory()
-  const { user, board } = useStore().getState()
+  const { currentUser, board } = useStore().getState()
   const styles = useStyles()
 
   const onClickCreate = async ({
     title
   }: Pick<Board, 'title'>): Promise<void> => {
-    if (!user || board.error) return
+    if (!currentUser || board.error) return
 
     try {
       const { id }: Board = await dispatch(

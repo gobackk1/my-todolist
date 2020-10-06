@@ -5,7 +5,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 
 export const useFetchBoards = (): void => {
   const boardState = useSelector(state => state.board)
-  const userState = useSelector(state => state.user)
+  const currentUserState = useSelector(state => state.currentUser)
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
 
@@ -28,8 +28,13 @@ export const useFetchBoards = (): void => {
   }, [dispatch])
 
   React.useEffect(() => {
-    if (!userState.user || boardState.error || boardState.init) return
+    if (!currentUserState.user || boardState.error || boardState.init) return
 
     dispatchFetchBoards()
-  }, [userState.user, dispatchFetchBoards, boardState.init, boardState.error])
+  }, [
+    currentUserState.user,
+    dispatchFetchBoards,
+    boardState.init,
+    boardState.error
+  ])
 }

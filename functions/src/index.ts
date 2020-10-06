@@ -67,6 +67,7 @@ export const onCreateUser = functions.auth.user().onCreate(async user => {
       .collection('user_detail_public')
       .doc(uid)
       .set({
+        uid,
         displayName,
         email,
         profile: '',

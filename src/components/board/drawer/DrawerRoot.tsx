@@ -21,11 +21,11 @@ export const DrawerRoot: React.FC<{
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const { boardId } = useParams<I.UrlParams>()
-  const { user, board } = useStore().getState()
+  const { currentUser, board } = useStore().getState()
   const { isOneOfRoles } = useBoardAuthority(boardId)
 
   const onClickArchive = async () => {
-    if (!boardId || !user || board.error) return
+    if (!boardId || !currentUser || board.error) return
     if (!window.confirm('ボードをアーカイブしてもよろしいですか？')) return
 
     try {

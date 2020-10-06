@@ -7,7 +7,7 @@ import {
   BoardRole
 } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
-import { UserState } from '~redux/state/user/reducer'
+import { CurrentUserState } from '@/scripts/redux/state/currentUser/reducer'
 import firebase from 'firebase'
 import { addUser } from '~redux/state/users/actions'
 import { Member } from './reducer'
@@ -49,7 +49,7 @@ const mixin = (() => {
    * ログインしていたら user をリターンする
    */
   const getUserStateIfLogin = () => {
-    const { user }: UserState = store.getState().user
+    const { user }: CurrentUserState = store.getState().user
     if (!user) {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     } else {

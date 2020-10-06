@@ -1,11 +1,7 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 import { addUser, getUser, resetUsers } from './actions'
+import { User } from '@/scripts/redux/state/currentUser/reducer'
 
-export interface User {
-  displayName: string
-  photoURL: string
-  uid: string
-}
 export interface UsersState {
   isLoading: boolean
   users: {

@@ -1,7 +1,6 @@
 import React from 'react'
 import { Button, makeStyles } from '@material-ui/core'
 import { useSelector } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { Link } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { Board } from '~redux/state/board/reducer'
@@ -11,7 +10,7 @@ export const BoardListItem: React.FC<{
   data: Board
   variant?: 'bar' | 'block'
 }> = ({ data, variant = 'bar' }) => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
   const style = useStyles()
   const bg = React.useMemo(() => boardState.getBackgroundStyle(data.id), [
     boardState,

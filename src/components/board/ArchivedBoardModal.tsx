@@ -8,7 +8,6 @@ import {
 } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { Reply, DeleteForever } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import { useHistory } from 'react-router-dom'
@@ -23,15 +22,15 @@ export const TEXT = {
 export const ArchivedBoardModal: React.FC = () => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
-  const boardState = useSelector((state: I.ReduxState) => state.board)
-  const userState = useSelector((state: I.ReduxState) => state.user)
+  const boardState = useSelector(state => state.board)
+  const currentUserState = useSelector(state => state.currentUser)
   const muiStyles = useStyles()
   const history = useHistory()
 
   const renderButton = React.useCallback(
     props => {
       const dispatchFetchArchiveBoards = () => {
-        if (!userState.user || boardState.error) return
+        if (!currentUserState.user || boardState.error) return
         try {
           dispatch(fetchArchivedBoards())
         } catch ({ message }) {
@@ -52,11 +51,17 @@ export const ArchivedBoardModal: React.FC = () => {
         </Button>
       )
     },
-    [muiStyles.buttonCreate, dispatch, showSnackbar, userState.user, boardState]
+    [
+      muiStyles.buttonCreate,
+      dispatch,
+      showSnackbar,
+      currentUserState.user,
+      boardState
+    ]
   )
 
   const onClickDelete = async (id: string) => {
-    if (!userState.user || boardState.error) return
+    if (!currentUserState.user || boardState.error) return
 
     if (!window.confirm(TEXT.DELETE_CONFIRM)) return
 
@@ -71,7 +76,7 @@ export const ArchivedBoardModal: React.FC = () => {
   }
 
   const onClickRestore = async (e: any, id: string, title: string) => {
-    if (!userState.user || boardState.error) return
+    if (!currentUserState.user || boardState.error) return
 
     try {
       await dispatch(restoreBoard({ id }))

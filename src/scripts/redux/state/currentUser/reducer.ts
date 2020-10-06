@@ -1,18 +1,25 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 import { setLoginUser, setLoggingIn } from './actions'
-import firebase from 'firebase'
 
-export interface UserState {
-  isLoggingIn: boolean
-  user: firebase.User | null
+export interface User {
+  uid: string
+  displayName: string
+  email: string
+  profile: string
+  avatarURL: 'default'
 }
 
-const initialState: UserState = {
+export interface CurrentUserState {
+  isLoggingIn: boolean
+  user: User | null
+}
+
+const initialState: CurrentUserState = {
   isLoggingIn: true,
   user: null
 }
 
-export const userReducer = reducerWithInitialState(initialState)
+export const currentUserReducer = reducerWithInitialState(initialState)
   .case(setLoginUser, (state, params) => {
     return { ...state, user: params }
   })

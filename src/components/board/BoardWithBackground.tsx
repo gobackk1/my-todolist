@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom'
 import { theme } from '@/styles'
 
 export const BoardWithBackground: React.FC = ({ children }) => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
   const { boardId } = useParams<I.UrlParams>()
 
   const style = boardState.getBackgroundStyle(boardId) || {}

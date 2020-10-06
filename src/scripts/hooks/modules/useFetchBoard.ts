@@ -1,12 +1,11 @@
 import React from 'react'
 import { fetchBoard } from '@/scripts/redux/state/board/actions'
 import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { useSnackbarContext } from '@/scripts/hooks'
 
 export const useFetchBoard = (boardId: string): void => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
-  const userState = useSelector((state: I.ReduxState) => state.user)
+  const boardState = useSelector(state => state.board)
+  const currentUserState = useSelector(state => state.currentUser)
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
 
@@ -29,8 +28,8 @@ export const useFetchBoard = (boardId: string): void => {
   }, [dispatch, boardId])
 
   React.useEffect(() => {
-    if (!userState.user || boardState.error) return
+    if (!currentUserState.user || boardState.error) return
 
     dispatchFetchBoard()
-  }, [userState.user, dispatchFetchBoard, boardState.error])
+  }, [currentUserState.user, dispatchFetchBoard, boardState.error])
 }

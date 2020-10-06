@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk'
 import { boardReducer } from '~redux/state/board/reducer'
-import { userReducer } from '~redux/state/user/reducer'
+import { currentUserReducer } from '@/scripts/redux/state/currentUser/reducer'
 import { usersReducer } from '~redux/state/users/reducer'
 import { listReducer } from '~redux/state/list/reducer'
 import { cardReducer } from '~redux/state/card/reducer'
@@ -14,7 +14,7 @@ const enhancer =
 
 const reducers = combineReducers({
   board: boardReducer,
-  user: userReducer,
+  user: currentUserReducer,
   list: listReducer,
   card: cardReducer,
   users: usersReducer

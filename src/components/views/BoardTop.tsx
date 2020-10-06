@@ -1,7 +1,6 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import {
   LoadingSpinner,
   PageContainer,
@@ -20,7 +19,7 @@ import PersonOutlineRoundedIcon from '@material-ui/icons/PersonOutlineRounded'
 import AddRoundedIcon from '@material-ui/icons/AddRounded'
 
 export const BoardTop: React.FC = () => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
   const { state } = useLocation<string | undefined>()
   const { showSnackbar } = useSnackbarContext()
   const { openCreateBoardModal } = useCreateBoardModalContext()

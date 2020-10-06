@@ -9,9 +9,9 @@ import { VariableInput } from '@/components'
 import { css } from '@emotion/core'
 
 export const BoardTitle: React.FC = () => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
   const { boardId } = useParams<I.UrlParams>()
-  const { user, board } = useStore().getState()
+  const { currentUser, board } = useStore().getState()
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
 
@@ -20,7 +20,7 @@ export const BoardTitle: React.FC = () => {
       e: React.FocusEvent<any> | React.KeyboardEvent<any>,
       close: () => void
     ) => {
-      if (!user || board.error || !boardState.boards[boardId]) return
+      if (!currentUser || board.error || !boardState.boards[boardId]) return
 
       const title = e.currentTarget.value
 
@@ -52,7 +52,14 @@ export const BoardTitle: React.FC = () => {
         })
       }
     },
-    [board.error, boardId, boardState.boards, dispatch, showSnackbar, user]
+    [
+      board.error,
+      boardId,
+      boardState.boards,
+      dispatch,
+      showSnackbar,
+      currentUser
+    ]
   )
 
   return (

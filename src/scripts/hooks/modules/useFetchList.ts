@@ -1,17 +1,16 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { fetchList } from '@/scripts/redux/state/list/actions'
 
 export const useFetchList = (boardId: string): void => {
-  const userState = useSelector((state: I.ReduxState) => state.user)
-  const listState = useSelector((state: I.ReduxState) => state.list)
+  const currentUserState = useSelector(state => state.currentUser)
+  const listState = useSelector(state => state.list)
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
 
   React.useEffect(() => {
-    if (!userState.user || listState.error || !boardId) return
+    if (!currentUserState.user || listState.error || !boardId) return
 
     const fetch = async () => {
       try {
@@ -31,5 +30,5 @@ export const useFetchList = (boardId: string): void => {
      * showSnackbar を配列に加えない
      */
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [boardId, dispatch, fetchList, userState.user, listState.error])
+  }, [boardId, dispatch, fetchList, currentUserState.user, listState.error])
 }

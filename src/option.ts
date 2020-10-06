@@ -10,7 +10,8 @@ export const OPTION = {
   PATH: {
     HOME: '/',
     BOARD: '/boards',
-    USER_PROFILE: '/profile'
+    USER_PROFILE: '/profile',
+    BEFORE_VERIFIED: '/before_verified'
   },
   COLLECTION_PATH: {
     BOARDS_LIVE: 'boards_live',

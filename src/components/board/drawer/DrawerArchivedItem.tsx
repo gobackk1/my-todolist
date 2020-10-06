@@ -17,7 +17,7 @@ export const DrawerArchivedItem: React.FC<{
   /* eslint-disable-next-line */
 }> = ({ open, setOpen }) => {
   const { boardId } = useParams<I.UrlParams>()
-  const { user } = useSelector(state => state.user)
+  const { user } = useSelector(state => state.currentUser)
   const { list: listState } = useStore().getState()
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()

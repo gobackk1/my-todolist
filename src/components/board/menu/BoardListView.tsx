@@ -1,11 +1,10 @@
 import React from 'react'
 import { makeStyles, Theme, Typography } from '@material-ui/core'
 import { useSelector } from 'react-redux'
-import * as I from '@/scripts/model/interface'
 import { LoadingSpinner, BoardListItem, ToggleList } from '@/components'
 
 export const BoardListView: React.FC = () => {
-  const boardState = useSelector((state: I.ReduxState) => state.board)
+  const boardState = useSelector(state => state.board)
   const styles = useStyles()
 
   const personalBoards = Object.values(boardState.boards)

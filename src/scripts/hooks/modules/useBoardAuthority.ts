@@ -13,7 +13,7 @@ interface BoardAuthorization {
  * ボード操作の認可に関わる関数群を提供するカスタムフック
  */
 export const useBoardAuthority = (boardId: string): BoardAuthorization => {
-  const { user } = useSelector(state => state.user)
+  const { user } = useSelector(state => state.currentUser)
   const boardState = useSelector(state => state.board)
 
   const boardMembers = React.useMemo(() => {

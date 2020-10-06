@@ -30,7 +30,7 @@ export const CreateBoardForm: React.FC = () => {
     control
   } = useForm({ mode: 'onChange' })
   const history = useHistory()
-  const { user, board } = useStore().getState()
+  const { currentUser, board } = useStore().getState()
   const defaultBg = OPTION.BOARD.BG.PHOTO[0].src
   const [bg, setBg] = React.useState(defaultBg)
 
@@ -38,7 +38,7 @@ export const CreateBoardForm: React.FC = () => {
     { title, backgroundImage, visibility },
     e: any
   ) => {
-    if (!user || board.error) return
+    if (!currentUser || board.error) return
     e.target.previousSibling.children[0].click()
 
     try {

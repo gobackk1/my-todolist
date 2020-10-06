@@ -2,13 +2,12 @@ import React from 'react'
 import firebase from 'firebase'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { LoadingSpinner } from '@/components'
-import * as I from '@/scripts/model/interface'
 import { useSelector } from 'react-redux'
 import { OPTION } from '@/option'
 
 export const BeforeVerified: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
-  const userState = useSelector((state: I.ReduxState) => state.user)
+  const currentUserState = useSelector(state => state.currentUser)
 
   const onClick = () => {
     const user = firebase.auth().currentUser
@@ -25,7 +24,7 @@ export const BeforeVerified: React.FC = () => {
 
   return (
     <div>
-      {userState.isLoggingIn ? (
+      {currentUserState.isLoggingIn ? (
         <LoadingSpinner />
       ) : (
         <>

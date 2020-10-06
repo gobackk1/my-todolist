@@ -1,6 +1,6 @@
 import 'react-redux'
 import * as I from '@/scripts/model/interface'
-import { UserState } from '~redux/state/user/reducer'
+import { CurrentUserState } from '@/scripts/redux/state/currentUser/reducer'
 import { UsersState } from '~redux/state/users/reducer'
 import { BoardState } from '~redux/state/board/reducer'
 import { ListState } from '~redux/state/list/reducer'
@@ -9,7 +9,7 @@ import { Action, Dispatch } from 'redux'
 
 declare module 'react-redux' {
   interface DefaultRootState {
-    user: UserState
+    currentUser: CurrentUserState
     board: BoardState
     list: ListState
     card: CardState

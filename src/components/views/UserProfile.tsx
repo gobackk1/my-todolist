@@ -1,6 +1,14 @@
 import React from 'react'
 import { PageContainer } from '@/components'
-import { AppBar, Tabs, Tab, Box, makeStyles } from '@material-ui/core'
+import {
+  AppBar,
+  Tabs,
+  Tab,
+  Box,
+  makeStyles,
+  TextField,
+  Button
+} from '@material-ui/core'
 import { theme } from '@/styles'
 
 export const UserProfile: React.FC = () => {
@@ -14,6 +22,10 @@ export const UserProfile: React.FC = () => {
     [setValue]
   )
 
+  // 現状の user state をテコ入れする
+  // doc をコールして redux で管理する
+  // doc をアップデートできるようにする
+
   return (
     <div className={`AppUserProfile-root ${styles.root}`}>
       <PageContainer>
@@ -24,12 +36,20 @@ export const UserProfile: React.FC = () => {
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
-          プロフィール
+          {/* 切り出す */}
+          <form>
+            ユーザー名、
+            <TextField />
+            email、
+            <TextField />
+            自己紹介
+            <TextField />
+            <Button>保存</Button>
+          </form>
         </TabPanel>
         <TabPanel value={value} index={1}>
           アクティビティログは準備中です。
         </TabPanel>
-        {/* プロフィールタブ、アクティビティログタブ追加 */}
         {/* ユーザー名、email、自己紹介表示、変更できるようにする */}
         {/* アバターを表示して、画像アップロードできるようにする */}
         <ul>

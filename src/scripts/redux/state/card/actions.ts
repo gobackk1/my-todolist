@@ -1,5 +1,5 @@
 import { asyncActionCreator, actionCreator } from '~redux/action'
-import { UserState } from '~redux/state/user/reducer'
+import { CurrentUserState } from '@/scripts/redux/state/currentUser/reducer'
 import { store } from '~redux/store'
 import { OPTION } from '@/option'
 import firebase from 'firebase'
@@ -12,7 +12,7 @@ import { Card } from '~redux/state/card/reducer'
 //   List[][],
 //   Error
 // >('FETCH_LIST', async ({ boardId }) => {
-//   const { user }: UserState = store.getState().user
+//   const { user }: CurrentUserState = store.getState().user
 //   let lists: List[] = []
 //   // let archivedLists: List[] = []
 
@@ -54,9 +54,9 @@ import { Card } from '~redux/state/card/reducer'
 export const createCard = asyncActionCreator<any, any, Error>(
   'CREATE_CARD',
   async ({ title, listId }) => {
-    const { user }: UserState = store.getState().user
+    const { user }: CurrentUserState = store.getState().user
 
-    if (!(user && user.uid)) {
+    if (!user) {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     }
 
@@ -78,7 +78,7 @@ export const updateCard = asyncActionCreator<
   Pick<Card, 'title' | 'id' | 'listId'>,
   Error
 >('UPDATE_CARD', async ({ listId, title, id }) => {
-  const { user }: UserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().user
 
   if (user && user.uid) {
     try {
@@ -102,7 +102,7 @@ export const deleteCard = asyncActionCreator<
   Pick<Card, 'id' | 'listId'>,
   Error
 >('DELETE_CARD', async ({ listId, id }) => {
-  const { user }: UserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().user
 
   if (user && user.uid) {
     try {

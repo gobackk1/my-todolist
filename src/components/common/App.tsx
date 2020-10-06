@@ -6,7 +6,8 @@ import {
   SnackbarProvider,
   EmotionGlobal,
   PageLayout,
-  UserProfile
+  UserProfile,
+  BeforeVerified
 } from '@/components'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import { theme } from '@/styles'
@@ -54,6 +55,11 @@ export const App: React.FC = () => {
                   <Route
                     path={OPTION.PATH.USER_PROFILE}
                     component={UserProfile}
+                  />
+                  <Route
+                    path={OPTION.PATH.BEFORE_VERIFIED}
+                    exact
+                    component={BeforeVerified}
                   />
                   <Route path="/login" exact component={Home} />
                   <Route path="/" exact component={Home} />

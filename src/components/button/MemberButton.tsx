@@ -1,7 +1,7 @@
 import React from 'react'
 import { IconButton, Button, Typography, Divider } from '@material-ui/core'
 import { UserIcon, Menu } from '@/components'
-import { User } from '@/scripts/redux/state/users/reducer'
+import { User } from '@/scripts/redux/state/currentUser/reducer'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import {
