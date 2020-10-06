@@ -11,7 +11,7 @@ export const fetchList = asyncActionCreator<
   List[][],
   Error
 >('FETCH_LIST', async ({ boardId }, dispatch) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().currentUser
   let lists: List[] = []
   let archivedLists: List[] = []
 
@@ -77,7 +77,7 @@ export const fetchArchivedList = asyncActionCreator<
   List[][],
   Error
 >('FETCH_ARCHIVED_LIST', async ({ boardId }) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().currentUser
   let lists: List[] = []
 
   if (user && user.uid) {
@@ -112,7 +112,7 @@ export const createList = asyncActionCreator<
   List,
   Error
 >('CREATE_LIST', async params => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().currentUser
 
   if (user && user.uid) {
     try {
@@ -134,7 +134,7 @@ export const createList = asyncActionCreator<
 export const archiveList = asyncActionCreator<List, List | undefined, Error>(
   'ARCHIVE_LIST',
   async list => {
-    const { user }: CurrentUserState = store.getState().user
+    const { user }: CurrentUserState = store.getState().currentUser
 
     if (!(user && user.uid)) {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
@@ -170,7 +170,7 @@ export const restoreList = asyncActionCreator<
   Pick<List, 'id' | 'boardId'>,
   Error
 >('RESTORE_LIST', async ({ id, boardId }) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().currentUser
 
   if (user && user.uid) {
     let documentReference: firebase.firestore.DocumentReference
@@ -220,7 +220,7 @@ export const deleteList = asyncActionCreator<
   Pick<List, 'id'> & { boardId: string },
   Error
 >('DELETE_LIST', async ({ id, boardId }) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().currentUser
 
   if (user && user.uid) {
     try {
@@ -244,7 +244,7 @@ export const updateList = asyncActionCreator<
   Pick<List, 'title' | 'id' | 'boardId'>,
   Error
 >('UPDATE_LIST', async ({ id, title, boardId }) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user }: CurrentUserState = store.getState().currentUser
 
   if (user && user.uid) {
     try {
