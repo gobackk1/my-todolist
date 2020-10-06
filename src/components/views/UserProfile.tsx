@@ -1,22 +1,11 @@
 import React from 'react'
-import { PageContainer } from '@/components'
-import {
-  AppBar,
-  Tabs,
-  Tab,
-  Box,
-  makeStyles,
-  TextField,
-  Button
-} from '@material-ui/core'
+import { PageContainer, ProfileForm } from '@/components'
+import { AppBar, Tabs, Tab, Box, makeStyles } from '@material-ui/core'
 import { theme } from '@/styles'
-import { useSelector } from 'react-redux'
 
 export const UserProfile: React.FC = () => {
   const [value, setValue] = React.useState(0)
   const styles = useStyles()
-  const currentUser = useSelector(state => state.currentUser)
-  const users = useSelector(state => state.users)
 
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<any>, newValue: number) => {
@@ -25,11 +14,6 @@ export const UserProfile: React.FC = () => {
     [setValue]
   )
 
-  // doc をアップデートできるようにする
-
-  if (currentUser.user) {
-    console.log(currentUser, users.users[currentUser.user!.uid])
-  }
   return (
     <div className={`AppUserProfile-root ${styles.root}`}>
       <PageContainer>
@@ -40,16 +24,7 @@ export const UserProfile: React.FC = () => {
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
-          {/* 切り出す */}
-          <form>
-            ユーザー名、
-            <TextField />
-            email、
-            <TextField />
-            自己紹介
-            <TextField />
-            <Button>保存</Button>
-          </form>
+          <ProfileForm />
         </TabPanel>
         <TabPanel value={value} index={1}>
           アクティビティログは準備中です。

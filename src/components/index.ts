@@ -2,6 +2,7 @@ export * from './common'
 export * from './button'
 export * from './board'
 export * from './views'
+export * from './profile'
 
 export { CardList } from './list/CardList'
 export { ListContainer } from './list/ListContainer'
