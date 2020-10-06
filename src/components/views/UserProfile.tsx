@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageContainer, ProfileForm } from '@/components'
+import { PageContainer, ProfileForm, ProfileSetting } from '@/components'
 import { AppBar, Tabs, Tab, Box, makeStyles } from '@material-ui/core'
 import { theme } from '@/styles'
 
@@ -21,6 +21,7 @@ export const UserProfile: React.FC = () => {
           <Tabs value={value} onChange={handleChange}>
             <Tab label="プロフィール" />
             <Tab label="アクティビティログ" />
+            <Tab label="設定" />
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0}>
@@ -28,6 +29,9 @@ export const UserProfile: React.FC = () => {
         </TabPanel>
         <TabPanel value={value} index={1}>
           アクティビティログは準備中です。
+        </TabPanel>
+        <TabPanel value={value} index={2}>
+          <ProfileSetting />
         </TabPanel>
         {/* ユーザー名、email、自己紹介表示、変更できるようにする */}
         {/* アバターを表示して、画像アップロードできるようにする */}

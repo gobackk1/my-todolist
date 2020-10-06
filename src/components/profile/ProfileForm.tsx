@@ -92,8 +92,16 @@ export const ProfileForm = () => {
           onChange={e => handleChange('email', e)}
           variant="outlined"
           fullWidth
+          disabled={true}
         />
         <br />
+        <Button
+          disabled={true}
+          variant="contained"
+          className={styles.changeAddress}
+        >
+          メールアドレスを変更する(実装予定)
+        </Button>
         <TextField
           size="small"
           type="text"
@@ -127,6 +135,10 @@ const useStyles = makeStyles({
     '& .MuiFormControl-root': {
       marginBottom: theme.spacing(3)
     }
+  },
+  changeAddress: {
+    marginTop: -theme.spacing(2),
+    marginBottom: theme.spacing(3)
   }
 })
 
