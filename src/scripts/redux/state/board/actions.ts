@@ -9,7 +9,7 @@ import {
 import { OPTION } from '@/option'
 import { CurrentUserState } from '@/scripts/redux/state/currentUser/reducer'
 import firebase from 'firebase'
-import { addUser } from '~redux/state/users/actions'
+import { setUser } from '~redux/state/users/actions'
 import { Member } from './reducer'
 import { callCloudFunctions } from '@/scripts/firebase'
 
@@ -32,7 +32,7 @@ const mixin = (() => {
       const response = await fetchUser(uid)
 
       if (response.result) {
-        store.dispatch(addUser(response.result))
+        store.dispatch(setUser(response.result))
       }
     })
   }

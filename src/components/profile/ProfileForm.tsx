@@ -1,7 +1,11 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { TextField, Button } from '@material-ui/core'
-import { useCurrentUser } from '@/scripts/hooks'
+import { useCurrentUser, useSnackbarContext } from '@/scripts/hooks'
+import { makeStyles } from '@material-ui/styles'
+import { theme } from '@/styles'
+import { updateUser } from '~redux/state/users/actions'
+import { useDispatch } from 'react-redux'
 
 export const ProfileForm = () => {
   const currentUser = useCurrentUser()
@@ -20,6 +24,9 @@ export const ProfileForm = () => {
     mode: 'onChange',
     defaultValues: { displayName: '', email: '', profile: '' }
   })
+  const styles = useStyles()
+  const { showSnackbar } = useSnackbarContext()
+  const dispatch = useDispatch()
 
   React.useEffect(() => {
     register({ name: 'displayName' })
@@ -42,49 +49,89 @@ export const ProfileForm = () => {
     [setValue]
   )
 
-  const onSubmit: SubmitHandler<any> = React.useCallback(async params => {
-    console.log(params)
-    try {
-      // dispatch(updateUser())
-    } catch ({ message }) {
-      console.log(message)
-    }
-  }, [])
+  const onSubmit: SubmitHandler<FormValue> = React.useCallback(
+    async params => {
+      if (!currentUser) return
+
+      try {
+        const user = { ...currentUser, ...params }
+        dispatch(updateUser(user))
+      } catch ({ message }) {
+        console.log(message)
+        showSnackbar({ message, type: 'error' })
+      }
+    },
+    [currentUser, showSnackbar, dispatch]
+  )
 
   const { displayName, email, profile } = watch()
-
+  // バリデーションする
+  // バリデーションは切り出すかも
+  // email pass は input 別にする
+  // アバター表示・変更機能
+  // Header のアバターも同期する
+  // アドレス・パスワード変更実装
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        size="small"
-        variant="filled"
-        label="ユーザー名"
-        type="text"
-        value={displayName}
-        onChange={e => handleChange('displayName', e)}
-      />
-      <br />
-      <TextField
-        size="small"
-        variant="filled"
-        label="メールアドレス"
-        type="email"
-        value={email}
-        onChange={e => handleChange('email', e)}
-      />
-      <TextField
-        size="small"
-        type="text"
-        label="自己紹介"
-        value={profile}
-        onChange={e => handleChange('profile', e)}
-        multiline={true}
-        rows={3}
-        rowsMax={5}
-      />
-      <Button type="submit" disabled={isSubmitting || !isValid}>
-        保存
-      </Button>
-    </form>
+    <div className={`AppProfileForm-root ${styles.root}`}>
+      <form className="AppProfileForm-form" onSubmit={handleSubmit(onSubmit)}>
+        <TextField
+          size="small"
+          label="ユーザー名"
+          type="text"
+          value={displayName}
+          onChange={e => handleChange('displayName', e)}
+          variant="outlined"
+          fullWidth
+        />
+        <br />
+        <TextField
+          size="small"
+          label="メールアドレス"
+          type="email"
+          value={email}
+          onChange={e => handleChange('email', e)}
+          variant="outlined"
+          fullWidth
+        />
+        <br />
+        <TextField
+          size="small"
+          type="text"
+          label="自己紹介"
+          value={profile}
+          onChange={e => handleChange('profile', e)}
+          multiline={true}
+          rows={3}
+          rowsMax={5}
+          variant="outlined"
+          fullWidth
+        />
+        <br />
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={isSubmitting || !isValid}
+        >
+          保存
+        </Button>
+      </form>
+    </div>
   )
+}
+
+const useStyles = makeStyles({
+  root: {
+    '& .AppProfileForm-form': {
+      maxWidth: 450
+    },
+    '& .MuiFormControl-root': {
+      marginBottom: theme.spacing(3)
+    }
+  }
+})
+
+interface FormValue {
+  displayName: string
+  email: string
+  profile: string
 }

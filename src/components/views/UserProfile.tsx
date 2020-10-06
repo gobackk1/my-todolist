@@ -46,7 +46,8 @@ const useStyles = makeStyles({
     backgroundColor: '#cccccc',
     '& .MuiBox-root': {
       backgroundColor: '#fff',
-      minHeight: 500
+      minHeight: 500,
+      padding: theme.spacing(5)
     }
   }
 })

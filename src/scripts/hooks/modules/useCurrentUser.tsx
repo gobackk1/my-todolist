@@ -6,7 +6,7 @@ export const useCurrentUser = () => {
   const { users } = useSelector(state => state.users)
 
   const currentUser = React.useMemo(() => {
-    return user ? users[user.uid] : null
+    return user && Object.keys(users).length ? users[user.uid] : null
   }, [user, users])
 
   return currentUser

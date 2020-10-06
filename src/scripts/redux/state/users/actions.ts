@@ -17,9 +17,22 @@ export const getUser = asyncActionCreator<string, void, Error>(
     const user = snapshot.data() as User
     user.uid = uid
 
-    dispatch(addUser(user))
+    dispatch(setUser(user))
   }
 )
 
-export const addUser = actionCreator<User>('ADD_USER')
+export const updateUser = asyncActionCreator<User, void, Error>(
+  'UPDATE_USER',
+  async (user, dispatch) => {
+    console.log(user)
+    await db()
+      .collection(COLLECTION_PATH.USER_DETAIL_PUBLIC)
+      .doc(user.uid)
+      .set({ ...user }, { merge: true })
+
+    dispatch(setUser(user))
+  }
+)
+
+export const setUser = actionCreator<User>('SET_USER')
 export const resetUsers = actionCreator('RESET_USERS')

@@ -1,5 +1,5 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
-import { addUser, getUser, resetUsers } from './actions'
+import { setUser, getUser, resetUsers, updateUser } from './actions'
 import { User } from '@/scripts/redux/state/currentUser/reducer'
 
 export interface UsersState {
@@ -15,7 +15,7 @@ const initialState: UsersState = {
 }
 
 export const usersReducer = reducerWithInitialState(initialState)
-  .case(addUser, (state, params) => ({
+  .case(setUser, (state, params) => ({
     ...state,
     users: {
       ...state.users,
@@ -23,9 +23,20 @@ export const usersReducer = reducerWithInitialState(initialState)
     }
   }))
   .case(resetUsers, () => ({ ...initialState }))
-  .case(getUser.async.started, state => ({ ...state, isLoading: true }))
-  //todo: エラーハンドリング
-  .cases([getUser.async.failed, getUser.async.done], state => ({
+  .cases([getUser.async.started, updateUser.async.started], state => ({
     ...state,
     isLoading: true
   }))
+  //todo: エラーハンドリング
+  .cases(
+    [
+      getUser.async.failed,
+      getUser.async.done,
+      updateUser.async.failed,
+      updateUser.async.done
+    ],
+    state => ({
+      ...state,
+      isLoading: true
+    })
+  )
