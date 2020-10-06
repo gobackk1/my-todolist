@@ -11,7 +11,7 @@ export interface User {
 
 export interface CurrentUserState {
   isLoggingIn: boolean
-  user: User | null
+  user: { uid: string } | null
 }
 
 const initialState: CurrentUserState = {

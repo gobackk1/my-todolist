@@ -14,7 +14,7 @@ const enhancer =
 
 const reducers = combineReducers({
   board: boardReducer,
-  user: currentUserReducer,
+  currentUser: currentUserReducer,
   list: listReducer,
   card: cardReducer,
   users: usersReducer

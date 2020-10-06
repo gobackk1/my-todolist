@@ -49,11 +49,11 @@ const mixin = (() => {
    * ログインしていたら user をリターンする
    */
   const getUserStateIfLogin = () => {
-    const { user }: CurrentUserState = store.getState().user
-    if (!user) {
+    const { currentUser } = store.getState()
+    if (!currentUser) {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
     } else {
-      return user
+      return currentUser.user
     }
   }
 

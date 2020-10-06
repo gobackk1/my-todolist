@@ -1,20 +1,23 @@
 import { actionCreator, asyncActionCreator } from '~redux/action'
 import { User } from '~redux/state/currentUser/reducer'
-import { callCloudFunctions } from '@/scripts/firebase'
+import firebase from 'firebase/app'
+import { OPTION } from '@/option'
 
-/**
- * uid を渡して、サーバーからユーザーを取得する
- */
-const fetchUser = (uid: string) => callCloudFunctions('getUser', { uid })
+const { COLLECTION_PATH } = OPTION
+const db = firebase.firestore
 
 export const getUser = asyncActionCreator<string, void, Error>(
   'GET_USER',
   async (uid, dispatch) => {
-    const response = await fetchUser(uid)
+    const snapshot = await db()
+      .collection(COLLECTION_PATH.USER_DETAIL_PUBLIC)
+      .doc(uid)
+      .get()
 
-    if (response.result) {
-      dispatch(addUser(response.result))
-    }
+    const user = snapshot.data() as User
+    user.uid = uid
+
+    dispatch(addUser(user))
   }
 )
 

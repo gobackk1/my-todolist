@@ -5,7 +5,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isCurrentUser(userId) {
+    function isCorrectUser(userId) {
       return request.auth.uid == userId
     }
 
@@ -34,23 +34,23 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read, write: if isSignedIn() && isCurrentUser(uid);
+      allow read, write: if isSignedIn() && isCorrectUser(uid);
       match /boards/{boardId} {
-        allow read, write: if isSignedIn() && isCurrentUser(uid);
+        allow read, write: if isSignedIn() && isCorrectUser(uid);
       }
 
       match /lists/{listId} {
-        allow read, write: if isSignedIn() && isCurrentUser(uid);
+        allow read, write: if isSignedIn() && isCorrectUser(uid);
 
         match /cards/{cardId} {
-          allow read, write: if isSignedIn() && isCurrentUser(uid);
+          allow read, write: if isSignedIn() && isCorrectUser(uid);
         }
       }
       match /archivedLists/{listId} {
-        allow read, write: if isSignedIn() && isCurrentUser(uid);
+        allow read, write: if isSignedIn() && isCorrectUser(uid);
 
         match /cards/{cardId} {
-          allow read, write: if isSignedIn() && isCurrentUser(uid);
+          allow read, write: if isSignedIn() && isCorrectUser(uid);
         }
       }
     }
@@ -72,6 +72,12 @@ service cloud.firestore {
     match /relationships_favorite/{collection=**} {
       allow create: if isSignedIn()
       allow delete, update: if resource.data.uid == request.auth.uid
+      allow read: if isSignedIn()
+    }
+
+    match /user_detail_public/{uid} {
+      allow create: if false
+      allow delete, update: if isSignedIn() && isCorrectUser(uid)
       allow read: if isSignedIn()
     }
   }

@@ -10,10 +10,13 @@ import {
   Button
 } from '@material-ui/core'
 import { theme } from '@/styles'
+import { useSelector } from 'react-redux'
 
 export const UserProfile: React.FC = () => {
   const [value, setValue] = React.useState(0)
   const styles = useStyles()
+  const currentUser = useSelector(state => state.currentUser)
+  const users = useSelector(state => state.users)
 
   const handleChange = React.useCallback(
     (event: React.ChangeEvent<any>, newValue: number) => {
@@ -22,10 +25,11 @@ export const UserProfile: React.FC = () => {
     [setValue]
   )
 
-  // 現状の user state をテコ入れする
-  // doc をコールして redux で管理する
   // doc をアップデートできるようにする
 
+  if (currentUser.user) {
+    console.log(currentUser, users.users[currentUser.user!.uid])
+  }
   return (
     <div className={`AppUserProfile-root ${styles.root}`}>
       <PageContainer>

@@ -3,9 +3,9 @@ import firebase from 'firebase'
 import { useMountedRef } from '@/scripts/hooks'
 import {
   setLoginUser,
-  setLoggingIn,
-  getUser
+  setLoggingIn
 } from '@/scripts/redux/state/currentUser/actions'
+import { getUser } from '@/scripts/redux/state/users/actions'
 import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 import { resetUsers } from '~redux/state/users/actions'
@@ -26,10 +26,12 @@ export const useAuth = (): void => {
     firebase.auth().onAuthStateChanged(user => {
       dispatch(setLoggingIn(false))
       if (user) {
-        if (user.emailVerified) {
+        if (!user.emailVerified) {
           history.push(OPTION.PATH.BEFORE_VERIFIED)
         }
         // if (!isMounted.current) return
+        // 'user_detail_secure' ができた時は getUserSecure() になる予定
+        dispatch(setLoginUser({ uid: user.uid }))
         dispatch(getUser(user.uid))
       } else {
         // if (!isMounted.current) return
