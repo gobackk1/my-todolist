@@ -12,14 +12,9 @@ import firebase from 'firebase'
 import { addUser } from '~redux/state/users/actions'
 import { Member } from './reducer'
 import { callCloudFunctions } from '@/scripts/firebase'
-const db = firebase.firestore
 
-const PATH = {
-  BOARDS_LIVE: 'boards_live',
-  BOARDS_ARCHIVED: 'boards_archived',
-  RELATIONSHIPS_FAVORITE: 'relationships_favorite',
-  USERS: 'users'
-} as const
+const db = firebase.firestore
+const { COLLECTION_PATH } = OPTION
 
 const mixin = (() => {
   /**
@@ -68,7 +63,7 @@ const mixin = (() => {
    */
   const getFavorites = async (uid: string): Promise<string[]> => {
     const relationshipSnapshot = await db()
-      .collection(PATH.RELATIONSHIPS_FAVORITE)
+      .collection(COLLECTION_PATH.RELATIONSHIPS_FAVORITE)
       .where('uid', '==', uid)
       .get()
 
@@ -126,7 +121,7 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
 
     const [snapshot, favorites] = await mixin.queryWithJunctionTable(
       db()
-        .collection(PATH.BOARDS_LIVE)
+        .collection(COLLECTION_PATH.BOARDS_LIVE)
         .where(`members.${uid}.role`, 'in', ['owner', 'editor', 'reader'])
         .get(),
       uid
@@ -152,7 +147,7 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
 
     const [snapshot, favorites] = await mixin.queryWithJunctionTable(
       db()
-        .collection(PATH.BOARDS_ARCHIVED)
+        .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
         .where(`members.${uid}.role`, 'in', ['owner', 'editor', 'reader'])
         .get(),
       uid
@@ -179,7 +174,7 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
 
     const [documentReference, favorites] = await mixin.queryWithJunctionTable(
       db()
-        .collection(PATH.BOARDS_LIVE)
+        .collection(COLLECTION_PATH.BOARDS_LIVE)
         .doc(params)
         .get(),
       uid
@@ -216,7 +211,7 @@ export const createBoard = asyncActionCreator<
   }
   const { id } = await firebase
     .firestore()
-    .collection(PATH.BOARDS_LIVE)
+    .collection(COLLECTION_PATH.BOARDS_LIVE)
     .add(board)
 
   dispatch(setBoard({ id, ...board }))
@@ -246,7 +241,7 @@ export const updateBoard = asyncActionCreator<
   const { id: paramsId, ...paramsWithoutId } = params
 
   const documentReference = await db()
-    .collection(PATH.BOARDS_LIVE)
+    .collection(COLLECTION_PATH.BOARDS_LIVE)
     .doc(paramsId)
   const query = { ...target, ...paramsWithoutId }
   await documentReference.set({ ...query }, { merge: true })
@@ -263,7 +258,7 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
     mixin.getUserStateIfLogin()
 
     await db()
-      .collection(PATH.BOARDS_ARCHIVED)
+      .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
       .doc(id)
       .delete()
 
@@ -281,7 +276,7 @@ export const archiveBoard = asyncActionCreator<
 >('ARCHIVE_BOARD', async ({ id }) => {
   const user = mixin.getUserStateIfLogin()
   const documentReference = await db()
-    .collection(PATH.BOARDS_LIVE)
+    .collection(COLLECTION_PATH.BOARDS_LIVE)
     .doc(id)
 
   await db().runTransaction(async t => {
@@ -295,7 +290,7 @@ export const archiveBoard = asyncActionCreator<
     /* eslint-disable-next-line */
     const archiveBoard = doc.data()!
     await db()
-      .collection(PATH.BOARDS_ARCHIVED)
+      .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
       .doc(id)
       .set(archiveBoard)
 
@@ -314,7 +309,7 @@ export const restoreBoard = asyncActionCreator<
 >('RESTORE_BOARD', async ({ id }) => {
   const user = mixin.getUserStateIfLogin()
   const documentReference = await db()
-    .collection(PATH.BOARDS_ARCHIVED)
+    .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
     .doc(id)
 
   await db().runTransaction(async t => {
@@ -328,7 +323,7 @@ export const restoreBoard = asyncActionCreator<
     /* eslint-disable-next-line */
     const archiveBoard = doc.data()!
     await db()
-      .collection(PATH.BOARDS_LIVE)
+      .collection(COLLECTION_PATH.BOARDS_LIVE)
       .doc(id)
       .set(archiveBoard)
 
@@ -362,7 +357,7 @@ export const deleteBoardMember = asyncActionCreator<
   }
 
   const documentReference = await db()
-    .collection(PATH.BOARDS_LIVE)
+    .collection(COLLECTION_PATH.BOARDS_LIVE)
     .doc(boardId)
 
   await documentReference.set(
@@ -394,7 +389,7 @@ export const changeFavoriteRelations = asyncActionCreator<
 
   if (favorite) {
     await db()
-      .collection(PATH.RELATIONSHIPS_FAVORITE)
+      .collection(COLLECTION_PATH.RELATIONSHIPS_FAVORITE)
       .doc(`${uid}_${boardId}`)
       .delete()
     const newBoard = { ...boards[boardId], favorite: false }
@@ -403,7 +398,7 @@ export const changeFavoriteRelations = asyncActionCreator<
     const createdAt = db.FieldValue.serverTimestamp()
 
     await db()
-      .collection(PATH.RELATIONSHIPS_FAVORITE)
+      .collection(COLLECTION_PATH.RELATIONSHIPS_FAVORITE)
       .doc(`${uid}_${boardId}`)
       .set({ uid, boardId, createdAt })
     const newBoard = { ...boards[boardId], favorite: true }

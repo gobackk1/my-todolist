@@ -12,6 +12,13 @@ export const OPTION = {
     BOARD: '/boards',
     USER_PROFILE: '/profile'
   },
+  COLLECTION_PATH: {
+    BOARDS_LIVE: 'boards_live',
+    BOARDS_ARCHIVED: 'boards_archived',
+    RELATIONSHIPS_FAVORITE: 'relationships_favorite',
+    USERS: 'users',
+    USER_DETAIL_PUBLIC: 'user_detail_public'
+  },
   URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${
     document.domain ? '8080' : ''
   }/boards`,
