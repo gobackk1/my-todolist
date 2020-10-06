@@ -2,14 +2,15 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { Modal, LoginView, SignUpView, UserIcon } from '@/components'
-import { Button } from '@material-ui/core'
+import { Button, IconButton } from '@material-ui/core'
 import firebase from 'firebase'
 import { useHistory } from 'react-router-dom'
 import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
-import { css } from '@emotion/core'
 import { theme } from '@/styles'
+import { Link } from 'react-router-dom'
+import { makeStyles } from '@material-ui/styles'
 
 export const LoginFormModal: React.FC = () => {
   const userState = useSelector((state: I.ReduxState) => state.user)
@@ -17,6 +18,7 @@ export const LoginFormModal: React.FC = () => {
   const history = useHistory()
   const { showSnackbar } = useSnackbarContext()
   const [view, setView] = React.useState<'login' | 'signup'>('login')
+  const styles = useStyles()
 
   useEventListener('onModalClose', () => {
     setTimeout(() => {
@@ -44,7 +46,7 @@ export const LoginFormModal: React.FC = () => {
   }, [history, showSnackbar, dispatch])
 
   return (
-    <>
+    <div className={`AppLoginFormModal-root ${styles.root}`}>
       {userState.user === null ? (
         <Modal
           render={props => (
@@ -53,7 +55,7 @@ export const LoginFormModal: React.FC = () => {
             </Button>
           )}
         >
-          <div css={styles['modal-login']}>
+          <div className="AppLoginFormModal-inner">
             {view === 'login' ? (
               <LoginView setView={setView} />
             ) : (
@@ -66,15 +68,28 @@ export const LoginFormModal: React.FC = () => {
           <Button color="inherit" onClick={onClickLogout} id="btn-logout">
             ログアウト
           </Button>
-          <UserIcon data={userState.user} />
+          <IconButton
+            component={Link}
+            to={OPTION.PATH.USER_PROFILE}
+            className="AppLoginFormModal-profileLink"
+          >
+            <UserIcon data={userState.user} />
+          </IconButton>
         </>
       )}
-    </>
+    </div>
   )
 }
 
-const styles = {
-  'modal-login': css`
-    padding: ${theme.spacing(5)}px ${theme.spacing(3)}px ${theme.spacing(3)}px;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    '& .AppLoginFormModal-inner': {
+      padding: `${theme.spacing(5)}px ${theme.spacing(3)}px ${theme.spacing(
+        3
+      )}px`
+    },
+    '& .AppLoginFormModal-profileLink': {
+      padding: 0
+    }
+  }
+})

@@ -1,24 +1,24 @@
 import React from 'react'
-import { makeStyles } from '@material-ui/core'
+import { Avatar } from '@material-ui/core'
+import { makeStyles } from '@material-ui/styles'
 
 export const UserIcon: React.FC<Props> = ({ data }) => {
   const styles = useStyles()
   return (
-    <img
+    <Avatar
       src={data.photoURL as string}
       alt={data.displayName as string}
-      width="40"
       className={`AppUserIcon-root ${styles.root}`}
     />
   )
 }
 
+const useStyles = makeStyles({
+  root: {
+    padding: 0
+  }
+})
+
 type Props = {
   data: any
 }
-
-const useStyles = makeStyles({
-  root: {
-    borderRadius: '50%'
-  }
-})
