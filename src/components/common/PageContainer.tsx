@@ -1,7 +1,7 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core'
 
-export const PageContainer: React.FC<{ className: string }> = ({
+export const PageContainer: React.FC<{ className?: string }> = ({
   children,
   className
 }) => {
