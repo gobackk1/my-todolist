@@ -5,9 +5,14 @@ import { DeepMap, FieldError } from 'react-hook-form'
 type Props = {
   errors: DeepMap<Record<string, any>, FieldError>
   register: any
+  onChange?: (e: React.ChangeEvent) => void
 }
 
-export const EMailField: React.FC<Props> = ({ errors, register }) => {
+export const EMailField: React.FC<Props> = ({
+  errors,
+  register,
+  onChange = () => undefined
+}) => {
   return (
     <TextField
       error={!!errors.email}
@@ -34,7 +39,9 @@ export const EMailField: React.FC<Props> = ({ errors, register }) => {
       autoFocus={true}
       required={true}
       defaultValue=""
+      onChange={onChange}
       fullWidth
+      className="AppEMailField-root"
     />
   )
 }

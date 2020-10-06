@@ -1,13 +1,15 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import * as I from '@/scripts/model/interface'
-import { Modal, LoginView, SignUpView } from '@/components'
+import { Modal, LoginView, SignUpView, UserIcon } from '@/components'
 import { Button } from '@material-ui/core'
 import firebase from 'firebase'
 import { useHistory } from 'react-router-dom'
 import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/user/actions'
+import { css } from '@emotion/core'
+import { theme } from '@/styles'
 
 export const LoginFormModal: React.FC = () => {
   const userState = useSelector((state: I.ReduxState) => state.user)
@@ -51,25 +53,28 @@ export const LoginFormModal: React.FC = () => {
             </Button>
           )}
         >
-          {view === 'login' ? (
-            <LoginView setView={setView} />
-          ) : (
-            <SignUpView setView={setView} />
-          )}
+          <div css={styles['modal-login']}>
+            {view === 'login' ? (
+              <LoginView setView={setView} />
+            ) : (
+              <SignUpView setView={setView} />
+            )}
+          </div>
         </Modal>
       ) : (
         <>
           <Button color="inherit" onClick={onClickLogout} id="btn-logout">
             ログアウト
           </Button>
-          <img
-            src={userState.user.photoURL as string}
-            alt={userState.user.displayName as string}
-            width="40"
-            id="img-user-photo"
-          />
+          <UserIcon data={userState.user} />
         </>
       )}
     </>
   )
+}
+
+const styles = {
+  'modal-login': css`
+    padding: ${theme.spacing(5)}px ${theme.spacing(3)}px ${theme.spacing(3)}px;
+  `
 }

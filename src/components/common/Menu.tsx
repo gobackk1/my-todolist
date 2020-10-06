@@ -1,25 +1,26 @@
 import React from 'react'
-import { css } from '@emotion/core'
 import { useEventListener } from '@/scripts/hooks'
 import { Paper } from '@material-ui/core'
 import { theme } from '@/styles'
+import { makeStyles } from '@material-ui/styles'
 
 /**
  * ボタンと中身を渡してメニューを作成するコンポーネント
- * Menu が閉じた時に、onMenuClose イベントを発火させる
- * Menu コンポーネントが増えた時は、new CustomEvent('onMenuClose', { detail }) にする
+ * Menu が閉じた時に、menu_close イベントを発火させる
+ * Menu コンポーネントが増えた時は、new CustomEvent('menu_close', { detail }) にする
  */
-export const Menu: React.FC<Props> = ({ children, render }) => {
+export const Menu: React.FC<Props> = ({ children, render, className }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const menuInnerRef = React.useRef(null)
   const openButtonRef = React.useRef(null)
+  const styles = useStyles()
 
   /**
    * ボードリストの外側をクリックしたらリストを閉じる
-   * 内側と判定する要素は、js-menu-click-area で囲む
+   * 内側と判定する要素は、[data-click-area="menu"] で囲む
    */
   const onClickOffMenuList = (e: React.MouseEvent<HTMLElement>) => {
-    if ((e.target as HTMLElement).closest('.js-menu-click-area')) return
+    if ((e.target as HTMLElement).closest('[data-click-area="menu"]')) return
     toggleMenu(false)
   }
   useEventListener('click', onClickOffMenuList)
@@ -27,11 +28,12 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   /**
    * 他のメニューが開いたら、このメニューを閉じる
    */
-  const onMenuOpen = () => {
+  const closeMenu = () => {
     toggleMenu(false)
   }
-  useEventListener('onMenuOpen', onMenuOpen)
-  useEventListener('onMenuArchived', onMenuOpen)
+
+  useEventListener('menu_open', closeMenu)
+  useEventListener('close_menu', closeMenu)
 
   /**
    * render に渡ってきたボタンに props を付与する
@@ -47,27 +49,27 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
     // NOTE: 省略した時は toggle
     if (typeof status === 'undefined') {
       isOpen
-        ? dispatchEvent(new CustomEvent('onMenuClose'))
-        : dispatchEvent(new CustomEvent('onMenuOpen'))
+        ? dispatchEvent(new CustomEvent('menu_close'))
+        : dispatchEvent(new CustomEvent('menu_open'))
       setIsOpen(!isOpen)
     }
 
     if (typeof status === 'boolean') {
       status
-        ? dispatchEvent(new CustomEvent('onMenuOpen'))
-        : dispatchEvent(new CustomEvent('onMenuClose'))
+        ? dispatchEvent(new CustomEvent('menu_open'))
+        : dispatchEvent(new CustomEvent('menu_close'))
       setIsOpen(status)
     }
   }
 
   return (
-    <div css={styles['menu']}>
-      <div className="js-menu-click-area">
+    <div className={`${className || ''} ${styles.root}`}>
+      <div data-click-area="menu">
         {render({
           ...providingProps
         })}
         <div
-          css={styles['menu-inner']}
+          className="AppMenu-content"
           ref={menuInnerRef}
           style={{
             display: isOpen ? 'block' : 'none'
@@ -81,16 +83,18 @@ export const Menu: React.FC<Props> = ({ children, render }) => {
   )
 }
 
-const styles = {
-  menu: css`
-    position: relative;
-    z-index: ${theme.zIndex.menu};
-  `,
-  'menu-inner': css`
-    position: absolute;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    position: 'relative',
+    zIndex: theme.zIndex.menu,
+    '& .AppMenu-content': {
+      position: 'absolute',
+      boarderRadius: theme.borderRadius(1)
+    }
+  }
+})
 
 type Props = {
   render: (props: any) => JSX.Element
+  className?: string
 }

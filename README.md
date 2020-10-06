@@ -23,3 +23,9 @@
 ### `npm run deploy`
 
 - firebase でデプロイします
+
+### links
+
+#### 動作確認手順書
+
+https://docs.google.com/spreadsheets/d/1mmaISB9oKyavHvAQDA_A80S4PX6SA9o5Ld2WdqPmze8/edit#gid=0

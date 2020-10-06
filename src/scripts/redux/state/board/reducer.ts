@@ -6,60 +6,103 @@ import {
   deleteBoard,
   archiveBoard,
   fetchArchivedBoards,
-  restoreBoard
+  restoreBoard,
+  setBoard,
+  setArchivedBoard,
+  fetchBoard,
+  deleteBoardMember,
+  resetBoard,
+  changeFavoriteRelations,
+  updateBoardInState
 } from './actions'
+
+export type BoardRole = 'owner' | 'editor' | 'reader'
+export type BoardVisibility = 'public' | 'members'
+export interface Member {
+  // userRef: firebase.firestore.DocumentReference
+  role: BoardRole
+}
 
 export interface Board {
   id: string
+  author: string
   title: string
+  backgroundImage: string
+  favorite: boolean
+  visibility: BoardVisibility
+  members: {
+    [i: string]: Member
+  }
 }
 export interface BoardState {
+  init: boolean
   isLoading: boolean
   error: Error | null
-  boards: Board[]
-  archivedBoards: Board[]
+  boards: {
+    [i: string]: Board
+  }
+  archivedBoards: {
+    [i: string]: Board
+  }
+  getBackgroundStyle: (id: string) => React.CSSProperties
 }
 
 export const initialState: BoardState = {
+  init: false,
   isLoading: false,
   error: null,
-  boards: [] as Board[],
-  archivedBoards: [] as Board[]
+  boards: {},
+  archivedBoards: {},
+  getBackgroundStyle(boardId) {
+    const backgroundImage = this.boards[boardId]
+      ? this.boards[boardId].backgroundImage
+      : null
+    if (!backgroundImage) return {} as React.CSSProperties
+    const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
+    return hexColorRegex.test(backgroundImage)
+      ? { backgroundColor: backgroundImage }
+      : { backgroundImage: `url(${backgroundImage})` }
+  }
 }
-
 export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.started
    */
-  .case(fetchBoards.async.started, state => {
-    return { ...state, isLoading: true, boards: [] }
-  })
-  .case(fetchArchivedBoards.async.started, state => {
-    return { ...state, isLoading: true, archivedBoards: [] }
-  })
-  .case(restoreBoard.async.started, state => {
-    return { ...state, isLoading: true }
-  })
+  .cases(
+    [
+      fetchBoards.async.started,
+      fetchBoard.async.started,
+      fetchArchivedBoards.async.started,
+      changeFavoriteRelations.async.started
+    ],
+    state => ({ ...state, isLoading: true })
+  )
+  .case(restoreBoard.async.started, state => ({
+    ...state,
+    isLoading: true
+  }))
   .cases(
     [
       createBoard.async.started,
       updateBoard.async.started,
       deleteBoard.async.started,
-      archiveBoard.async.started
+      archiveBoard.async.started,
+      deleteBoardMember.async.started
     ],
-    state => {
-      return { ...state, isLoading: true }
-    }
+    state => ({ ...state, isLoading: true })
   )
 
   /**
    * async.failed
    */
   .cases(
-    [fetchBoards.async.failed, fetchArchivedBoards.async.failed],
-    (state, { error }) => {
-      return { ...state, isLoading: false, error }
-    }
+    [
+      fetchBoards.async.failed,
+      fetchArchivedBoards.async.failed,
+      fetchBoard.async.failed,
+      deleteBoardMember.async.failed
+    ],
+    (state, { error }) => ({ ...state, isLoading: false, error })
   )
   .cases(
     [
@@ -68,76 +111,108 @@ export const boardReducer = reducerWithInitialState(initialState)
       deleteBoard.async.failed,
       archiveBoard.async.failed
     ],
-    (state, { error }) => {
-      return { ...state, isLoading: false, error }
-    }
+    (state, { error }) => ({ ...state, isLoading: false, error })
   )
-  .case(restoreBoard.async.failed, (state, { error }) => {
-    return { ...state, isLoading: false, error }
-  })
+  .cases(
+    [restoreBoard.async.failed, changeFavoriteRelations.async.failed],
+    (state, { error }) => ({
+      ...state,
+      isLoading: false,
+      error
+    })
+  )
 
   /**
    * async.done
    */
-  .case(fetchBoards.async.done, (state, payload) => {
-    return { ...state, isLoading: false, boards: payload.result }
-  })
-  .case(fetchArchivedBoards.async.done, (state, { result }) => {
-    return { ...state, isLoading: false, archivedBoards: result }
-  })
-  .cases([createBoard.async.done], (state, { result }) => {
-    return {
-      ...state,
-      isLoading: false,
-      boards: state.boards.concat(result)
+  .cases(
+    [
+      fetchBoards.async.done,
+      createBoard.async.done,
+      fetchBoard.async.done,
+      changeFavoriteRelations.async.done,
+      updateBoard.async.done,
+      deleteBoardMember.async.done
+    ],
+    state => ({ ...state, init: true, isLoading: false })
+  )
+  .case(fetchArchivedBoards.async.done, state => ({
+    ...state,
+    init: true,
+    isLoading: false
+  }))
+  .case(setArchivedBoard, (state, params) => ({
+    ...state,
+    archivedBoards: {
+      ...state.archivedBoards,
+      [params.id]: params
     }
-  })
-  .case(updateBoard.async.done, (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result.id)
-    return {
-      ...state,
-      isLoading: false,
-      boards: [
-        ...state.boards.slice(0, index),
-        result,
-        ...state.boards.slice(index + 1)
-      ]
-    }
-  })
+  }))
   .cases([archiveBoard.async.done], (state, { result }) => {
-    const index = state.boards.findIndex(board => board.id === result.id)
+    const board = state.boards[result.id]
+    /* eslint-disable-next-line */
+    const { [result.id]: _, ...newBoards } = state.boards
+
     return {
       ...state,
+      init: true,
       isLoading: false,
-      boards: [
-        ...state.boards.slice(0, index),
-        ...state.boards.slice(index + 1)
-      ],
-      archivedBoards: [...state.archivedBoards.concat(state.boards[index])]
+      boards: {
+        ...newBoards
+      },
+      archivedBoards: {
+        ...state.archivedBoards,
+        [result.id]: board
+      }
     }
   })
   .cases([restoreBoard.async.done], (state, { result }) => {
-    const index = state.archivedBoards.findIndex(
-      board => board.id === result.id
-    )
+    const board = state.archivedBoards[result.id]
+    /* eslint-disable-next-line */
+    const { [result.id]: _, ...newArchivedBoards } = state.archivedBoards
     return {
       ...state,
+      init: true,
       isLoading: false,
-      boards: [...state.boards.concat(state.archivedBoards[index])],
-      archivedBoards: [
-        ...state.archivedBoards.slice(0, index),
-        ...state.archivedBoards.slice(index + 1)
-      ]
+      boards: {
+        ...state.boards,
+        [result.id]: board
+      },
+      archivedBoards: {
+        ...newArchivedBoards
+      }
     }
   })
   .case(deleteBoard.async.done, (state, { result }) => {
-    const index = state.archivedBoards.findIndex(board => board.id === result)
+    /* eslint-disable-next-line */
+    const { [result]: _, ...newArchivedBoards } = state.archivedBoards
     return {
       ...state,
+      init: true,
       isLoading: false,
-      archivedBoards: [
-        ...state.archivedBoards.slice(0, index),
-        ...state.archivedBoards.slice(index + 1)
-      ]
+      archivedBoards: {
+        ...newArchivedBoards
+      }
     }
   })
+
+  /**
+   * sync
+   */
+  .case(setBoard, (state, params) => ({
+    ...state,
+    boards: {
+      ...state.boards,
+      [params.id]: params
+    }
+  }))
+  .case(resetBoard, () => ({ ...initialState }))
+  .case(updateBoardInState, (state, params) => ({
+    ...state,
+    init: true,
+    isLoading: false,
+    boards: {
+      ...state.boards,
+      [params.id]: params
+    }
+  }))

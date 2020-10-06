@@ -12,7 +12,8 @@
   "testEnvironment": "./test/e2e/puppeteer_environment.js",
   "transform": {
     "^.+\\.(js|jsx|mjs)$": "babel-jest",
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(jpg|png|gif)$": "<rootDir>/test/mock/fileMock.js"
   },
   "transformIgnorePatterns": [
     "/node_modules/(?!(xxxx.*?\\.js$))"

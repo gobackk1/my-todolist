@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isCurrentUser(userId) {
+      return request.auth.uid == userId
+    }
+
+    function isValidNewBoard(resrc, req){
+      return resrc == null && req.resource.data.members[req.auth.uid].role == 'owner';
+    }
+
+    function getRole(resrc, req) {
+      return resrc.data.members[req.auth.uid].role;
+    }
+
+    function isOneOfRoles(resrc, array, req) {
+      // 存在しないボードにアクセスした時のため、resrc = null を加える
+      return isSignedIn() && (getRole(resrc, req) in array) || resrc == null;
+    }
+
+    function onlyContentChanged(req, resrc) {
+      return req.resource.data.title == resrc.data.title
+        && req.resource.data.members == resrc.data.members
+        && req.resource.size() == resrc.size();
+    }
+
+    function checkSchema(req, resrc){
+      // author は owner 以外の role を割り当てられない
+      return req.resource.data.members[resrc.data.author].role == 'owner'
+    }
+
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && isCurrentUser(uid);
+      match /boards/{boardId} {
+        allow read, write: if isSignedIn() && isCurrentUser(uid);
+      }
+
+      match /lists/{listId} {
+        allow read, write: if isSignedIn() && isCurrentUser(uid);
+
+        match /cards/{cardId} {
+          allow read, write: if isSignedIn() && isCurrentUser(uid);
+        }
+      }
+      match /archivedLists/{listId} {
+        allow read, write: if isSignedIn() && isCurrentUser(uid);
+
+        match /cards/{cardId} {
+          allow read, write: if isSignedIn() && isCurrentUser(uid);
+        }
+      }
+    }
+
+    match /boards_live/{boardId} {
+      allow create: if isValidNewBoard(resource, request);
+      allow delete: if isOneOfRoles(resource, ['owner'],request);
+      allow update: if checkSchema(request, resource) && isOneOfRoles(resource, ['owner'],request) || ( isOneOfRoles(resource, ['editor']) && onlyContentChanged(request, resource))
+      allow read: if isOneOfRoles(resource, ['owner', 'editor', 'reader'], request);
+    }
+
+    match /boards_archived/{boardId} {
+      allow create: if isValidNewBoard(resource, request);
+      allow delete: if isOneOfRoles(resource, ['owner'], request);
+      allow update: if checkSchemea() && isOneOfRoles(resource, ['owner'], request) || ( isOneOfRoles(resource, ['editor']) && onlyContentChanged(request, resource))
+      allow read: if isOneOfRoles(resource, ['owner', 'editor', 'reader'], request);
+    }
+
+    match /relationships_favorite/{collection=**} {
+      allow create: if isSignedIn()
+      allow delete, update: if resource.data.uid == request.auth.uid
+      allow read: if isSignedIn()
+    }
+  }
+}
