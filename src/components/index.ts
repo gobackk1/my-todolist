@@ -1,11 +1,8 @@
 export * from './common'
 export * from './button'
 export * from './board'
+export * from './views'
 
-export { BeforeVerified } from './views/BeforeVerified'
-export { BoardDetail } from './views/BoardDetail'
-export { BoardTop } from './views/BoardTop'
-export { Home } from './views/Home'
 export { CardList } from './list/CardList'
 export { ListContainer } from './list/ListContainer'
 

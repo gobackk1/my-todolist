@@ -5,7 +5,8 @@ import {
   Home,
   SnackbarProvider,
   EmotionGlobal,
-  PageLayout
+  PageLayout,
+  UserProfile
 } from '@/components'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import { theme } from '@/styles'
@@ -50,6 +51,10 @@ export const App: React.FC = () => {
                     component={BoardDetail}
                   />
                   <Route path={OPTION.PATH.BOARD} component={BoardTop} />
+                  <Route
+                    path={OPTION.PATH.USER_PROFILE}
+                    component={UserProfile}
+                  />
                   <Route path="/login" exact component={Home} />
                   <Route path="/" exact component={Home} />
                 </Switch>

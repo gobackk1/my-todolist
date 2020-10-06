@@ -1,0 +1,5 @@
+export { BeforeVerified } from './BeforeVerified'
+export { BoardDetail } from './BoardDetail'
+export { BoardTop } from './BoardTop'
+export { Home } from './Home'
+export { UserProfile } from './UserProfile'

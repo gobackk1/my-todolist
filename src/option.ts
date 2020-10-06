@@ -9,7 +9,8 @@ import bg6 from '@/images/bg/bg_photo_6.jpg'
 export const OPTION = {
   PATH: {
     HOME: '/',
-    BOARD: '/boards'
+    BOARD: '/boards',
+    USER_PROFILE: '/profile'
   },
   URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${
     document.domain ? '8080' : ''
