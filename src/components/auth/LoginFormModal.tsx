@@ -55,7 +55,7 @@ export const LoginFormModal: React.FC = () => {
             </Button>
           )}
         >
-          <div className="AppLoginFormModal-inner">
+          <div className={styles.modalInner}>
             {view === 'login' ? (
               <LoginView setView={setView} />
             ) : (
@@ -83,13 +83,11 @@ export const LoginFormModal: React.FC = () => {
 
 const useStyles = makeStyles({
   root: {
-    '& .AppLoginFormModal-inner': {
-      padding: `${theme.spacing(5)}px ${theme.spacing(3)}px ${theme.spacing(
-        3
-      )}px`
-    },
     '& .AppLoginFormModal-profileLink': {
       padding: 0
     }
+  },
+  modalInner: {
+    padding: `${theme.spacing(5)}px ${theme.spacing(3)}px ${theme.spacing(3)}px`
   }
 })
