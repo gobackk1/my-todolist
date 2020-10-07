@@ -91,22 +91,25 @@ export const ProfileForm: React.FC = () => {
     [currentUser, showSnackbar, dispatch]
   )
 
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!currentUser) return
-    const files = e.currentTarget.files
-    if (!files) return
+  const upload = React.useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!currentUser) return
+      const files = e.currentTarget.files
+      if (!files) return
 
-    try {
-      const avatarURL = await uploadFile(
-        files[0],
-        `images/avatars/${currentUser.uid}.jpg`
-      )
-      dispatch(updateUser({ ...currentUser, avatarURL }))
-    } catch ({ message }) {
-      console.log('debug: ProfileForm', message)
-      showSnackbar({ message, type: 'error' })
-    }
-  }
+      try {
+        const avatarURL = await uploadFile(
+          files[0],
+          `images/avatars/${currentUser.uid}.jpg`
+        )
+        dispatch(updateUser({ ...currentUser, avatarURL }))
+      } catch ({ message }) {
+        console.log('debug: ProfileForm', message)
+        showSnackbar({ message, type: 'error' })
+      }
+    },
+    [currentUser, uploadFile, dispatch, showSnackbar]
+  )
 
   const { displayName, profile } = watch()
 
