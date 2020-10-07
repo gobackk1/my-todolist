@@ -37,6 +37,6 @@ export const usersReducer = reducerWithInitialState(initialState)
     ],
     state => ({
       ...state,
-      isLoading: true
+      isLoading: false
     })
   )
