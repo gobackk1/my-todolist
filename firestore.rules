@@ -5,7 +5,7 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isCorrectUser(userId) {
+    function isAuthUser(userId) {
       return request.auth.uid == userId
     }
 
@@ -34,23 +34,23 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read, write: if isSignedIn() && isCorrectUser(uid);
+      allow read, write: if isSignedIn() && isAuthUser(uid);
       match /boards/{boardId} {
-        allow read, write: if isSignedIn() && isCorrectUser(uid);
+        allow read, write: if isSignedIn() && isAuthUser(uid);
       }
 
       match /lists/{listId} {
-        allow read, write: if isSignedIn() && isCorrectUser(uid);
+        allow read, write: if isSignedIn() && isAuthUser(uid);
 
         match /cards/{cardId} {
-          allow read, write: if isSignedIn() && isCorrectUser(uid);
+          allow read, write: if isSignedIn() && isAuthUser(uid);
         }
       }
       match /archivedLists/{listId} {
-        allow read, write: if isSignedIn() && isCorrectUser(uid);
+        allow read, write: if isSignedIn() && isAuthUser(uid);
 
         match /cards/{cardId} {
-          allow read, write: if isSignedIn() && isCorrectUser(uid);
+          allow read, write: if isSignedIn() && isAuthUser(uid);
         }
       }
     }
@@ -76,8 +76,28 @@ service cloud.firestore {
     }
 
     match /user_detail_public/{uid} {
+      function isValidUserSchima(user){
+        return user.size() == 5
+          && resource.data.uid == user.uid
+          && 'displayName' in user && user.displayName is string
+        // email は auth().currentUser.updateEmail() で変更する
+          && resource.data.email == user.email
+          && 'profile' in user && user.profile is string
+        // avatarURL は、storage に画像UP後、cloud functions で変更する
+          && resource.data.profile == user.profile
+      }
+
+      function isValidUserData(user) {
+        return 1 <= user.displayName.size() && user.displayName.size() <= 30
+      }
+
       allow create: if false
-      allow delete, update: if isSignedIn() && isCorrectUser(uid)
+      allow update:
+      if isSignedIn()
+        && isAuthUser(uid)
+        && isValidUserSchima(request.resource.data)
+        && isValidUserData(request.resource.data)
+      allow delete: if: isSignedIn() && isAuthUser(uid)
       allow read: if isSignedIn()
     }
   }
