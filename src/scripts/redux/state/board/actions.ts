@@ -7,7 +7,6 @@ import {
   BoardRole
 } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
-import { CurrentUserState } from '@/scripts/redux/state/currentUser/reducer'
 import firebase from 'firebase'
 import { setUser } from '~redux/state/users/actions'
 import { Member } from './reducer'

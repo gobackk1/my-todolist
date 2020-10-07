@@ -7,7 +7,7 @@ import { theme } from '@/styles'
 import { updateUser } from '~redux/state/users/actions'
 import { useDispatch } from 'react-redux'
 
-export const ProfileForm = () => {
+export const ProfileForm: React.FC = () => {
   const currentUser = useCurrentUser()
   const {
     register,
@@ -39,7 +39,7 @@ export const ProfileForm = () => {
     setValue('displayName', currentUser.displayName)
     setValue('email', currentUser.email)
     setValue('profile', currentUser.profile)
-  }, [currentUser])
+  }, [currentUser, setValue])
 
   const handleChange = React.useCallback(
     (name, e) => {
