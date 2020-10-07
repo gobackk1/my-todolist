@@ -10,7 +10,8 @@ import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { updateUser } from '~redux/state/users/actions'
 import { useDispatch, useSelector } from 'react-redux'
-import { LoadingSpinner } from '../common'
+import { LoadingSpinner, UserIcon } from '../common'
+import firebase from 'firebase/app'
 
 export const ProfileForm: React.FC = () => {
   const currentUser = useCurrentUser()
@@ -31,7 +32,7 @@ export const ProfileForm: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
   const { isValidDisplayName, isValidProfile } = useValidation('User')
-  const { isLoading } = useSelector(state => state.users)
+  const { init } = useSelector(state => state.users)
 
   React.useEffect(() => {
     register({ name: 'displayName' })
@@ -89,13 +90,32 @@ export const ProfileForm: React.FC = () => {
     [currentUser, showSnackbar, dispatch]
   )
 
+  //hookリファクタ
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!currentUser) return
+    const files = e.currentTarget.files
+    if (!files) return
+
+    const storageRef = firebase
+      .storage()
+      .ref()
+      .child(`images/avatars/${currentUser.uid}.jpg`)
+
+    try {
+      await storageRef.put(files[0])
+      const avatarURL = await storageRef.getDownloadURL()
+      dispatch(updateUser({ ...currentUser, avatarURL }))
+    } catch ({ message }) {
+      console.log('debug: ProfileForm', message)
+      showSnackbar({ message, type: 'error' })
+    }
+  }
+
   const { displayName, profile } = watch()
 
   return (
     <div className={`AppProfileForm-root ${styles.root}`}>
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : (
+      {init ? (
         <form className="AppProfileForm-form" onSubmit={handleSubmit(onSubmit)}>
           <TextField
             size="small"
@@ -131,7 +151,24 @@ export const ProfileForm: React.FC = () => {
           >
             保存
           </Button>
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              id="image-upload"
+              onChange={upload}
+            />
+            <label htmlFor="image-upload" className={styles.avatar}>
+              <UserIcon data={currentUser} />
+              <Button variant="contained" component="span">
+                upload
+              </Button>
+            </label>
+          </div>
         </form>
+      ) : (
+        <LoadingSpinner />
       )}
     </div>
   )
@@ -139,8 +176,10 @@ export const ProfileForm: React.FC = () => {
 
 const useStyles = makeStyles({
   root: {
+    display: 'flex',
     '& .AppProfileForm-form': {
-      maxWidth: 450
+      maxWidth: 450,
+      width: '100%'
     },
     '& .MuiFormControl-root': {
       marginBottom: theme.spacing(3)
@@ -149,6 +188,12 @@ const useStyles = makeStyles({
   changeAddress: {
     marginTop: -theme.spacing(2),
     marginBottom: theme.spacing(3)
+  },
+  avatar: {
+    '& .MuiAvatar-root': {
+      width: theme.spacing(10),
+      height: theme.spacing(10)
+    }
   }
 })
 

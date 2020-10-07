@@ -1,10 +1,14 @@
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { Modal, LoginView, SignUpView, UserIcon } from '@/components'
 import { Button, IconButton } from '@material-ui/core'
 import firebase from 'firebase'
 import { useHistory } from 'react-router-dom'
-import { useSnackbarContext, useEventListener } from '@/scripts/hooks'
+import {
+  useSnackbarContext,
+  useEventListener,
+  useCurrentUser
+} from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
 import { theme } from '@/styles'
@@ -12,7 +16,7 @@ import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/styles'
 
 export const LoginFormModal: React.FC = () => {
-  const currentUserState = useSelector(state => state.currentUser)
+  const currentUser = useCurrentUser()
   const dispatch = useDispatch()
   const history = useHistory()
   const { showSnackbar } = useSnackbarContext()
@@ -46,7 +50,7 @@ export const LoginFormModal: React.FC = () => {
 
   return (
     <div className={`AppLoginFormModal-root ${styles.root}`}>
-      {currentUserState.user === null ? (
+      {currentUser === null ? (
         <Modal
           render={props => (
             <Button color="inherit" {...props} id="btn-login">
@@ -72,7 +76,7 @@ export const LoginFormModal: React.FC = () => {
             to={OPTION.PATH.USER_PROFILE}
             className="AppLoginFormModal-profileLink"
           >
-            <UserIcon data={currentUserState.user} />
+            <UserIcon data={currentUser} />
           </IconButton>
         </>
       )}

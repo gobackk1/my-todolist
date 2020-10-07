@@ -4,6 +4,7 @@ import { User } from '@/scripts/redux/state/currentUser/reducer'
 
 export interface UsersState {
   isLoading: boolean
+  init: boolean
   users: {
     [i: string]: User
   }
@@ -11,6 +12,7 @@ export interface UsersState {
 
 const initialState: UsersState = {
   isLoading: true,
+  init: false,
   users: {}
 }
 
@@ -37,6 +39,7 @@ export const usersReducer = reducerWithInitialState(initialState)
     ],
     state => ({
       ...state,
-      isLoading: false
+      isLoading: false,
+      init: true
     })
   )
