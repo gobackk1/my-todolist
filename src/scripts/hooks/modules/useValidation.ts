@@ -9,6 +9,7 @@ interface UserValidation {
 
 type ValidationMethods = UserValidation
 
+/* eslint-disable-next-line */
 export const useValidation = (model: Model): ValidationMethods => {
   // if (model === 'User') {
   const isValidDisplayName = React.useCallback(displayName => {

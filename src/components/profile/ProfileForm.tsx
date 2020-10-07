@@ -4,14 +4,14 @@ import { TextField, Button } from '@material-ui/core'
 import {
   useCurrentUser,
   useSnackbarContext,
-  useValidation
+  useValidation,
+  useCloudStorage
 } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { updateUser } from '~redux/state/users/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { LoadingSpinner, UserIcon } from '../common'
-import firebase from 'firebase/app'
 
 export const ProfileForm: React.FC = () => {
   const currentUser = useCurrentUser()
@@ -33,6 +33,7 @@ export const ProfileForm: React.FC = () => {
   const dispatch = useDispatch()
   const { isValidDisplayName, isValidProfile } = useValidation('User')
   const { init } = useSelector(state => state.users)
+  const { uploadFile } = useCloudStorage()
 
   React.useEffect(() => {
     register({ name: 'displayName' })
@@ -90,20 +91,16 @@ export const ProfileForm: React.FC = () => {
     [currentUser, showSnackbar, dispatch]
   )
 
-  //hookリファクタ
   const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentUser) return
     const files = e.currentTarget.files
     if (!files) return
 
-    const storageRef = firebase
-      .storage()
-      .ref()
-      .child(`images/avatars/${currentUser.uid}.jpg`)
-
     try {
-      await storageRef.put(files[0])
-      const avatarURL = await storageRef.getDownloadURL()
+      const avatarURL = await uploadFile(
+        files[0],
+        `images/avatars/${currentUser.uid}.jpg`
+      )
       dispatch(updateUser({ ...currentUser, avatarURL }))
     } catch ({ message }) {
       console.log('debug: ProfileForm', message)

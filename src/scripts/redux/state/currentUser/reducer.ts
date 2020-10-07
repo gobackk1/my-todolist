@@ -6,7 +6,7 @@ export interface User {
   displayName: string
   email: string
   profile: string
-  avatarURL: 'default'
+  avatarURL: string
 }
 
 export interface CurrentUserState {
