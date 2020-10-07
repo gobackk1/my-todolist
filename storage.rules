@@ -1,8 +1,16 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if request.auth!=null;
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    match /images/avatars/{imageId} {
+      allow write:
+      if isSignedIn()
+        &&request.resource.size < 10 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*');
+        allow read: if isSignedIn();
+      }
     }
   }
-}

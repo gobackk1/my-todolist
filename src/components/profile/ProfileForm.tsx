@@ -105,7 +105,10 @@ export const ProfileForm: React.FC = () => {
         dispatch(updateUser({ ...currentUser, avatarURL }))
       } catch ({ message }) {
         console.log('debug: ProfileForm', message)
-        showSnackbar({ message, type: 'error' })
+        showSnackbar({
+          message: 'アップロードできる画像のサイズは、10MBまでです。',
+          type: 'error'
+        })
       }
     },
     [currentUser, uploadFile, dispatch, showSnackbar]
