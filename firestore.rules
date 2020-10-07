@@ -88,7 +88,8 @@ service cloud.firestore {
       }
 
       function isValidUserData(user) {
-        return 1 <= user.displayName.size() && user.displayName.size() <= 30
+        return  user.displayName.size() >= 6 && user.displayName.size() <= 30
+          && user.profile.size() <= 140
       }
 
       allow create: if false
@@ -97,7 +98,7 @@ service cloud.firestore {
         && isAuthUser(uid)
         && isValidUserSchima(request.resource.data)
         && isValidUserData(request.resource.data)
-      allow delete: if: isSignedIn() && isAuthUser(uid)
+      allow delete: if isSignedIn() && isAuthUser(uid)
       allow read: if isSignedIn()
     }
   }

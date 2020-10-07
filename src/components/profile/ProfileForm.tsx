@@ -1,25 +1,28 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { TextField, Button } from '@material-ui/core'
-import { useCurrentUser, useSnackbarContext } from '@/scripts/hooks'
+import {
+  useCurrentUser,
+  useSnackbarContext,
+  useValidation
+} from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { updateUser } from '~redux/state/users/actions'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { LoadingSpinner } from '../common'
 
 export const ProfileForm: React.FC = () => {
   const currentUser = useCurrentUser()
   const {
     register,
     handleSubmit,
-    // errors,
+    errors,
     setValue,
+    setError,
     watch,
-    formState: {
-      // isDirty,
-      isSubmitting,
-      isValid
-    }
+    clearErrors,
+    formState: { isSubmitting, isValid }
   } = useForm({
     mode: 'onChange',
     defaultValues: { displayName: '', email: '', profile: '' }
@@ -27,26 +30,48 @@ export const ProfileForm: React.FC = () => {
   const styles = useStyles()
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
+  const { isValidDisplayName, isValidProfile } = useValidation('User')
+  const { isLoading } = useSelector(state => state.users)
 
   React.useEffect(() => {
     register({ name: 'displayName' })
-    register({ name: 'email' })
     register({ name: 'profile' })
   }, [register])
 
   React.useEffect(() => {
     if (!currentUser) return
     setValue('displayName', currentUser.displayName)
-    setValue('email', currentUser.email)
     setValue('profile', currentUser.profile)
   }, [currentUser, setValue])
 
   const handleChange = React.useCallback(
     (name, e) => {
       e.persist()
+      if (name === 'displayName') {
+        if (isValidDisplayName(e.target.value)) {
+          clearErrors('displayName')
+        } else {
+          setError('displayName', {
+            type: 'manual',
+            message: 'ユーザー名は6文字以上、30字以内で入力してください'
+          })
+        }
+      }
+
+      if (name === 'profile') {
+        if (isValidProfile(e.target.value)) {
+          clearErrors('profile')
+        } else {
+          setError('profile', {
+            type: 'manual',
+            message: '自己紹介は140字以内で入力してください'
+          })
+        }
+      }
+
       setValue(name, e.target.value)
     },
-    [setValue]
+    [setValue, setError, clearErrors, isValidDisplayName, isValidProfile]
   )
 
   const onSubmit: SubmitHandler<FormValue> = React.useCallback(
@@ -64,65 +89,50 @@ export const ProfileForm: React.FC = () => {
     [currentUser, showSnackbar, dispatch]
   )
 
-  const { displayName, email, profile } = watch()
-  // バリデーションする
-  // バリデーションは切り出すかも
-  // email pass は input 別にする
-  // アバター表示・変更機能
-  // Header のアバターも同期する
-  // アドレス・パスワード変更実装
+  const { displayName, profile } = watch()
+
   return (
     <div className={`AppProfileForm-root ${styles.root}`}>
-      <form className="AppProfileForm-form" onSubmit={handleSubmit(onSubmit)}>
-        <TextField
-          size="small"
-          label="ユーザー名"
-          type="text"
-          value={displayName}
-          onChange={e => handleChange('displayName', e)}
-          variant="outlined"
-          fullWidth
-        />
-        <br />
-        <TextField
-          size="small"
-          label="メールアドレス"
-          type="email"
-          value={email}
-          onChange={e => handleChange('email', e)}
-          variant="outlined"
-          fullWidth
-          disabled={true}
-        />
-        <br />
-        <Button
-          disabled={true}
-          variant="contained"
-          className={styles.changeAddress}
-        >
-          メールアドレスを変更する(実装予定)
-        </Button>
-        <TextField
-          size="small"
-          type="text"
-          label="自己紹介"
-          value={profile}
-          onChange={e => handleChange('profile', e)}
-          multiline={true}
-          rows={3}
-          rowsMax={5}
-          variant="outlined"
-          fullWidth
-        />
-        <br />
-        <Button
-          variant="contained"
-          type="submit"
-          disabled={isSubmitting || !isValid}
-        >
-          保存
-        </Button>
-      </form>
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <form className="AppProfileForm-form" onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            size="small"
+            label="ユーザー名"
+            type="text"
+            value={displayName}
+            onChange={e => handleChange('displayName', e)}
+            variant="outlined"
+            fullWidth
+            error={!!errors.displayName}
+            helperText={errors.displayName && errors.displayName.message}
+          />
+          <br />
+          <TextField
+            size="small"
+            type="text"
+            label="自己紹介"
+            value={profile}
+            onChange={e => handleChange('profile', e)}
+            multiline={true}
+            rows={3}
+            rowsMax={5}
+            variant="outlined"
+            fullWidth
+            error={!!errors.profile}
+            helperText={errors.profile && errors.profile.message}
+          />
+          <br />
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={isSubmitting || !isValid}
+          >
+            保存
+          </Button>
+        </form>
+      )}
     </div>
   )
 }
