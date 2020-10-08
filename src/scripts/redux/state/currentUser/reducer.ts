@@ -4,7 +4,6 @@ import { setLoginUser, setLoggingIn } from './actions'
 export interface User {
   uid: string
   displayName: string
-  email: string
   profile: string
   avatarURL: string
 }

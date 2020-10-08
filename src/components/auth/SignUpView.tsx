@@ -63,12 +63,13 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
       /**
        * ユーザーを登録する
        */
-      await firebase.auth().createUserWithEmailAndPassword(email, password)
+      const { user } = await firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
 
       /**
        * 登録後、確認メールを送信する
        */
-      const user = firebase.auth().currentUser
       if (user) {
         await user.sendEmailVerification({
           url: OPTION.URL_AFTER_EMAIL_CONFIRMATION
