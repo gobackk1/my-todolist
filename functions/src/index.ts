@@ -61,14 +61,15 @@ export const onDeleteBoard = functions
   })
 
 export const onCreateUser = functions.auth.user().onCreate(async user => {
-  const { uid, displayName, email } = user
+  // TODO: ここで email をセットする必要あるか考える
+  const { uid, email } = user
   try {
     await db()
       .collection('user_detail_public')
       .doc(uid)
       .set({
         uid,
-        displayName,
+        displayName: 'デフォルトユーザー',
         email,
         profile: '',
         avatarURL: 'default'
