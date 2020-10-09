@@ -31,7 +31,7 @@ export const ProfileForm: React.FC = () => {
   const styles = useStyles()
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
-  const { isValidDisplayName, isValidProfile } = useValidation('User')
+  const { isValidDisplayName, isValidProfile } = useValidation()
   const { init } = useSelector(state => state.users)
   const { uploadFile } = useCloudStorage()
 

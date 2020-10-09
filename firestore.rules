@@ -84,7 +84,7 @@ service cloud.firestore {
           && resource.data.email == user.email
           && 'profile' in user && user.profile is string
         // avatarURL は、storage に画像UP後、cloud functions で変更する
-          && resource.data.profile == user.profile
+          && resource.data.avatarURL == user.avatarURL
       }
 
       function isValidUserData(user) {
