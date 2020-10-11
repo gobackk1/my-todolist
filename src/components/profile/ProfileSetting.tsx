@@ -15,10 +15,11 @@ export const ProfileSetting: React.FC = () => {
     register,
     handleSubmit,
     errors,
-    formState: { isDirty, isSubmitting, isValid }
+    formState: { isValid }
   } = useForm({ mode: 'onChange' })
   const { showSnackbar } = useSnackbarContext()
   const styles = useStyles()
+  const [isSubmitting, setSubmitting] = React.useState(false)
 
   const isEmailAndPasswordProvider = (): boolean => {
     const { currentUser } = firebase.auth()
@@ -39,6 +40,7 @@ export const ProfileSetting: React.FC = () => {
         currentUser.email,
         password
       )
+      setSubmitting(true)
 
       try {
         await currentUser.reauthenticateAndRetrieveDataWithCredential(
@@ -52,9 +54,11 @@ export const ProfileSetting: React.FC = () => {
           message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
           type: 'info'
         })
+        setSubmitting(false)
         setView('root')
       } catch ({ code, message }) {
         console.log('debug: reauthenticateAndRetrieveDataWithCredential')
+        setSubmitting(false)
         switch (code) {
           case 'auth/wrong-password':
             showSnackbar({
@@ -79,8 +83,9 @@ export const ProfileSetting: React.FC = () => {
     newEmail: string
     password: string
   }> = React.useCallback(
-    ({ newEmail, password }) => {
-      updateUserEmail(newEmail, password)
+    async ({ newEmail, password }) => {
+      console.log('check')
+      await updateUserEmail(newEmail, password)
     },
     [updateUserEmail]
   )
