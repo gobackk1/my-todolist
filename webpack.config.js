@@ -24,8 +24,8 @@ module.exports = (env, argv) => {
           options: {
             presets: [
               ['@babel/preset-env', { useBuiltIns: 'usage', corejs: 3 }],
-              '@babel/preset-typescript',
               '@babel/preset-react',
+              '@babel/preset-typescript',
               '@emotion/babel-preset-css-prop'
             ],
             plugins: ['@babel/plugin-proposal-class-properties']
