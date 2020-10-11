@@ -33,8 +33,6 @@ export const UserProfile: React.FC = () => {
         <TabPanel value={value} index={2}>
           <ProfileSetting />
         </TabPanel>
-        {/* ユーザー名、email、自己紹介表示、変更できるようにする */}
-        {/* アバターを表示して、画像アップロードできるようにする */}
         <ul>
           <li></li>
         </ul>
