@@ -29,25 +29,6 @@ export const LoginFormModal: React.FC = () => {
     }, 500)
   })
 
-  const onClickLogout = React.useCallback(async () => {
-    dispatch(setLoggingIn(true))
-    try {
-      await firebase.auth().signOut()
-      showSnackbar({
-        message: OPTION.MESSAGE.LOGOUT.SUCCESS,
-        type: 'success'
-      })
-      dispatch(setLoggingIn(false))
-      history.push('/')
-    } catch (e) {
-      showSnackbar({
-        message: OPTION.MESSAGE.LOGOUT.ERROR,
-        type: 'error'
-      })
-      dispatch(setLoggingIn(false))
-    }
-  }, [history, showSnackbar, dispatch])
-
   return (
     <div className={`AppLoginFormModal-root ${styles.root}`}>
       {currentUser === null ? (
@@ -68,9 +49,6 @@ export const LoginFormModal: React.FC = () => {
         </Modal>
       ) : (
         <>
-          <Button color="inherit" onClick={onClickLogout} id="btn-logout">
-            ログアウト
-          </Button>
           <IconButton
             component={Link}
             to={OPTION.PATH.USER_PROFILE}

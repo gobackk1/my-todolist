@@ -6,6 +6,9 @@ import { makeStyles } from '@material-ui/styles'
 import { ResetEmailView } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
+import { useDispatch } from 'react-redux'
+import { setLoggingIn } from '~redux/state/currentUser/actions'
+import { useHistory } from 'react-router'
 
 export const ProfileSetting: React.FC = () => {
   const [view, setView] = React.useState<'root' | 'resetEmail' | 'resetPW'>(
@@ -13,6 +16,8 @@ export const ProfileSetting: React.FC = () => {
   )
   const { showSnackbar } = useSnackbarContext()
   const [isSubmitting, setSubmitting] = React.useState(false)
+  const dispatch = useDispatch()
+  const history = useHistory()
 
   const isEmailAndPasswordProvider = React.useCallback((): boolean => {
     const { currentUser } = firebase.auth()
@@ -46,6 +51,30 @@ export const ProfileSetting: React.FC = () => {
     }
   }, [])
 
+  const dispatchSignOut = React.useCallback(async () => {
+    dispatch(setLoggingIn(true))
+    try {
+      await firebase.auth().signOut()
+      showSnackbar({
+        message: OPTION.MESSAGE.LOGOUT.SUCCESS,
+        type: 'success'
+      })
+      dispatch(setLoggingIn(false))
+      history.push('/')
+    } catch (e) {
+      showSnackbar({
+        message: OPTION.MESSAGE.LOGOUT.ERROR,
+        type: 'error'
+      })
+      dispatch(setLoggingIn(false))
+    }
+  }, [history, showSnackbar, dispatch])
+
+  const onClickLogout = React.useCallback(() => {
+    if (!confirm('本当にログアウトしますか？')) return
+    dispatchSignOut()
+  }, [dispatchSignOut])
+
   return (
     <div className={`AppProfileSetting-root`}>
       {view === 'root' && (
@@ -70,6 +99,7 @@ export const ProfileSetting: React.FC = () => {
           >
             パスワードの再設定メールを送信する
           </Button>
+          <Button onClick={onClickLogout}>ログアウトする</Button>
         </>
       )}
 
