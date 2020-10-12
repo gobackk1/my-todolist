@@ -115,7 +115,7 @@ export const ProfileSetting: React.FC = () => {
 
 const useStyles = makeStyles({
   root: {
-    '& .MuiButton-label': {
+    '& > button .MuiButton-label': {
       textDecoration: 'underline'
     }
   }

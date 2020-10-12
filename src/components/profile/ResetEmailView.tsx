@@ -80,8 +80,6 @@ export const ResetEmailView: React.FC<{ setView: any }> = ({ setView }) => {
 
   return (
     <section className={`${styles.root}`}>
-      <Button onClick={() => setView('root')}>戻る</Button>
-      <Typography variant="h3">メールアドレスの変更</Typography>
       <Typography variant="body1">
         変更後のメールアドレスと、現在のパスワードを入力してください
       </Typography>
@@ -141,9 +139,17 @@ export const ResetEmailView: React.FC<{ setView: any }> = ({ setView }) => {
           required={true}
         />
         <br />
-        <Button type="submit" disabled={isSubmitting || !isValid}>
-          送信
-        </Button>
+        <div className={styles.buttons}>
+          <Button onClick={() => setView('root')}>戻る</Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting || !isValid}
+            variant="contained"
+            className={styles.submit}
+          >
+            送信
+          </Button>
+        </div>
       </form>
     </section>
   )
@@ -157,6 +163,18 @@ const useStyles = makeStyles({
     '& .MuiTextField-root': {
       marginBottom: theme.spacing(2),
       width: 250
+    },
+    '& form': {
+      width: 250
     }
+  },
+  submit: {
+    background: theme.palette.success.main,
+    color: theme.palette.white,
+    fontWeight: 'bold'
+  },
+  buttons: {
+    display: 'table',
+    margin: '0 0 0 auto'
   }
 })
