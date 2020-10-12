@@ -7,7 +7,7 @@ export const PageContainer: React.FC<{ className?: string }> = ({
 }) => {
   const style = useStyles()
   return (
-    <div className={style.root + ' ' + className + 'AppPageContainer-root'}>
+    <div className={style.root + ' ' + className + ' AppPageContainer-root'}>
       {children}
     </div>
   )
