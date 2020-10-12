@@ -103,6 +103,8 @@ export const ProfileSetting: React.FC = () => {
           </Button>
           <br />
           <Button onClick={onClickLogout}>ログアウトする</Button>
+          <br />
+          <Button disabled>退会する(実装予定)</Button>
         </>
       )}
 
