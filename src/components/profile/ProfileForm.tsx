@@ -90,6 +90,7 @@ export const ProfileForm: React.FC = () => {
           if (!isMounted) return
           setSubmitting(false)
         }, 300)
+        showSnackbar({ message: 'プロフィールを更新しました', type: 'success' })
       } catch ({ message }) {
         console.log(message)
         showSnackbar({ message, type: 'error' })
