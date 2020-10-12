@@ -29,6 +29,8 @@ export const ProfileSetting: React.FC = () => {
   }, [])
 
   const sendPasswordResetEmail = React.useCallback(async () => {
+    if (!confirm('パスワードを再設定しますか？')) return
+
     const auth = firebase.auth()
     const currentUser = auth.currentUser
     if (!currentUser || !currentUser.email) return
