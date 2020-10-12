@@ -1,25 +1,14 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
 import { Modal, LoginView, SignUpView, UserIcon } from '@/components'
 import { Button, IconButton } from '@material-ui/core'
-import firebase from 'firebase'
-import { useHistory } from 'react-router-dom'
-import {
-  useSnackbarContext,
-  useEventListener,
-  useCurrentUser
-} from '@/scripts/hooks'
+import { useEventListener, useCurrentUser } from '@/scripts/hooks'
 import { OPTION } from '@/option'
-import { setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
 import { theme } from '@/styles'
 import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/styles'
 
 export const LoginFormModal: React.FC = () => {
   const currentUser = useCurrentUser()
-  const dispatch = useDispatch()
-  const history = useHistory()
-  const { showSnackbar } = useSnackbarContext()
   const [view, setView] = React.useState<'login' | 'signup'>('login')
   const styles = useStyles()
 

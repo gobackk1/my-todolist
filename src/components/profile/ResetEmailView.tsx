@@ -18,15 +18,6 @@ export const ResetEmailView: React.FC<{ setView: any }> = ({ setView }) => {
   const styles = useStyles()
   const [isSubmitting, setSubmitting] = React.useState(false)
 
-  const isEmailAndPasswordProvider = (): boolean => {
-    const { currentUser } = firebase.auth()
-    if (!currentUser) return false
-
-    return currentUser.providerData.some(data =>
-      data ? data.providerId === 'password' : false
-    )
-  }
-
   const updateUserEmail = React.useCallback(
     async (newEmail: string, password: string): Promise<void> => {
       const currentUser = firebase.auth().currentUser

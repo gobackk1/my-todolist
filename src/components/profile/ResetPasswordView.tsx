@@ -7,7 +7,7 @@ import React from 'react'
 // import { theme } from '@/styles'
 // import { makeStyles } from '@material-ui/styles'
 
-export const ResetPasswordView: React.FC<{ setView: any }> = ({ setView }) => {
+export const ResetPasswordView: React.FC<{ setView: any }> = () => {
   // const {
   //   register,
   //   handleSubmit,

@@ -6,7 +6,6 @@ import {
   useSnackbarContext,
   useValidation,
   useCloudStorage,
-  usePrevious,
   useMountedRef
 } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
@@ -100,7 +99,7 @@ export const ProfileForm: React.FC = () => {
         }, 300)
       }
     },
-    [currentUser, showSnackbar, dispatch, setSubmitting]
+    [currentUser, showSnackbar, dispatch, setSubmitting, isMounted]
   )
 
   const upload = React.useCallback(

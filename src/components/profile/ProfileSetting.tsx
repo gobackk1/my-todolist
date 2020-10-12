@@ -1,7 +1,6 @@
 import React from 'react'
 import { Button } from '@material-ui/core'
 import firebase from 'firebase/app'
-import { theme } from '@/styles'
 import { makeStyles } from '@material-ui/styles'
 import { ResetEmailView } from '@/components'
 import { useSnackbarContext } from '@/scripts/hooks'
@@ -50,7 +49,7 @@ export const ProfileSetting: React.FC = () => {
       })
       setSubmitting(false)
     }
-  }, [])
+  }, [showSnackbar])
 
   const dispatchSignOut = React.useCallback(async () => {
     dispatch(setLoggingIn(true))
