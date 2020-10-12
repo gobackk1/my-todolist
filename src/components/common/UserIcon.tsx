@@ -15,7 +15,8 @@ export const UserIcon: React.FC<Props> = ({ data }) => {
 
 const useStyles = makeStyles({
   root: {
-    padding: 0
+    padding: 0,
+    display: 'inline-block'
   }
 })
 

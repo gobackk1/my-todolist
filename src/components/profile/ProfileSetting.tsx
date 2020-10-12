@@ -18,6 +18,7 @@ export const ProfileSetting: React.FC = () => {
   const [isSubmitting, setSubmitting] = React.useState(false)
   const dispatch = useDispatch()
   const history = useHistory()
+  const styles = useStyles()
 
   const isEmailAndPasswordProvider = React.useCallback((): boolean => {
     const { currentUser } = firebase.auth()
@@ -76,7 +77,7 @@ export const ProfileSetting: React.FC = () => {
   }, [dispatchSignOut])
 
   return (
-    <div className={`AppProfileSetting-root`}>
+    <div className={`AppProfileSetting-root ${styles.root}`}>
       {view === 'root' && (
         <>
           <Button
@@ -99,6 +100,7 @@ export const ProfileSetting: React.FC = () => {
           >
             パスワードの再設定メールを送信する
           </Button>
+          <br />
           <Button onClick={onClickLogout}>ログアウトする</Button>
         </>
       )}
@@ -112,12 +114,8 @@ export const ProfileSetting: React.FC = () => {
 
 const useStyles = makeStyles({
   root: {
-    '& .MuiTypography-root': {
-      marginBottom: theme.spacing(2)
-    },
-    '& .MuiTextField-root': {
-      marginBottom: theme.spacing(2),
-      width: 250
+    '& .MuiButton-label': {
+      textDecoration: 'underline'
     }
   }
 })

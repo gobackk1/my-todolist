@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { TextField, Button } from '@material-ui/core'
+import { TextField, Button, Typography } from '@material-ui/core'
 import {
   useCurrentUser,
   useSnackbarContext,
@@ -119,42 +119,48 @@ export const ProfileForm: React.FC = () => {
   return (
     <div className={`AppProfileForm-root ${styles.root}`}>
       {init ? (
-        <form className="AppProfileForm-form" onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            size="small"
-            label="ユーザー名"
-            type="text"
-            value={displayName}
-            onChange={e => handleChange('displayName', e)}
-            variant="outlined"
-            fullWidth
-            error={!!errors.displayName}
-            helperText={errors.displayName && errors.displayName.message}
-          />
-          <br />
-          <TextField
-            size="small"
-            type="text"
-            label="自己紹介"
-            value={profile}
-            onChange={e => handleChange('profile', e)}
-            multiline={true}
-            rows={3}
-            rowsMax={5}
-            variant="outlined"
-            fullWidth
-            error={!!errors.profile}
-            helperText={errors.profile && errors.profile.message}
-          />
-          <br />
-          <Button
-            variant="contained"
-            type="submit"
-            disabled={isSubmitting || !isValid}
+        <>
+          <form
+            className="AppProfileForm-form"
+            onSubmit={handleSubmit(onSubmit)}
           >
-            保存
-          </Button>
-          <div>
+            <TextField
+              size="small"
+              label="ユーザー名"
+              type="text"
+              value={displayName}
+              onChange={e => handleChange('displayName', e)}
+              variant="outlined"
+              fullWidth
+              error={!!errors.displayName}
+              helperText={errors.displayName && errors.displayName.message}
+            />
+            <br />
+            <TextField
+              size="small"
+              type="text"
+              label="自己紹介"
+              value={profile}
+              onChange={e => handleChange('profile', e)}
+              multiline={true}
+              rows={3}
+              rowsMax={5}
+              variant="outlined"
+              fullWidth
+              error={!!errors.profile}
+              helperText={errors.profile && errors.profile.message}
+            />
+            <br />
+            <Button
+              variant="contained"
+              type="submit"
+              disabled={isSubmitting || !isValid}
+            >
+              保存
+            </Button>
+          </form>
+          <div className="AppProfileForm-avatar">
+            <Typography variant="h4">アバター</Typography>
             <input
               type="file"
               accept="image/*"
@@ -164,12 +170,13 @@ export const ProfileForm: React.FC = () => {
             />
             <label htmlFor="image-upload" className={styles.avatar}>
               <UserIcon data={currentUser} />
+              <br />
               <Button variant="contained" component="span">
-                upload
+                写真を変更する
               </Button>
             </label>
           </div>
-        </form>
+        </>
       ) : (
         <LoadingSpinner />
       )}
@@ -186,6 +193,17 @@ const useStyles = makeStyles({
     },
     '& .MuiFormControl-root': {
       marginBottom: theme.spacing(3)
+    },
+    '& .AppPageContainer-root': {
+      width: 800
+    },
+    '& .AppProfileForm-avatar': {
+      paddingLeft: theme.spacing(5),
+      textAlign: 'center',
+      '& .AppUserIcon-root': {
+        marginTop: theme.spacing(2),
+        marginBottom: theme.spacing(2)
+      }
     }
   },
   changeAddress: {
