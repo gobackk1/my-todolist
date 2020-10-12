@@ -47,10 +47,10 @@ export const SnackbarProvider: React.FC<Props> = ({
     []
   )
 
-  const showSnackbar = ({ message, type }: I.SnackPack) => {
+  const showSnackbar = ({ message, type, action = null }: I.SnackPack) => {
     setSnackPack(prev => [
       ...prev,
-      { message, type, key: new Date().getTime() }
+      { message, type, key: new Date().getTime(), action }
     ])
 
     setAutoHideSeconds(autoHideDuration)
@@ -81,7 +81,10 @@ export const SnackbarProvider: React.FC<Props> = ({
         // TODO: スライド化検討 (コメントインだけでは動かない)
         // TransitionComponent={SlideTransition}
       >
-        <Alert severity={messageInfo ? messageInfo.type : undefined}>
+        <Alert
+          severity={messageInfo ? messageInfo.type : undefined}
+          action={messageInfo ? messageInfo.action : null}
+        >
           {messageInfo ? messageInfo.message : undefined}
         </Alert>
       </MuiSnackbar>
@@ -96,9 +99,3 @@ type Props = {
   autoHideDuration: number
   position: SnackbarOrigin
 }
-
-// const useStyles = makeStyles(theme => ({
-//   root: {
-//     zIndex: theme.zIndex.snackbar
-//   }
-// }))
