@@ -3,11 +3,11 @@ import { useRef, useEffect } from 'react'
 /**
  * const isMounted = useMountedRef()
  *
- * if (isMounted.current) {
+ * if (isMounted) {
  *   setState(...)
  * }
  */
-export const useMountedRef = (): React.MutableRefObject<boolean> => {
+export const useMountedRef = (): boolean => {
   const ref = useRef(false)
 
   useEffect(() => {
@@ -17,5 +17,5 @@ export const useMountedRef = (): React.MutableRefObject<boolean> => {
     }
   }, [])
 
-  return ref
+  return ref.current
 }

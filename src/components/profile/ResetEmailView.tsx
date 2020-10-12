@@ -88,7 +88,7 @@ export const ResetEmailView: React.FC<{ setView: any }> = ({ setView }) => {
   )
 
   return (
-    <section>
+    <section className={`${styles.root}`}>
       <Button onClick={() => setView('root')}>戻る</Button>
       <Typography variant="h3">メールアドレスの変更</Typography>
       <Typography variant="body1">

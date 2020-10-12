@@ -5,7 +5,9 @@ import {
   useCurrentUser,
   useSnackbarContext,
   useValidation,
-  useCloudStorage
+  useCloudStorage,
+  usePrevious,
+  useMountedRef
 } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
@@ -23,7 +25,7 @@ export const ProfileForm: React.FC = () => {
     setError,
     watch,
     clearErrors,
-    formState: { isSubmitting, isValid }
+    formState: { isValid }
   } = useForm({
     mode: 'onChange',
     defaultValues: { displayName: '', email: '', profile: '' }
@@ -34,6 +36,8 @@ export const ProfileForm: React.FC = () => {
   const { isValidDisplayName, isValidProfile } = useValidation()
   const { init } = useSelector(state => state.users)
   const { uploadFile } = useCloudStorage()
+  const [isSubmitting, setSubmitting] = React.useState(false)
+  const isMounted = useMountedRef()
 
   React.useEffect(() => {
     register({ name: 'displayName' })
@@ -79,16 +83,24 @@ export const ProfileForm: React.FC = () => {
   const onSubmit: SubmitHandler<FormValue> = React.useCallback(
     async params => {
       if (!currentUser) return
-
+      setSubmitting(true)
       try {
         const user = { ...currentUser, ...params }
         dispatch(updateUser(user))
+        setTimeout(() => {
+          if (!isMounted) return
+          setSubmitting(false)
+        }, 300)
       } catch ({ message }) {
         console.log(message)
         showSnackbar({ message, type: 'error' })
+        setTimeout(() => {
+          if (!isMounted) return
+          setSubmitting(false)
+        }, 300)
       }
     },
-    [currentUser, showSnackbar, dispatch]
+    [currentUser, showSnackbar, dispatch, setSubmitting]
   )
 
   const upload = React.useCallback(
