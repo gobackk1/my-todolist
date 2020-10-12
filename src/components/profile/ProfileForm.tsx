@@ -206,9 +206,6 @@ const useStyles = makeStyles({
     '& .MuiFormControl-root': {
       marginBottom: theme.spacing(3)
     },
-    '& .AppPageContainer-root': {
-      width: 800
-    },
     '& .AppProfileForm-avatar': {
       paddingLeft: theme.spacing(5),
       textAlign: 'center',

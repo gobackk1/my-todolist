@@ -50,6 +50,9 @@ const useStyles = makeStyles({
       backgroundColor: '#fff',
       minHeight: 500,
       padding: theme.spacing(5)
+    },
+    '& .AppPageContainer-root': {
+      width: 800
     }
   }
 })
