@@ -8,7 +8,7 @@ import {
 } from '~redux/state/board/reducer'
 import { OPTION } from '@/option'
 import firebase from 'firebase'
-import { setUser } from '~redux/state/users/actions'
+import { getUser } from '~redux/state/users/actions'
 import { Member } from './reducer'
 import { callCloudFunctions } from '@/scripts/firebase'
 
@@ -28,11 +28,7 @@ const mixin = (() => {
     [i: string]: Member
   }) => {
     await Object.keys(members).forEach(async (uid: string) => {
-      const response = await fetchUser(uid)
-
-      if (response.result) {
-        store.dispatch(setUser(response.result))
-      }
+      await store.dispatch(getUser(uid))
     })
   }
 
