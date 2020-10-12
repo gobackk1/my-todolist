@@ -83,7 +83,7 @@ export const ProfileSetting: React.FC = () => {
             onClick={() => setView('resetEmail')}
             disabled={!isEmailAndPasswordProvider()}
           >
-            メールアドレスを変更する
+            メールアドレスを変更する...
           </Button>
           <br />
           {/*
