@@ -1,5 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles'
-import { yellow, grey } from '@material-ui/core/colors'
+import { yellow, grey, blueGrey } from '@material-ui/core/colors'
 
 /**
  * Material-UI のグローバルに適用するスタイル
@@ -35,7 +35,9 @@ export const theme = createMuiTheme({
     favorite: {
       on: yellow[500],
       off: grey[300]
-    }
+    },
+    white: grey[50],
+    blueGrey
   },
   zIndex: {
     snackbar: 40,

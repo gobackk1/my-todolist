@@ -8,12 +8,20 @@ declare module '@material-ui/core/styles/createPalette' {
       on: string
       off: string
     }
+    white: string
+    blueGrey: {
+      [i: string | number]: string
+    }
   }
 
   export interface PaletteOptions {
     favorite: {
       on: string
       off: string
+    }
+    white: string
+    blueGrey: {
+      [i: string | number]: string
     }
   }
 }

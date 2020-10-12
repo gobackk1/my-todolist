@@ -167,6 +167,7 @@ export const ProfileForm: React.FC = () => {
               variant="contained"
               type="submit"
               disabled={isSubmitting || !isValid}
+              className={styles.submit}
             >
               保存
             </Button>
@@ -183,7 +184,11 @@ export const ProfileForm: React.FC = () => {
             <label htmlFor="image-upload" className={styles.avatar}>
               <UserIcon data={currentUser} />
               <br />
-              <Button variant="contained" component="span">
+              <Button
+                variant="contained"
+                component="span"
+                className={styles.uploadButton}
+              >
                 写真を変更する
               </Button>
             </label>
@@ -201,7 +206,12 @@ const useStyles = makeStyles({
     display: 'flex',
     '& .AppProfileForm-form': {
       maxWidth: 450,
-      width: '100%'
+      width: '100%',
+      '& .MuiOutlinedInput-root:hover': {
+        '& .MuiOutlinedInput-notchedOutline': {
+          borderColor: theme.palette.primary.light
+        }
+      }
     },
     '& .MuiFormControl-root': {
       marginBottom: theme.spacing(3)
@@ -209,6 +219,7 @@ const useStyles = makeStyles({
     '& .AppProfileForm-avatar': {
       paddingLeft: theme.spacing(5),
       textAlign: 'center',
+      flex: 1,
       '& .AppUserIcon-root': {
         marginTop: theme.spacing(2),
         marginBottom: theme.spacing(2)
@@ -221,8 +232,25 @@ const useStyles = makeStyles({
   },
   avatar: {
     '& .MuiAvatar-root': {
-      width: theme.spacing(10),
-      height: theme.spacing(10)
+      width: 120,
+      height: 120
+    }
+  },
+  submit: {
+    display: 'table',
+    margin: '0 0 0 auto',
+    background: theme.palette.success.main,
+    color: theme.palette.white,
+    fontWeight: 'bold',
+    transitionProperty: 'color',
+    '&:hover': {
+      background: theme.palette.success.light
+    }
+  },
+  uploadButton: {
+    background: theme.palette.blueGrey[200],
+    '&:hover': {
+      background: theme.palette.blueGrey[100]
     }
   }
 })
