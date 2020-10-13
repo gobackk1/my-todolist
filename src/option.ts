@@ -18,7 +18,8 @@ export const OPTION = {
     BOARDS_ARCHIVED: 'boards_archived',
     RELATIONSHIPS_FAVORITE: 'relationships_favorite',
     USERS: 'users',
-    USER_DETAIL_PUBLIC: 'user_detail_public'
+    USER_DETAIL_PUBLIC: 'user_detail_public',
+    RUNTIME_ERROR_REPORTS: 'runtime_error_reports'
   },
   URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${
     document.domain ? '8080' : ''

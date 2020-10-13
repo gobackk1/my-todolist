@@ -100,5 +100,10 @@ service cloud.firestore {
       allow delete: if isSignedIn() && isAuthUser(uid)
       allow read: if isSignedIn()
     }
+
+    match /runtime_error_reports/{errorId} {
+      allow create: if isSignedIn()
+      allow read, update, delete: if false
+    }
   }
 }

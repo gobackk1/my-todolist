@@ -17,8 +17,8 @@ import { store } from '~redux/store'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import firebase from 'firebase/app'
 import 'firebase/firestore'
-import 'firebase/auth'
 import { CreateBoardModalProvider } from '../board/CreateBoardModalProvider'
+import { useErrorReport } from '@/scripts/hooks'
 
 firebase.initializeApp({
   apiKey: process.env.API_KEY,
@@ -35,6 +35,8 @@ firebase.initializeApp({
  * 大まかな設定は App.tsx に抽出する
  */
 export const App: React.FC = () => {
+  useErrorReport()
+
   return (
     <MuiThemeProvider theme={theme}>
       <EmotionGlobal />
