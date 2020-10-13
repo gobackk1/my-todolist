@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, LoadingSpinner } from '@/components'
-import { Button, makeStyles, Theme } from '@material-ui/core'
+import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
 import {
   fetchArchivedBoards,
   deleteBoard,
@@ -9,7 +9,6 @@ import {
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
 import { Reply, DeleteForever } from '@material-ui/icons'
-import { css } from '@emotion/core'
 import { useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 
@@ -24,7 +23,7 @@ export const ArchivedBoardModal: React.FC = () => {
   const { showSnackbar } = useSnackbarContext()
   const boardState = useSelector(state => state.board)
   const currentUserState = useSelector(state => state.currentUser)
-  const muiStyles = useStyles()
+  const styles = useStyles()
   const history = useHistory()
 
   const renderButton = React.useCallback(
@@ -40,7 +39,7 @@ export const ArchivedBoardModal: React.FC = () => {
       return (
         <Button
           {...props}
-          className={muiStyles.buttonCreate}
+          className={styles.buttonCreate}
           onClick={() => {
             props.onClick()
             dispatchFetchArchiveBoards()
@@ -52,7 +51,7 @@ export const ArchivedBoardModal: React.FC = () => {
       )
     },
     [
-      muiStyles.buttonCreate,
+      styles.buttonCreate,
       dispatch,
       showSnackbar,
       currentUserState.user,
@@ -97,24 +96,30 @@ export const ArchivedBoardModal: React.FC = () => {
 
   return (
     <Modal render={renderButton}>
-      <div css={styles['modal-inner']} id="modal-archived-board">
-        <div css={styles['modal-title']}>アーカイブ済みボード</div>
+      <div
+        className={`AppArchivedBoardModal-root ${styles.root}`}
+        id="modal-archived-board"
+      >
+        <div className="AppArchivedBoardModal-title">アーカイブ済みボード</div>
         {boardState.isLoading && <LoadingSpinner />}
         {!boardState.isLoading && (
-          <ul css={styles['archived-list']} id="modal-archived-board-list">
-            {Object.values(boardState.archivedBoards).length &&
+          <ul
+            className="AppArchivedBoardModal-list"
+            id="modal-archived-board-list"
+          >
+            {Object.values(boardState.archivedBoards).length ? (
               Object.values(boardState.archivedBoards).map((board, i) => (
-                <li css={styles['archived-board']} key={i}>
-                  <div css={styles['archived-board-title']}>{board.title}</div>
+                <li className="AppArchivedBoardModal-item" key={i}>
+                  <div className="AppArchivedBoardModal-itemTitle">
+                    {board.title}
+                  </div>
                   <Button
                     onClick={e => {
                       onClickRestore(e, board.id, board.title)
                     }}
                     startIcon={<Reply />}
                     variant="contained"
-                    className={
-                      muiStyles['restore-button'] + ' btn-restore-board'
-                    }
+                    className={styles['restore-button'] + ' btn-restore-board'}
                     size="small"
                   >
                     アーカイブから戻す
@@ -125,13 +130,18 @@ export const ArchivedBoardModal: React.FC = () => {
                     }}
                     startIcon={<DeleteForever />}
                     variant="contained"
-                    className={muiStyles['delete-button'] + ' btn-delete-board'}
+                    className={styles['delete-button'] + ' btn-delete-board'}
                     size="small"
                   >
                     削除する
                   </Button>
                 </li>
-              ))}
+              ))
+            ) : (
+              <Typography variant="body1">
+                アーカイブしたボードはありません
+              </Typography>
+            )}
           </ul>
         )}
       </div>
@@ -141,9 +151,30 @@ export const ArchivedBoardModal: React.FC = () => {
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    '& .MuiTextField-root': {
-      marginBottom: theme.spacing(1),
-      width: 200
+    width: 600,
+    padding: `${theme.spacing(5)}px ${theme.spacing(4)}px ${theme.spacing(
+      3
+    )}px`,
+    '& .AppArchivedBoardModal-title': {
+      fontWeight: 'bold',
+      marginBottom: theme.spacing(4),
+      textAlign: 'center'
+    },
+    '& .AppArchivedBoardModal-list': {
+      maxHeight: 600,
+      overflow: 'scroll'
+    },
+    '& .AppArchivedBoardModal-item': {
+      display: 'flex',
+      paddingLeft: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+      borderBottom: '1px solid #e2e2e2'
+    },
+    '& .AppArchivedBoardModal-itemTitle': {
+      flex: 1,
+      display: 'flex',
+      alignItems: 'center'
     }
   },
   buttonCreate: {
@@ -152,37 +183,17 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
   },
   'restore-button': {
-    backgroundColor: 'green',
-    marginLeft: 10
+    backgroundColor: theme.palette.success.main,
+    marginLeft: 10,
+    '&:hover': {
+      backgroundColor: theme.palette.success.light
+    }
   },
   'delete-button': {
-    backgroundColor: 'red',
+    // backgroundColor: theme.palette.error.main,
     marginLeft: 10
+    // '&:hover': {
+    //   backgroundColor: theme.palette.error.light
+    // }
   }
 }))
-
-const styles = {
-  'modal-inner': css`
-    width: 600px;
-  `,
-  'archived-board': css`
-    display: flex;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #e2e2e2;
-  `,
-  'archived-board-title': css`
-    flex: 1;
-    display: flex;
-    align-items: center;
-  `,
-  'modal-title': css`
-    font-weight: bold;
-    margin-bottom: 30px;
-    text-align: center;
-  `,
-  'archived-list': css`
-    max-height: 600px;
-    overflow: scroll;
-  `
-}
