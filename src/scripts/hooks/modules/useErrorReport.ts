@@ -8,7 +8,6 @@ export const useErrorReport = () => {
 
   const reportHandler = async e => {
     const { message, filename, lineno } = e
-
     try {
       firebase
         .firestore()

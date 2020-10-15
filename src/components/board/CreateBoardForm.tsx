@@ -20,7 +20,7 @@ import { theme } from '@/styles'
 export const CreateBoardForm: React.FC = () => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
-  const muiStyles = useStyles()
+  const styles = useStyles()
   const {
     register,
     handleSubmit,
@@ -63,82 +63,88 @@ export const CreateBoardForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={muiStyles.root}
+      className={styles.root}
       autoComplete="off"
       id="form-create-board"
       style={style}
     >
-      <TextField
-        error={!!errors.title}
-        id="test"
-        name="title"
-        inputRef={register({
-          required: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
-          maxLength: {
-            value: OPTION.BOARD.TITLE.MAX_LENGTH,
-            message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR
+      <div className="AppCreateBoardForm-input">
+        <TextField
+          error={!!errors.title}
+          id="test"
+          name="title"
+          inputRef={register({
+            required: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
+            maxLength: {
+              value: OPTION.BOARD.TITLE.MAX_LENGTH,
+              message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR
+            }
+          })}
+          type="text"
+          label="ボートタイトルを追加"
+          helperText={errors.title && errors.title.message}
+          variant="filled"
+          size="small"
+          autoFocus={true}
+          required={true}
+          defaultValue=""
+          fullWidth
+        />
+      </div>
+      <div className="AppCreateBoardForm-input">
+        <RadioGroup
+          name="backgroundImage"
+          className={styles['radio-group']}
+          defaultValue={defaultBg}
+        >
+          {OPTION.BOARD.BG.PHOTO.map(({ src }, i) => {
+            return (
+              <Radio
+                checkedIcon={<DoneOutlineRoundedIcon />}
+                onChange={() => setBg(src)}
+                value={src}
+                style={{
+                  backgroundImage: `url(${OPTION.BOARD.BG.PHOTO[i].src})`
+                }}
+                key={i}
+                inputRef={register}
+              />
+            )
+          })}
+          {OPTION.BOARD.BG.COLORS.map((color, i) => {
+            return (
+              <Radio
+                checkedIcon={<DoneOutlineRoundedIcon />}
+                onChange={() => setBg(color)}
+                value={color}
+                style={{
+                  backgroundColor: color
+                }}
+                key={i}
+                inputRef={register}
+              />
+            )
+          })}
+        </RadioGroup>
+      </div>
+      <div className="AppCreateBoardForm-input">
+        <Controller
+          as={
+            <Select fullWidth label="公開範囲" variant="filled">
+              <MenuItem value="members">メンバーのみ</MenuItem>
+              <MenuItem value="public">公開</MenuItem>
+            </Select>
           }
-        })}
-        type="text"
-        label="ボートタイトルを追加"
-        helperText={errors.title && errors.title.message}
-        variant="filled"
-        size="small"
-        autoFocus={true}
-        required={true}
-        defaultValue=""
-        fullWidth
-      />
-      <br />
-      <RadioGroup
-        name="backgroundImage"
-        className={muiStyles['radio-group']}
-        defaultValue={defaultBg}
-      >
-        {OPTION.BOARD.BG.PHOTO.map(({ src }, i) => {
-          return (
-            <Radio
-              checkedIcon={<DoneOutlineRoundedIcon />}
-              onChange={() => setBg(src)}
-              value={src}
-              style={{
-                backgroundImage: `url(${OPTION.BOARD.BG.PHOTO[i].src})`
-              }}
-              key={i}
-              inputRef={register}
-            />
-          )
-        })}
-        {OPTION.BOARD.BG.COLORS.map((color, i) => {
-          return (
-            <Radio
-              checkedIcon={<DoneOutlineRoundedIcon />}
-              onChange={() => setBg(color)}
-              value={color}
-              style={{
-                backgroundColor: color
-              }}
-              key={i}
-              inputRef={register}
-            />
-          )
-        })}
-      </RadioGroup>
-      <Controller
-        as={
-          <Select fullWidth label="公開範囲" variant="filled">
-            <MenuItem value="members">メンバーのみ</MenuItem>
-            <MenuItem value="public">公開</MenuItem>
-          </Select>
-        }
-        control={control}
-        name="visibility"
-        defaultValue="members"
-      />
+          control={control}
+          name="visibility"
+          defaultValue="members"
+        />
+      </div>
       <Button
         type="submit"
         variant="contained"
         disabled={!isDirty || isSubmitting || !isValid}
+        className={styles.create}
       >
         ボードを作成
       </Button>
@@ -155,14 +161,14 @@ const useStyles = makeStyles({
     backgroundPosition: 'center',
     backgroundSize: 'cover',
     borderRadius: theme.borderRadius(1),
-    '& .MuiTextField-root': {
-      marginBottom: theme.spacing(1)
+    '& .AppCreateBoardForm-input': {
+      marginBottom: theme.spacing(2)
     },
     '& .MuiSelect-root': {
-      marginBottom: theme.spacing(1)
+      padding: `${theme.spacing(2)}px ${theme.spacing(1)}px`
     },
     '&::before': {
-      background: 'rgba(255,255,255,.3)',
+      background: 'rgba(0,0,0,.1)',
       position: 'absolute',
       bottom: 0,
       top: 0,
@@ -172,6 +178,12 @@ const useStyles = makeStyles({
       content: '""',
       borderRadius: theme.borderRadius(1),
       zIndex: 0
+    },
+    '& .MuiFilledInput-root': {
+      backgroundColor: 'rgba(255,255,255,.8)',
+      '&.Mui-focused': {
+        backgroundColor: 'rgba(255,255,255,.8)'
+      }
     }
   },
   'radio-group': {
@@ -189,6 +201,19 @@ const useStyles = makeStyles({
       '& svg': {
         color: '#fff'
       }
+    }
+  },
+  create: {
+    backgroundColor: theme.palette.success.main,
+    color: theme.palette.white,
+    fontWeight: 'bold',
+    display: 'table',
+    margin: '0 0 0 auto',
+    '&:hover': {
+      backgroundColor: theme.palette.success.light
+    },
+    '&.Mui-disabled': {
+      backgroundColor: theme.palette.grey[200]
     }
   }
 })
