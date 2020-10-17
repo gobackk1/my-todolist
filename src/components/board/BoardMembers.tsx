@@ -3,6 +3,7 @@ import { MemberButton, InvitationMenu } from '@/components'
 import { useSelector } from 'react-redux'
 import { Board } from '@/scripts/redux/state/board/reducer'
 import { makeStyles } from '@material-ui/core'
+import { AvatarGroup } from '@material-ui/lab'
 import { theme } from '@/styles'
 
 export const BoardMembers: React.FC<{ data: Board }> = ({ data }) => {
@@ -19,26 +20,37 @@ export const BoardMembers: React.FC<{ data: Board }> = ({ data }) => {
   }, [boardState, data.members, users])
 
   return (
-    <ul className={`AppBoardMembers-root ${styles.root}`}>
-      {boardMembers.map((member, i) => {
-        return (
-          <li key={i}>
-            <MemberButton data={member} />
-          </li>
-        )
-      })}
-      <li>
-        <InvitationMenu board={data} />
-      </li>
-    </ul>
+    <div className={`AppBoardMembers-root ${styles.root}`}>
+      <AvatarGroup max={3}>
+        {boardMembers.map((member, i) => {
+          return (
+            <span key={i}>
+              <MemberButton data={member} />
+            </span>
+          )
+        })}
+      </AvatarGroup>
+      <InvitationMenu board={data} />
+    </div>
   )
 }
 
 const useStyles = makeStyles({
   root: {
     display: 'inline-flex',
-    '& > li': {
-      marginRight: theme.spacing(1)
+    alignItems: 'center',
+    '& .MuiAvatarGroup-avatar': {
+      border: 'none',
+      '&:not(:first-child)': {
+        marginLeft: -theme.spacing(2)
+      }
+    },
+    '& .MuiButtonBase-root': {
+      marginRight: 0
+    },
+    '& .AppUserIcon-root': {
+      width: 36,
+      height: 36
     }
   }
 })

@@ -25,7 +25,10 @@ export const FavoriteButton: React.FC<{
   )
 
   return (
-    <IconButton onClick={() => onClickFavorite(favorite)}>
+    <IconButton
+      className="AppFavoriteButton-root"
+      onClick={() => onClickFavorite(favorite)}
+    >
       <FavoriteIcon favorite={favorite} />
     </IconButton>
   )

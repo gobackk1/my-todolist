@@ -11,14 +11,17 @@ import {
   BoardVisibilitySelection
 } from '@/components'
 import { useFetchBoard, useFetchList } from '@/scripts/hooks'
-import { css } from '@emotion/core'
 import { BoardTitle, BoardDrawer } from '@/components'
 import { OPTION } from '@/option'
 import { theme } from '@/styles'
+import { makeStyles } from '@material-ui/styles'
+import { fade } from '@material-ui/core/styles/colorManipulator'
+import { Divider, Grid } from '@material-ui/core'
 
 export const BoardDetail: React.FC = () => {
   const boardState = useSelector(state => state.board)
   const { boardId } = useParams<I.UrlParams>()
+  const styles = useStyles()
 
   // todo: state に 対象がなかった時のみ取得する
   useFetchBoard(boardId)
@@ -39,35 +42,73 @@ export const BoardDetail: React.FC = () => {
 
   return (
     <BoardWithBackground>
-      {!boardState.init && <LoadingSpinner />}
-      {boardState.init && !boardState.boards[boardId] && (
-        /**
-         * 存在しない boardId を指定したら、/boards へリダイレクトさせる
-         */
-        <Redirect to={redirect} />
-      )}
-      {boardState.init && boardState.boards[boardId] && (
-        <>
-          <div css={styles['board-header']}>
-            <BoardTitle />
-            <FavoriteButton
-              favorite={boardState.boards[boardId].favorite}
-              boardId={boardId}
-            />
-            <BoardMembers data={currentBoard} />
-            <BoardVisibilitySelection data={currentBoard} />
-          </div>
-          {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
-          <ListContainer boardId={boardId} />
-        </>
-      )}
-      <BoardDrawer />
+      <div className={`AppBoardDetail-root ${styles.root}`}>
+        {!boardState.init && <LoadingSpinner />}
+        {boardState.init && !boardState.boards[boardId] && (
+          /**
+           * 存在しない boardId を指定したら、/boards へリダイレクトさせる
+           */
+          <Redirect to={redirect} />
+        )}
+        {boardState.init && boardState.boards[boardId] && (
+          <>
+            <div className="AppBoardDetail-header">
+              <Grid container alignItems="center">
+                <BoardTitle />
+                <FavoriteButton
+                  favorite={boardState.boards[boardId].favorite}
+                  boardId={boardId}
+                />
+                <Divider orientation="vertical" flexItem />
+                <BoardMembers data={currentBoard} />
+                <Divider orientation="vertical" flexItem />
+                <BoardVisibilitySelection data={currentBoard} />
+              </Grid>
+            </div>
+            {boardState.error && (
+              <>エラーメッセージ{boardState.error.message}</>
+            )}
+            <ListContainer boardId={boardId} />
+          </>
+        )}
+        <BoardDrawer />
+      </div>
     </BoardWithBackground>
   )
 }
 
-const styles = {
-  'board-header': css`
-    margin-bottom: ${theme.spacing(1)}px;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    position: 'relative',
+    zIndex: 1,
+    '& .AppBoardDetail-header': {
+      position: 'relative',
+      zIndex: 2,
+      marginBottom: theme.spacing(1),
+      '& .MuiButtonBase-root': {
+        backgroundColor: fade(theme.palette.white, 0.6),
+        marginRight: theme.spacing(1),
+        '&:hover': {
+          backgroundColor: fade(theme.palette.white, 0.5)
+        }
+      },
+      '& .MuiDivider-root': {
+        marginRight: theme.spacing(1),
+        backgroundColor: fade(theme.palette.white, 0.6)
+      },
+      '& .MuiAvatarGroup-root': {
+        marginRight: theme.spacing(1)
+      },
+      '& .AppFavoriteButton-root': {
+        borderRadius: theme.borderRadius(0.5),
+        padding: 6,
+        // border: `1px solid ${fade(theme.palette.white, 0.0)}`,
+        verticalAlign: 'top'
+      }
+    },
+    '& .AppListContainer-root': {
+      position: 'relative',
+      zIndex: 1
+    }
+  }
+})

@@ -18,4 +18,8 @@ export const global = css`
     display: block;
     max-width: 100%;
   }
+
+  body {
+    line-height: 1.8;
+  }
 `

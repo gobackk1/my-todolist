@@ -98,6 +98,7 @@ const styles = {
     top: 7px;
     left: -76%;
     visibility: visible;
+    z-index: 1;
   `,
   'drawer-content': css`
     padding: 0 ${theme.spacing(1)}px ${theme.spacing(1)}px;

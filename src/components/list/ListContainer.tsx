@@ -1,10 +1,9 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createList } from '@/scripts/redux/state/list/actions'
-import { Button } from '@material-ui/core'
+import { Button, makeStyles } from '@material-ui/core'
 import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
-import { css } from '@emotion/core'
 import { CardList } from '@/components'
 import { useBoardAuthority } from '@/scripts/hooks'
 
@@ -13,6 +12,7 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
   const listState = useSelector(state => state.list)
   const dispatch = useDispatch()
   const { isOneOfRoles } = useBoardAuthority(boardId)
+  const styles = useStyles()
 
   const onClick = React.useCallback(() => {
     if (!user || listState.error) return
@@ -20,12 +20,12 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
   }, [user, listState.error, boardId, dispatch])
 
   return (
-    <ul css={styles['card-list-container']}>
+    <ul className={`AppListContainer-root ${styles.root}`}>
       {boardId &&
         listState.boards[boardId] &&
         listState.boards[boardId].lists.map((list, i) => {
           return (
-            <li css={styles['card-list-container-item']} key={i}>
+            <li className={`${styles.item}`} key={i}>
               <CardList list={list} />
             </li>
           )
@@ -44,13 +44,12 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
   )
 }
 
-const styles = {
-  'card-list-container': css`
-    display: flex;
-    flex-wrap: wrap;
-  `,
-  'card-list-container-item': css`
-    margin-right: ${theme.spacing(2)}px;
-    margin-bottom: ${theme.spacing(2)}px;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap'
+  },
+  item: {
+    marginRight: theme.spacing(1)
+  }
+})

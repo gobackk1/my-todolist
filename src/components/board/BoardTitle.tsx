@@ -6,7 +6,9 @@ import { useSelector, useDispatch, useStore } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import { OPTION } from '@/option'
 import { VariableInput } from '@/components'
-import { css } from '@emotion/core'
+import { makeStyles } from '@material-ui/core'
+import { theme } from '@/styles'
+import { fade } from '@material-ui/core/styles/colorManipulator'
 
 export const BoardTitle: React.FC = () => {
   const boardState = useSelector(state => state.board)
@@ -14,6 +16,7 @@ export const BoardTitle: React.FC = () => {
   const { currentUser, board } = useStore().getState()
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
+  const styles = useStyles()
 
   const updateTitle = React.useCallback(
     async (
@@ -63,7 +66,7 @@ export const BoardTitle: React.FC = () => {
   )
 
   return (
-    <div className="js-title-area" id="board-title" css={styles['board-title']}>
+    <div className={`js-title-area ${styles.root}`} id="board-title">
       {boardState.boards[boardId] ? (
         <VariableInput
           label={boardState.boards[boardId].title}
@@ -75,8 +78,14 @@ export const BoardTitle: React.FC = () => {
   )
 }
 
-const styles = {
-  'board-title': css`
-    display: inline-block;
-  `
-}
+const useStyles = makeStyles({
+  root: {
+    display: 'inline-block',
+    '& .MuiButtonBase-root': {
+      backgroundColor: fade(theme.palette.white, 0.6),
+      '&:hover': {
+        backgroundColor: fade(theme.palette.white, 0.5)
+      }
+    }
+  }
+})

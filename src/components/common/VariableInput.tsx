@@ -106,7 +106,7 @@ export const VariableInput: React.FC<Props> = ({
   }
 
   return (
-    <div className={styles['root']}>
+    <div className={`AppVariableInput-root ${styles.root}`}>
       <BoardTitleButton
         onClick={onClickTitle}
         style={{
