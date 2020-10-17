@@ -93,7 +93,8 @@ const useStyles = makeStyles({
     zIndex: theme.zIndex.menu,
     '& .AppMenu-content': {
       position: 'absolute',
-      boarderRadius: theme.borderRadius(1)
+      // boarderRadius: `${theme.borderRadius(0.5)}px`,
+      transform: `translateY(${theme.spacing(0.5)}px)`
     }
   }
 })

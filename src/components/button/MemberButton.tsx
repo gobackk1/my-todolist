@@ -217,6 +217,9 @@ const useStyles = makeStyles({
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
+      },
+      '& .AppUserIcon-root': {
+        marginRight: theme.spacing(1)
       }
     },
     '& .MuiButtonBase-root': {

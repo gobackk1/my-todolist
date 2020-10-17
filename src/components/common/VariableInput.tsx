@@ -1,8 +1,7 @@
 import React from 'react'
-import { withStyles, makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/styles'
 import { useEventListener } from '@/scripts/hooks'
-import { Button } from '@material-ui/core'
-
+import { BoardButton } from '@/components'
 // ネーミングと幅をリファクタ
 
 type TitleElement = HTMLInputElement | HTMLTextAreaElement
@@ -107,7 +106,7 @@ export const VariableInput: React.FC<Props> = ({
 
   return (
     <div className={`AppVariableInput-root ${styles.root}`}>
-      <BoardTitleButton
+      <BoardButton
         onClick={onClickTitle}
         style={{
           display: isEditing ? 'none' : 'block'
@@ -117,7 +116,7 @@ export const VariableInput: React.FC<Props> = ({
         }
       >
         {label}
-      </BoardTitleButton>
+      </BoardButton>
       {component === 'input' ? (
         <input
           name="title"
@@ -188,12 +187,6 @@ const useStyles = makeStyles({
     }
   }
 })
-
-const BoardTitleButton = withStyles({
-  root: {
-    backgroundColor: '#dedede'
-  }
-})(Button)
 
 type Props = {
   label: string

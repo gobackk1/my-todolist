@@ -86,13 +86,13 @@ const useStyles = makeStyles({
       zIndex: 2,
       marginBottom: theme.spacing(1),
       '& .MuiButtonBase-root': {
-        backgroundColor: fade(theme.palette.white, 0.6),
-        marginRight: theme.spacing(1),
-        '&:hover': {
-          backgroundColor: fade(theme.palette.white, 0.5)
-        }
+        // backgroundColor: fade(theme.palette.white, 0.6),
+        marginRight: theme.spacing(1)
+        // '&:hover': {
+        //   backgroundColor: fade(theme.palette.white, 0.5)
+        // }
       },
-      '& .MuiDivider-root': {
+      '& > .MuiGrid-root > .MuiDivider-root': {
         marginRight: theme.spacing(1),
         backgroundColor: fade(theme.palette.white, 0.6)
       },

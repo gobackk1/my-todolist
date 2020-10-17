@@ -2,7 +2,13 @@ import React from 'react'
 import { Board } from '@/scripts/redux/state/board/reducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateBoard } from '~redux/state/board/actions'
-import { Menu, LoadingSpinner, EMailField, UserIcon } from '@/components'
+import {
+  Menu,
+  LoadingSpinner,
+  EMailField,
+  UserIcon,
+  BoardButton
+} from '@/components'
 import { Button, Typography } from '@material-ui/core'
 import { callCloudFunctions } from '@/scripts/firebase'
 import {
@@ -106,13 +112,13 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
   return (
     <Menu
       render={props => (
-        <Button
+        <BoardButton
           variant="contained"
           {...props}
           disabled={isOneOfRoles(['reader', 'editor'])}
         >
           招待
-        </Button>
+        </BoardButton>
       )}
       className={styles.root}
     >

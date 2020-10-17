@@ -1,6 +1,6 @@
 import React from 'react'
 import { Board } from '@/scripts/redux/state/board/reducer'
-import { Menu } from '@/components'
+import { Menu, BoardButton } from '@/components'
 import { Button, Typography, Divider } from '@material-ui/core'
 import { useBoardAuthority, useSnackbarContext } from '@/scripts/hooks'
 import { makeStyles } from '@material-ui/styles'
@@ -32,13 +32,13 @@ export const BoardVisibilitySelection: React.FC<{ data: Board }> = ({
   return (
     <Menu
       render={props => (
-        <Button
+        <BoardButton
           variant="contained"
           {...props}
           disabled={isOneOfRoles(['reader', 'editor'])}
         >
           {data.visibility === 'public' ? '公開' : 'メンバーのみ'}
-        </Button>
+        </BoardButton>
       )}
       className={styles.root}
     >
