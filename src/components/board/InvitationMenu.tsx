@@ -1,6 +1,6 @@
 import React from 'react'
 import { Board } from '@/scripts/redux/state/board/reducer'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { updateBoard } from '~redux/state/board/actions'
 import {
   Menu,
@@ -9,8 +9,7 @@ import {
   UserIcon,
   BoardButton
 } from '@/components'
-import { Button, Typography } from '@material-ui/core'
-import { callCloudFunctions } from '@/scripts/firebase'
+import { Button, Typography, Divider } from '@material-ui/core'
 import {
   useCustomEvent,
   useSnackbarContext,
@@ -19,16 +18,20 @@ import {
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { useForm } from 'react-hook-form'
-import { getUser } from '~redux/state/users/actions'
+import { getUser, getUserByEmail } from '~redux/state/users/actions'
+import { User } from '@/scripts/model/interface'
+import { useTypeSafeDispatch } from '@/scripts/hooks'
 
-const initialUser = {
+const initialUser: User = {
   displayName: '',
-  photoURL: '',
-  uid: ''
+  avatarURL: '',
+  uid: '',
+  profile: '',
+  email: ''
 }
 
 export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
-  const dispatch = useDispatch()
+  const dispatch = useTypeSafeDispatch()
   // const inputRef = React.useRef<HTMLInputElement>(null)
   const timer = React.useRef(0)
   const [state, setState] = React.useState({
@@ -44,7 +47,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
     formState: { isValid }
   } = useForm({ mode: 'onChange' })
   const { showSnackbar } = useSnackbarContext()
-  const { users } = useSelector(state => state.users)
+  const usersState = useSelector(state => state.users)
   const { isOneOfRoles } = useBoardAuthority(board.id)
 
   const addMember = React.useCallback(() => {
@@ -58,7 +61,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
           }
         })
       )
-      if (!(state.user.uid in users)) {
+      if (!(state.user.uid in usersState.users)) {
         dispatch(getUser(state.user.uid))
       }
       dispatchCustomEvent('close_menu')
@@ -67,36 +70,45 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
       console.log('debug: InvitationMenu addMember', message)
       showSnackbar({ message, type: 'error' })
     }
-  }, [dispatch, board, state, dispatchCustomEvent, showSnackbar, users])
+  }, [
+    dispatch,
+    board,
+    state,
+    dispatchCustomEvent,
+    showSnackbar,
+    usersState.users
+  ])
 
   const searchUser = React.useCallback(
     async email => {
-      // input value を元に、サーバーに問い合わせる
       setState(state => ({ ...state, isLoading: true }))
-      const { result } = await callCloudFunctions('getUserByEmail', {
-        email
-      })
-
-      if (result.error) {
-        setState(state => ({
-          ...state,
-          isLoading: false,
-          message: 'ユーザーが見つかりませんでした',
-          user: initialUser
-        }))
-      } else {
-        const message =
-          result.data.uid in board.members ? 'すでにメンバーです' : ''
-
+      try {
+        const target = await dispatch(getUserByEmail(email))
+        const message = target.uid in board.members ? 'すでにメンバーです' : ''
         setState(state => ({
           ...state,
           isLoading: false,
           message,
-          user: result.data
+          user: target!
         }))
+      } catch ({ message }) {
+        if (message === 'NO_USER_FOUND') {
+          setState(state => ({
+            ...state,
+            isLoading: false,
+            message: 'ユーザーが見つかりませんでした',
+            user: initialUser
+          }))
+        }
       }
     },
-    [setState, board.members]
+    [
+      setState,
+      board.members,
+      usersState.users,
+      usersState.getUserByEmail,
+      dispatch
+    ]
   )
 
   const onChange = e => {
@@ -116,6 +128,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
           variant="contained"
           {...props}
           disabled={isOneOfRoles(['reader', 'editor'])}
+          disableElevation
         >
           招待
         </BoardButton>
@@ -123,7 +136,8 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
       className={styles.root}
     >
       <section className="AppInvitationMenu-inner">
-        <Typography variant="h4">招待するメンバーを探す</Typography>
+        <Typography variant="h5">招待するメンバーを探す</Typography>
+        <Divider />
         <EMailField
           errors={errors}
           register={register}
@@ -137,12 +151,15 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
             {state.user.uid && (
               <div className={styles.result}>
                 <UserIcon data={state.user} />
-                <div>{state.user.displayName}</div>
+                <div className={styles.resultName}>
+                  {state.user.displayName}
+                </div>
                 <Button
                   variant="contained"
                   size="small"
                   onClick={addMember}
                   disabled={state.user.uid in board.members}
+                  className={styles.resultButton}
                 >
                   追加
                 </Button>
@@ -159,26 +176,44 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
 const useStyles = makeStyles({
   root: {
     '& .AppInvitationMenu-inner': {
-      padding: theme.spacing(2),
-      width: 300
+      padding: theme.spacing(1),
+      width: 250,
+      '& .MuiDivider-root': {
+        marginBottom: theme.spacing(2)
+      }
     },
     '& .MuiTypography-root': {
-      marginBottom: theme.spacing(2),
+      marginBottom: theme.spacing(1),
       textAlign: 'center'
     },
     '& .AppEMailField-root': {
       marginBottom: theme.spacing(1)
+    },
+    '& .MuiAppEMailField-root': {
+      '& .MuiFormLabel-root': {
+        transform: 'translate(12px, 14px) scale(1);'
+      },
+      '& .MuiInputBase-root': {
+        paddingTop: 19,
+        paddingBottom: 4
+      }
     }
   },
   result: {
     display: 'flex',
     justifyContent: 'space-between',
-    '& .MuiButtonBase-root': {},
-    '& > div': {
-      display: 'flex',
-      flex: 1,
-      alignItems: 'center',
-      paddingLeft: theme.spacing(1)
-    }
+    '& .MuiButtonBase-root': {}
+  },
+  resultName: {
+    transform: 'translateY(2px)',
+    flex: 1,
+    alignItems: 'center',
+    paddingLeft: theme.spacing(1),
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis'
+  },
+  resultButton: {
+    alignSelf: 'center'
   }
 })

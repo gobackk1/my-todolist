@@ -43,7 +43,7 @@ export const BoardVisibilitySelection: React.FC<{ data: Board }> = ({
       className={styles.root}
     >
       <section className="AppBoardVisibilitySelection-inner">
-        <Typography variant="h4">ボードの公開範囲</Typography>
+        <Typography variant="h5">ボードの公開範囲</Typography>
         <Divider />
         <Button onClick={() => onClickChangeVisibility('public')} fullWidth>
           公開
@@ -61,7 +61,7 @@ const useStyles = makeStyles({
     display: 'inline-block',
     '& .AppBoardVisibilitySelection-inner': {
       padding: theme.spacing(1),
-      width: 280
+      width: 250
     },
     '& .MuiTypography-root': {
       textAlign: 'center',

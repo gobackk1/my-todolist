@@ -15,9 +15,31 @@ export const getUser = asyncActionCreator<string, void, Error>(
       .get()
 
     const user = snapshot.data() as User
-    user.uid = uid
+    // user.uid = uid
 
     dispatch(setUser(user))
+  }
+)
+
+export const getUserByEmail = asyncActionCreator<string, User, Error>(
+  'GET_USER_BY_EMAIL',
+  async (email, dispatch) => {
+    const snapshot = await db()
+      .collection(COLLECTION_PATH.USER_DETAIL_PUBLIC)
+      .where('email', '==', email)
+      .get()
+
+    let user!: User
+    snapshot.forEach(doc => {
+      user = doc.data() as User
+    })
+    console.log(user, 'user')
+    if (user) {
+      dispatch(setUser(user))
+      return user
+    } else {
+      throw new Error('NO_USER_FOUND')
+    }
   }
 )
 

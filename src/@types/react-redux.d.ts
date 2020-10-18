@@ -5,7 +5,8 @@ import { UsersState } from '~redux/state/users/reducer'
 import { BoardState } from '~redux/state/board/reducer'
 import { ListState } from '~redux/state/list/reducer'
 import { CardState } from '~redux/state/card/reducer'
-import { Action, Dispatch } from 'redux'
+import { AnyAction, Dispatch } from 'redux'
+import { ThunkDispatch } from 'redux-thunk'
 
 declare module 'react-redux' {
   interface DefaultRootState {
@@ -16,5 +17,7 @@ declare module 'react-redux' {
     users: UsersState
   }
 
-  export function useDispatch<T = ThunkDispatch<I.ReduxState, any, Action>>()
+  export function useDispatch<
+    T = ThunkDispatch<DefaultRootState, any, AnyAction>
+  >()
 }

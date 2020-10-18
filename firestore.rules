@@ -76,7 +76,7 @@ service cloud.firestore {
     }
 
     match /user_detail_public/{uid} {
-      function isValidUserSchima(user){
+      function isValidUserSchema(user){
         return user.size() == 5
           && resource.data.uid == user.uid
           && 'displayName' in user && user.displayName is string
