@@ -1,5 +1,5 @@
 import { actionCreator, asyncActionCreator } from '~redux/action'
-import { User } from '~redux/state/currentUser/reducer'
+import { User } from '@/scripts/model/interface'
 import firebase from 'firebase/app'
 import { OPTION } from '@/option'
 

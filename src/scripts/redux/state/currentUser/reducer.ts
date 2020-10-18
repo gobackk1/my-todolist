@@ -1,13 +1,6 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 import { setLoginUser, setLoggingIn } from './actions'
 
-export interface User {
-  uid: string
-  displayName: string
-  profile: string
-  avatarURL: string
-}
-
 export interface CurrentUserState {
   isLoggingIn: boolean
   user: { uid: string } | null

@@ -1,6 +1,6 @@
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 import { setUser, getUser, resetUsers, updateUser } from './actions'
-import { User } from '@/scripts/redux/state/currentUser/reducer'
+import { User } from '@/scripts/model/interface'
 
 export interface UsersState {
   isLoading: boolean
@@ -8,12 +8,16 @@ export interface UsersState {
   users: {
     [i: string]: User
   }
+  getUserByEmail: (email: string) => User | undefined
 }
 
 const initialState: UsersState = {
   isLoading: true,
   init: false,
-  users: {}
+  users: {},
+  getUserByEmail(email: string) {
+    return Object.values(this.users).find(user => user.email === email)
+  }
 }
 
 export const usersReducer = reducerWithInitialState(initialState)

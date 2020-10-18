@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
-import { User } from '@/scripts/redux/state/currentUser/reducer'
+import { User } from '@/scripts/model/interface'
 
 type CurrentUser = User | null
 
