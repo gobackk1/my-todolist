@@ -60,35 +60,40 @@ export const onDeleteBoard = functions
     }
   })
 
-export const onCreateUser = functions.auth.user().onCreate(async user => {
-  // TODO: ここで email をセットする必要あるか考える
-  const { uid, email } = user
-  try {
-    await db()
-      .collection('user_detail_public')
-      .doc(uid)
-      .set({
-        uid,
-        displayName: 'デフォルトユーザー',
-        email,
-        profile: '',
-        avatarURL: 'default'
-      })
-  } catch (error) {
-    console.error('error occurred', error)
-    throw new HttpsError('internal', 'internal server error')
-  }
-})
+export const onCreateUser = functions
+  .region('asia-northeast1')
+  .auth.user()
+  .onCreate(async user => {
+    const { uid, email } = user
+    try {
+      await db()
+        .collection('user_detail_public')
+        .doc(uid)
+        .set({
+          uid,
+          displayName: 'デフォルトユーザー',
+          email,
+          profile: '',
+          avatarURL: 'default'
+        })
+    } catch (error) {
+      console.error('error occurred', error)
+      throw new HttpsError('internal', 'internal server error')
+    }
+  })
 
-export const onDeleteUser = functions.auth.user().onDelete(async user => {
-  const { uid } = user
-  try {
-    await db()
-      .collection('user_detail_public')
-      .doc(uid)
-      .delete()
-  } catch (error) {
-    console.error('error occurred', error)
-    throw new HttpsError('internal', 'internal server error')
-  }
-})
+export const onDeleteUser = functions
+  .region('asia-northeast1')
+  .auth.user()
+  .onDelete(async user => {
+    const { uid } = user
+    try {
+      await db()
+        .collection('user_detail_public')
+        .doc(uid)
+        .delete()
+    } catch (error) {
+      console.error('error occurred', error)
+      throw new HttpsError('internal', 'internal server error')
+    }
+  })
