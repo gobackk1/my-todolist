@@ -90,7 +90,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
           ...state,
           isLoading: false,
           message,
-          user: target!
+          user: target
         }))
       } catch ({ message }) {
         if (message === 'NO_USER_FOUND') {
@@ -103,13 +103,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
         }
       }
     },
-    [
-      setState,
-      board.members,
-      usersState.users,
-      usersState.getUserByEmail,
-      dispatch
-    ]
+    [setState, board.members, dispatch]
   )
 
   const onChange = e => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createList } from '@/scripts/redux/state/list/actions'
-import { Button, makeStyles } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
 import { CardList, BoardButton } from '@/components'

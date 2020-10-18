@@ -3,7 +3,7 @@ import { OPTION } from '@/option'
 import { useSnackbarContext } from './useSnackbarContext'
 import { useEventListener } from './useEventListener'
 
-export const useErrorReport = () => {
+export const useErrorReport = (): void => {
   const { showSnackbar } = useSnackbarContext()
 
   const reportHandler = async e => {
