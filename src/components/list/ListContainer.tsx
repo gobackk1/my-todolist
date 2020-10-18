@@ -4,7 +4,7 @@ import { createList } from '@/scripts/redux/state/list/actions'
 import { Button, makeStyles } from '@material-ui/core'
 import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
-import { CardList } from '@/components'
+import { CardList, BoardButton } from '@/components'
 import { useBoardAuthority } from '@/scripts/hooks'
 
 export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
@@ -31,14 +31,14 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
           )
         })}
       <li>
-        <Button
+        <BoardButton
           onClick={onClick}
           startIcon={<Add />}
           variant="contained"
           disabled={isOneOfRoles(['reader'])}
         >
           リストを追加
-        </Button>
+        </BoardButton>
       </li>
     </ul>
   )

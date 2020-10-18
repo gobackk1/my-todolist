@@ -21,6 +21,7 @@ import { useForm } from 'react-hook-form'
 import { getUser, getUserByEmail } from '~redux/state/users/actions'
 import { User } from '@/scripts/model/interface'
 import { useTypeSafeDispatch } from '@/scripts/hooks'
+import { Add } from '@material-ui/icons'
 
 const initialUser: User = {
   displayName: '',
@@ -129,6 +130,7 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
           {...props}
           disabled={isOneOfRoles(['reader', 'editor'])}
           disableElevation
+          startIcon={<Add />}
         >
           招待
         </BoardButton>

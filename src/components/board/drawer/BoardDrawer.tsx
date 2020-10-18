@@ -7,7 +7,12 @@ import {
   Typography,
   IconButton
 } from '@material-ui/core'
-import { DrawerArchivedItem, DrawerRoot, DrawerSelectBg } from '@/components'
+import {
+  DrawerArchivedItem,
+  DrawerRoot,
+  DrawerSelectBg,
+  BoardButton
+} from '@/components'
 import { MoreHoriz } from '@material-ui/icons'
 import { css } from '@emotion/core'
 import { theme } from '@/styles'
@@ -43,14 +48,14 @@ export const BoardDrawer: React.FC = () => {
     >
       <Paper elevation={5}>
         <div css={styles['drawer-button']}>
-          <Button
+          <BoardButton
             onClick={toggleDrawer}
             variant="contained"
             startIcon={<MoreHoriz />}
             id="btn-open-board-menu"
           >
             ボードメニューを表示
-          </Button>
+          </BoardButton>
         </div>
         <Typography variant="h4">
           <IconButton

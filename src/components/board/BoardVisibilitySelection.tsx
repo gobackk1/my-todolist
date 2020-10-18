@@ -7,6 +7,8 @@ import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
 import { useDispatch } from 'react-redux'
 import { updateBoard } from '~redux/state/board/actions'
+import PublicIcon from '@material-ui/icons/Public'
+import GroupIcon from '@material-ui/icons/Group'
 
 export const BoardVisibilitySelection: React.FC<{ data: Board }> = ({
   data
@@ -29,6 +31,11 @@ export const BoardVisibilitySelection: React.FC<{ data: Board }> = ({
     [showSnackbar, data, dispatch]
   )
 
+  const isPublic = React.useMemo(
+    () => (data.visibility === 'public' ? true : false),
+    [data.visibility]
+  )
+
   return (
     <Menu
       render={props => (
@@ -36,8 +43,9 @@ export const BoardVisibilitySelection: React.FC<{ data: Board }> = ({
           variant="contained"
           {...props}
           disabled={isOneOfRoles(['reader', 'editor'])}
+          startIcon={isPublic ? <PublicIcon /> : <GroupIcon />}
         >
-          {data.visibility === 'public' ? '公開' : 'メンバーのみ'}
+          {isPublic ? '公開' : 'メンバーのみ'}
         </BoardButton>
       )}
       className={styles.root}
@@ -45,10 +53,18 @@ export const BoardVisibilitySelection: React.FC<{ data: Board }> = ({
       <section className="AppBoardVisibilitySelection-inner">
         <Typography variant="h5">ボードの公開範囲</Typography>
         <Divider />
-        <Button onClick={() => onClickChangeVisibility('public')} fullWidth>
+        <Button
+          startIcon={<PublicIcon />}
+          onClick={() => onClickChangeVisibility('public')}
+          fullWidth
+        >
           公開
         </Button>
-        <Button onClick={() => onClickChangeVisibility('members')} fullWidth>
+        <Button
+          startIcon={<GroupIcon />}
+          onClick={() => onClickChangeVisibility('members')}
+          fullWidth
+        >
           メンバーのみ
         </Button>
       </section>
@@ -61,7 +77,10 @@ const useStyles = makeStyles({
     display: 'inline-block',
     '& .AppBoardVisibilitySelection-inner': {
       padding: theme.spacing(1),
-      width: 250
+      width: 250,
+      '& .MuiButtonBase-root': {
+        justifyContent: 'start'
+      }
     },
     '& .MuiTypography-root': {
       textAlign: 'center',
