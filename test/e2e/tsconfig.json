@@ -1,8 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "noImplicitAny": false,
     "strict": false,
     "types": ["jest", "node"],
     "jsx": "react"
