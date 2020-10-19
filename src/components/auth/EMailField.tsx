@@ -20,8 +20,8 @@ export const EMailField: React.FC<Props> = ({
       inputRef={register({
         required: 'メールアドレスは必須です',
         maxLength: {
-          value: 30,
-          message: 'メールアドレスは30'
+          value: 100,
+          message: 'メールアドレスは100字以内で入力してください'
         },
         pattern: {
           /**
