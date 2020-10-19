@@ -39,6 +39,7 @@ export const PasswordField: React.FC<Props> = props => {
       required={true}
       defaultValue=""
       fullWidth
+      className="AppPasswordField-root"
     />
   )
 }

@@ -23,7 +23,11 @@ export const LoginFormModal: React.FC = () => {
       {currentUser === null ? (
         <Modal
           render={props => (
-            <Button color="inherit" {...props} id="btn-login">
+            <Button
+              color="inherit"
+              {...props}
+              className="AppLoginFormModal-buttonLogin"
+            >
               ログイン
             </Button>
           )}

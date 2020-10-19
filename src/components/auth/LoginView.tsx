@@ -141,7 +141,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
   }
 
   return (
-    <section id="modal-login" css={styles['section']}>
+    <section className="AppLoginView-root" css={styles['section']}>
       <Typography variant="h3" className={muiStyles['title']}>
         ログイン
       </Typography>
@@ -156,6 +156,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
             disableElevation
             type="submit"
             disabled={!isDirty || isSubmitting || !isValid}
+            className="AppLoginView-buttonLogin"
           >
             ログイン
           </Button>
@@ -176,10 +177,11 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
       </Typography>
       <Button
         onClick={onClickGoogleLogin}
-        id="btn-login-with-google"
         variant="contained"
         fullWidth
-        className={muiStyles['button-google']}
+        className={
+          (muiStyles['button-google'], 'AppLoginView-buttonGoogleProvider')
+        }
       >
         <img src={iconGoogle} alt="googleアイコン" />
         Google アカウントでログイン

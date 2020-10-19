@@ -1,11 +1,5 @@
-/**
- * E2Eテスト独自のアノテーションコメント
- * STEP: テストの手順をまとめる
- * EXPECT: expect() でチェックする箇所をまとめる
- */
-
-import { TEXT as ArchivedBoardModal_TEXT } from '@/components/board/ArchivedBoardModal'
 import { OPTION } from '@/option'
+import { CONFIG } from './util/config'
 import {
   test,
   describe,
@@ -13,125 +7,55 @@ import {
   afterAll,
   expect,
   beforeEach,
-  jest,
-  afterEach
+  jest
 } from '@jest/globals'
 import loginToGoogle from './util/loginToGoogle'
+import {
+  loginTestSuite1,
+  loginTestSuite2,
+  loginTestSuite3,
+  loginTestSuite4,
+  loginTestSuite5
+} from './testSuite/login'
 
-/**
- * test config
- */
-const localhost = 'http://localhost:8080'
-const testTimeoutMilliseconds = 15000
-const puppetWidth = 1440
-const puppetHeight = 900
-
-/**
- * start e2e test
- */
 describe('E2Eテスト', () => {
   let page: any
 
   beforeAll(async () => {
     page = await (global as any).__BROWSER__.newPage()
     await page.setViewport({
-      width: puppetWidth,
-      height: puppetHeight
+      width: CONFIG.PUPPET_WIDTH,
+      height: CONFIG.PUPPET_HEIGHT
     })
-    await page.goto(localhost)
+    await page.goto(CONFIG.LOCAL_HOST)
     await page.waitForNavigation()
   })
-
   beforeEach(async () => {
-    jest.setTimeout(testTimeoutMilliseconds)
+    jest.setTimeout(CONFIG.TEXT_TIMEOUT_MILLISECONDS)
   })
-
   afterAll(async () => {
     await page.close()
   })
 
   describe('ログインのテスト', () => {
     test('TOPページアクセス時、ログインボタンが表示されること', async () => {
-      const buttonLogin = await page.$('#btn-login span:first-child')
-      const buttonText = await (
-        await buttonLogin.getProperty('textContent')
-      ).jsonValue()
-      expect(buttonText).toContain('ログイン')
+      await loginTestSuite1(page)
     })
-
-    test('モーダルが閉じていること', async () => {
-      const modalVisibility = await page.evaluate(el => {
-        const modalLogin = document.querySelector(el).parentElement
-        return modalLogin.style.visibility
-      }, '#modal-login')
-
-      expect(modalVisibility).toBe('hidden')
-    })
-
-    // test.skip('ログインボタンを押すと、モーダルが開くこと', async () => {
-    //   NOTE: ログインのテストで担保
-    // })
-
     test('モーダルの閉じるボタンを押すと、モーダルが閉じること', async () => {
-      await page.click('#btn-login')
-      await page.waitForSelector('#btn-login-with-google')
-
-      const modalVisibility = await page.evaluate(
-        ([btnModalClose, modalLogin]) =>
-          new Promise(resolve => {
-            const modal = document.querySelector(modalLogin).parentElement
-            modal.querySelector(btnModalClose).click()
-
-            // NOTE: クリック後、直後にモーダルが閉じないため
-            setTimeout(() => {
-              resolve(modal.style.visibility)
-            }, 800)
-          }),
-        ['.btn-modal-close', '#modal-login']
-      )
-
-      expect(modalVisibility).toBe('hidden')
+      await loginTestSuite2(page)
     })
-
-    test('ログインが必要なページへ遷移した時、リダイレクトされること', async () => {
-      // TODO: 認証必要ページは配列にまとめて、forEachでテストする
-      await page.goto(localhost + '/boards')
-      await page.waitForNavigation()
-      expect(page.url()).not.toContain('/boards')
+    test('未認証状態で要認証ページへ遷移した時、リダイレクトされること', async () => {
+      await loginTestSuite3(page)
     })
-
-    test('「ボード一覧」ボタンが非表示であること', async () => {
-      const menuButton = await page.$('#menu-board-list')
-      expect(menuButton).toBe(null)
+    test('ログイン前は、「ボード一覧」ボタンが非表示であること', async () => {
+      await loginTestSuite4(page)
     })
-
-    test('ログイン可能かつログイン後のフィードバックが正しいこと', async () => {
-      await loginToGoogle(page)
-
-      // web アプリがログイン後の画面へ遷移する
-      const snackbar = await page.waitForSelector('.MuiSnackbar-root')
-      const snackbarText = await snackbar.evaluate(node => {
-        return node.innerText
-      })
-
-      const buttonLogout = await page.$('#btn-logout' + ' span:first-child')
-      const buttonText = await (
-        await buttonLogout.getProperty('textContent')
-      ).jsonValue()
-
-      const imageSrc = await page.evaluate(el => {
-        const img = document.querySelector(el)
-        return img.src
-      }, '#img-user-photo')
-
-      expect(buttonText).toContain('ログアウト')
-      expect(snackbarText).toBe(OPTION.MESSAGE.LOGIN.SUCCESS)
-      expect(imageSrc).toContain('https://')
-      expect(page.url()).toContain(OPTION.PATH.BOARD)
+    test('ログインができること', async () => {
+      await loginTestSuite5(page)
     })
   })
 
-  describe('ボード操作のテスト', () => {
+  describe.skip('ボード操作のテスト', () => {
     const app = {
       async openAppMenu() {
         await page.click('#button-menu-open')
@@ -205,7 +129,7 @@ describe('E2Eテスト', () => {
         )
         expect(boardTitle).toBe(newBoardTitle)
         expect(page.url()).toMatch(
-          RegExp(localhost + OPTION.PATH.BOARD + '/.*')
+          RegExp(CONFIG.LOCAL_HOST + OPTION.PATH.BOARD + '/.*')
         )
       })
 
@@ -252,7 +176,7 @@ describe('E2Eテスト', () => {
         /**
          * EXPECT: /boards へ遷移し、url から boardId が取り除かれること
          */
-        expect(page.url()).toBe(localhost + OPTION.PATH.BOARD)
+        expect(page.url()).toBe(CONFIG.LOCAL_HOST + OPTION.PATH.BOARD)
       })
 
       test('ボードタイトルが、空白または51字以上の時に、ボードが作成できないこと', async () => {
@@ -477,7 +401,7 @@ describe('E2Eテスト', () => {
         /**
          * フィードバックテキストが正しいこと
          */
-        expect(snackbarText).toBe(ArchivedBoardModal_TEXT.DELETE_BOARD)
+        // expect(snackbarText).toBe(ArchivedBoardModal_TEXT.DELETE_BOARD)
       })
     })
 

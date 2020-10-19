@@ -38,7 +38,7 @@ export const BoardListMenu: React.FC = () => {
       )}
       className={styles.root}
     >
-      <div className="AppBoardListMenu-content" id="menu-board-list">
+      <div className="AppBoardListMenu-content">
         <div css={styles['board-list']}>
           <BoardListSearchForm state={state} setState={setState} />
           {state.isSearching ? <SearchView state={state} /> : <BoardListView />}

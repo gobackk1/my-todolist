@@ -75,13 +75,15 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
         }}
         keepMounted
         className={className ? className : ''}
+        data-test="Modal"
       >
         <Fade in={open}>
           <div css={styles['modal-inner']}>
             <IconButton
               size="small"
               onClick={handleClose as any}
-              className="btn-modal-close"
+              // TODO: まとめる
+              className="btn-modal-close Modal-buttonClose"
               css={styles['modal-close']}
             >
               <Close />
