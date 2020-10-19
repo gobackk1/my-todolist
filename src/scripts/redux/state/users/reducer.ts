@@ -21,7 +21,7 @@ const initialState: UsersState = {
   isLoading: true,
   init: false,
   users: {},
-  getUserByEmail(email: string) {
+  getUserByEmail(this: UsersState, email: string) {
     return Object.values(this.users).find(user => user.email === email)
   }
 }
