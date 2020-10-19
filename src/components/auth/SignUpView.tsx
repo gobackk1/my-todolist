@@ -17,39 +17,8 @@ export const TEXT = {
   REQUIRE_EMAIL: 'メールアドレスは必須です'
 } as const
 
-const styles = {
-  section: css`
-    width: 300px;
-
-    .MuiButtonBase-root {
-      margin-bottom: ${theme.spacing(2)}px;
-    }
-  `,
-  buttons: css`
-    display: flex;
-    justify-content: space-between;
-  `
-}
-
-const useStyles = makeStyles(() => ({
-  title: {
-    textAlign: 'center',
-    marginBottom: theme.spacing(3),
-    fontWeight: 'bold'
-  }
-}))
-
-type Props = {
-  setView: React.Dispatch<React.SetStateAction<'login' | 'signup'>>
-}
-
-type FormValue = {
-  email: string
-  password: string
-}
-
 export const SignUpView: React.FC<Props> = ({ setView }) => {
-  const muiStyles = useStyles()
+  const styles = useStyles()
   const {
     register,
     handleSubmit,
@@ -96,16 +65,19 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
   }
 
   return (
-    <section css={styles['section']}>
-      <Typography variant="h3" className={muiStyles['title']}>
+    <section className={styles.root}>
+      <Typography variant="h3" className={styles.title}>
         新規登録
+      </Typography>
+      <Typography className={styles.description}>
+        登録するメールアドレスとパスワードを入力してください
       </Typography>
       <LoginOrSignUpForm onSubmit={handleSubmit(onSubmit)}>
         <EMailField errors={errors} register={register} />
         <br />
         <PasswordField errors={errors} register={register} />
         <br />
-        <div css={styles['buttons']}>
+        <div className={styles.buttons}>
           <Button
             type="submit"
             variant="contained"
@@ -127,4 +99,34 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
       </LoginOrSignUpForm>
     </section>
   )
+}
+
+const useStyles = makeStyles(() => ({
+  root: {
+    width: 300,
+    '& .MuiButtonBase-root': {
+      marginBottom: theme.spacing(2)
+    }
+  },
+  buttons: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: theme.spacing(3),
+    fontWeight: 'bold'
+  },
+  description: {
+    marginBottom: theme.spacing(2)
+  }
+}))
+
+type Props = {
+  setView: React.Dispatch<React.SetStateAction<'login' | 'signup'>>
+}
+
+type FormValue = {
+  email: string
+  password: string
 }

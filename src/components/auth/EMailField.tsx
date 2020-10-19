@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextField } from '@material-ui/core'
+import { TextField, TextFieldProps } from '@material-ui/core'
 import { DeepMap, FieldError } from 'react-hook-form'
 
 type Props = {

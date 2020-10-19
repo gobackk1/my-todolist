@@ -1,5 +1,5 @@
 import React from 'react'
-import { TextField } from '@material-ui/core'
+import { TextField, TextFieldProps } from '@material-ui/core'
 import { DeepMap, FieldError } from 'react-hook-form'
 
 type Props = {
@@ -7,12 +7,12 @@ type Props = {
   register: any
 }
 
-export const PasswordField: React.FC<Props> = ({ errors, register }) => {
+export const PasswordField: React.FC<Props> = props => {
   return (
     <TextField
-      error={errors ? !!errors.password : false}
+      error={props.errors ? !!props.errors.password : false}
       name="password"
-      inputRef={register({
+      inputRef={props.register({
         required: 'パスワードは必須です',
         maxLength: {
           value: 20,
@@ -29,7 +29,11 @@ export const PasswordField: React.FC<Props> = ({ errors, register }) => {
       })}
       type="password"
       label="パスワード"
-      helperText={errors ? errors.password && errors.password.message : false}
+      helperText={
+        props.errors
+          ? props.errors.password && props.errors.password.message
+          : false
+      }
       variant="filled"
       size="small"
       required={true}
