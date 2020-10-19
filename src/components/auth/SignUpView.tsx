@@ -47,6 +47,7 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
           message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
           type: 'info'
         })
+        dispatchEvent(new CustomEvent('onDispatchCloseModal'))
       }
     } catch (e) {
       console.log(e)
