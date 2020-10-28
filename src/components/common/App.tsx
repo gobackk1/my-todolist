@@ -36,7 +36,6 @@ firebase.initializeApp({
  */
 export const App: React.FC = () => {
   useErrorReport()
-
   return (
     <MuiThemeProvider theme={theme}>
       <EmotionGlobal />

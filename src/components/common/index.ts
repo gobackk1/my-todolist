@@ -1,6 +1,5 @@
 export { App } from './App'
 export { Header } from './Header'
-export { Authentication } from './Authentication'
 export { EmotionGlobal } from './EmotionGlobal'
 export { VariableInput } from './VariableInput'
 export { LoadingSpinner } from './LoadingSpinner'

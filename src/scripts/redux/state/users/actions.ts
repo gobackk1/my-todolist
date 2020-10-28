@@ -6,7 +6,7 @@ import { OPTION } from '@/option'
 const { COLLECTION_PATH } = OPTION
 const db = firebase.firestore
 
-export const getUser = asyncActionCreator<string, void, Error>(
+export const getUser = asyncActionCreator<string, User, Error>(
   'GET_USER',
   async (uid, dispatch) => {
     const snapshot = await db()
@@ -18,6 +18,7 @@ export const getUser = asyncActionCreator<string, void, Error>(
     // user.uid = uid
 
     dispatch(setUser(user))
+    return user
   }
 )
 

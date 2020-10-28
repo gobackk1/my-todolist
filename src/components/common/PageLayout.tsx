@@ -1,14 +1,15 @@
 import React from 'react'
-import { Header, Authentication } from '@/components'
+import { Header } from '@/components'
 import { css } from '@emotion/core'
+import { useAuth } from '@/scripts/hooks'
 
 export const PageLayout: React.FC = ({ children }) => {
+  useAuth()
+
   return (
     <>
       <Header />
-      <Authentication>
-        <div css={style}>{children}</div>
-      </Authentication>
+      <div css={style}>{children}</div>
     </>
   )
 }
