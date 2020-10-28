@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "types": ["jest", "node"],
+    "jsx": "react"
+  },
+  "baseUrl": "../../"
+}

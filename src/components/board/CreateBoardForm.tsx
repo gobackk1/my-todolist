@@ -77,7 +77,11 @@ export const CreateBoardForm: React.FC = () => {
             required: OPTION.MESSAGE.BOARD.TITLE.REQUIRED_ERROR,
             maxLength: {
               value: OPTION.BOARD.TITLE.MAX_LENGTH,
-              message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR
+              message: OPTION.MESSAGE.BOARD.TITLE.LENGTH_ERROR
+            },
+            minLength: {
+              value: OPTION.BOARD.TITLE.MIN_LENGTH,
+              message: OPTION.MESSAGE.BOARD.TITLE.LENGTH_ERROR
             }
           })}
           type="text"

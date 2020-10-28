@@ -1,0 +1,17 @@
+{
+  "testMatch": [
+     "**/*.test.ts"
+   ] ,
+  "globals": {
+    "ts-jest": {
+      "tsConfig": "./test/firestore/tsconfig.json"
+    }
+  },
+  "rootDir": "../../",
+  "transform": {
+    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(jpg|png|gif)$": "<rootDir>/test/mock/fileMock.js"
+  },
+  "moduleFileExtensions": ["ts", "js", "rules"],
+  "testEnvironment": "node"
+}

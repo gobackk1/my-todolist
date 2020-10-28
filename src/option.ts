@@ -33,7 +33,8 @@ export const OPTION = {
   },
   BOARD: {
     TITLE: {
-      MAX_LENGTH: 50
+      MAX_LENGTH: 50,
+      MIN_LENGTH: 1
     },
     BG: {
       COLORS: [
@@ -87,7 +88,7 @@ export const OPTION = {
       'サーバーと接続できませんでした。サーバーとの接続を確認し、操作をやり直して下さい。',
     BOARD: {
       TITLE: {
-        MAX_LENGTH_ERROR: 'タイトルは50字以内で指定してください',
+        LENGTH_ERROR: 'タイトルは1~50字で指定してください',
         REQUIRED_ERROR: 'タイトルは必須です'
       }
     },

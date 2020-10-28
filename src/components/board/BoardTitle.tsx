@@ -33,7 +33,7 @@ export const BoardTitle: React.FC = () => {
 
       if (title.length > 50) {
         showSnackbar({
-          message: OPTION.MESSAGE.BOARD.TITLE.MAX_LENGTH_ERROR,
+          message: OPTION.MESSAGE.BOARD.TITLE.LENGTH_ERROR,
           type: 'error'
         })
         return

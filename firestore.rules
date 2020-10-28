@@ -1,25 +1,66 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() {
-      return request.auth != null;
+    function isSignedIn(req) {
+      return req.auth != null;
+    }
+
+    function isValidBoardSchema(board){
+      // author は owner 以外の role を割り当てられない
+      return board.size() == 5
+        && 'author' in board && board.author is string
+        && 'title' in board && board.title is string
+        && 'backgroundImage' in board && board.backgroundImage is string
+        && 'visibility' in board && board.visibility is string
+      // TODO: 可変長の map はバリデーションできないので、サブコレクションへ移動する
+        && 'members' in board && board.members is map
+    }
+
+    function isValidBoardData(board){
+      return  board.author.size() < 100
+        && board.title.size() > 0 && board.title.size() < 51
+        && (board.backgroundImage.matches('^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$') || board.backgroundImage.matches('/images/bg_photo_[0-9].*.jpg'))
+        && board.visibility.matches('public|members')
+        && board.members[board.author].role == 'owner'
+      // TODO: 可変長の map はバリデーションできないので、サブコレクションへ移動する
+      // && board.members
+    }
+
+    function isValidReadBoard(req, resrc){
+      return isBoardMember(req, resrc) || isPublicVisibility(resrc);
+    }
+
+    function isValidCreateBoard(req, resrc){
+      return req.auth.uid in req.resource.data.members
+        && req.resource.data.members[req.auth.uid].role == 'owner'
+        && isValidBoardData(req.resource.data)
+        && isValidBoardSchema(req.resource.data);
+    }
+
+    function isValidUpdateBoard(req, resrc){
+      return req.resource.data.author == resrc.data.author
+        && isValidBoardData(req.resource.data)
+        && isValidBoardSchema(req.resource.data)
+        && isOneOfRoles(resource, ['owner'], request)
+      // メンバーによる認可の例として残しておく
+      // || ( isOneOfRoles(resource, ['editor'], request) && onlyContentChanged(request, resource)))
     }
 
     function isAuthUser(userId) {
       return request.auth.uid == userId
     }
 
-    function isValidNewBoard(resrc, req){
-      return resrc == null && req.resource.data.members[req.auth.uid].role == 'owner';
-    }
-
     function getRole(resrc, req) {
       return resrc.data.members[req.auth.uid].role;
     }
 
+    function isBoardMember(req, resrc) {
+      return req.auth.uid in resource.data.members
+    }
+
     function isOneOfRoles(resrc, array, req) {
-      // 存在しないボードにアクセスした時のため、resrc = null を加える
-      return isSignedIn() && (getRole(resrc, req) in array) || resrc == null;
+      return isBoardMember(req, resrc)
+        && getRole(resrc, req) in array
     }
 
     function onlyContentChanged(req, resrc) {
@@ -28,81 +69,95 @@ service cloud.firestore {
         && req.resource.size() == resrc.size();
     }
 
-    function checkSchema(req, resrc){
-      // author は owner 以外の role を割り当てられない
-      return req.resource.data.members[resrc.data.author].role == 'owner'
+    function isBoardAuthor(req, resrc) {
+      return req.auth.uid == resrc.data.author
+    }
+
+    function isPublicVisibility(resrc) {
+      return resrc.data.visibility == 'public'
     }
 
     match /users/{uid} {
-      allow read, write: if isSignedIn() && isAuthUser(uid);
+      allow read, write: if isSignedIn(request) && isAuthUser(uid);
       match /boards/{boardId} {
-        allow read, write: if isSignedIn() && isAuthUser(uid);
+        allow read, write: if isSignedIn(request) && isAuthUser(uid);
       }
 
       match /lists/{listId} {
-        allow read, write: if isSignedIn() && isAuthUser(uid);
+        allow read, write: if isSignedIn(request) && isAuthUser(uid);
 
         match /cards/{cardId} {
-          allow read, write: if isSignedIn() && isAuthUser(uid);
+          allow read, write: if isSignedIn(request) && isAuthUser(uid);
         }
       }
       match /archivedLists/{listId} {
-        allow read, write: if isSignedIn() && isAuthUser(uid);
+        allow read, write: if isSignedIn(request) && isAuthUser(uid);
 
         match /cards/{cardId} {
-          allow read, write: if isSignedIn() && isAuthUser(uid);
+          allow read, write: if isSignedIn(request) && isAuthUser(uid);
         }
       }
     }
 
-    match /boards_live/{boardId} {
-      allow create: if isValidNewBoard(resource, request);
-      allow delete: if isOneOfRoles(resource, ['owner'],request);
-      allow update: if checkSchema(request, resource) && isOneOfRoles(resource, ['owner'],request) || ( isOneOfRoles(resource, ['editor']) && onlyContentChanged(request, resource))
-      allow read: if isOneOfRoles(resource, ['owner', 'editor', 'reader'], request);
-    }
-
-    match /boards_archived/{boardId} {
-      allow create: if isValidNewBoard(resource, request);
-      allow delete: if isOneOfRoles(resource, ['owner'], request);
-      allow update: if checkSchemea() && isOneOfRoles(resource, ['owner'], request) || ( isOneOfRoles(resource, ['editor']) && onlyContentChanged(request, resource))
-      allow read: if isOneOfRoles(resource, ['owner', 'editor', 'reader'], request);
-    }
-
-    match /relationships_favorite/{collection=**} {
-      allow create: if isSignedIn()
-      allow delete, update: if resource.data.uid == request.auth.uid
-      allow read: if isSignedIn()
-    }
-
     match /user_detail_public/{uid} {
-      function isValidUserSchema(user){
+      function isValidUserSchema(user, resrc){
         return user.size() == 5
-          && resource.data.uid == user.uid
-          && 'displayName' in user && user.displayName is string
+          && resrc.data.uid == user.uid
         // email は auth().currentUser.updateEmail() で変更する
-          && resource.data.email == user.email
+          && resrc.data.email == user.email
+          && 'displayName' in user && user.displayName is string
           && 'profile' in user && user.profile is string
           && 'avatarURL' in user && user.avatarURL is string
       }
 
       function isValidUserData(user) {
-        return  user.displayName.size() >= 6 && user.displayName.size() <= 30
+        return user.displayName.size() >= 6 && user.displayName.size() <= 30
           && user.profile.size() <= 140
+          && user.avatarURL.matches('^default$') || user.avatarURL.matches('^https://firebasestorage.googleapis.com/.*\\.jpg.*')
       }
 
-      allow create: if false
-      allow update:
-      if isSignedIn()
-        && isAuthUser(uid)
-        && isValidUserSchima(request.resource.data)
-        && isValidUserData(request.resource.data)
-      allow delete: if isSignedIn() && isAuthUser(uid)
-      allow read: if isSignedIn()
+      function isValidUpdateUserDetailPublic(req, resrc){
+        return isAuthUser(uid)
+          && isValidUserSchema(req.resource.data, resrc)
+          && isValidUserData(req.resource.data)
+      }
+
+      allow read  : if isSignedIn(request);
+      allow create: if false;
+      allow update: if isSignedIn(request)
+        && isValidUpdateUserDetailPublic(request, resource);
+      allow delete: if false;
+    }
+
+    match /boards_live/{boardId} {
+      allow read  : if isSignedIn(request)
+        && isValidReadBoard(request, resource);
+      allow create: if isSignedIn(request)
+        && isValidCreateBoard(request, resource);
+      allow update: if isSignedIn(request)
+        && isValidUpdateBoard(request, resource);
+      allow delete: if isSignedIn(request)
+        && isBoardAuthor(request, resource);
+    }
+
+    match /boards_archived/{boardId} {
+      allow read: if isSignedIn(request)
+        && isValidReadBoard(request, resource);
+      allow create: if isSignedIn(request)
+        && isValidCreateBoard(request, resource);
+      allow update: if false
+      allow delete: if isSignedIn(request)
+        && isBoardAuthor(request, resource);
+    }
+
+    match /relationships_favorite/{collection=**} {
+      allow create: if isSignedIn(request)
+      allow delete, update: if resource.data.uid == request.auth.uid
+      allow read: if isSignedIn(request)
     }
 
     match /runtime_error_reports/{errorId} {
-      allow create: if isSignedIn()
+      allow create              : if isSignedIn(request)
       allow read, update, delete: if false
     }
   }

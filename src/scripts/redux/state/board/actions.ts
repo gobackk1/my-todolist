@@ -199,7 +199,6 @@ export const createBoard = asyncActionCreator<
   const board = {
     title,
     backgroundImage,
-    favorite: false,
     members,
     visibility,
     author: user.uid
@@ -209,7 +208,7 @@ export const createBoard = asyncActionCreator<
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .add(board)
 
-  dispatch(setBoard({ id, ...board }))
+  dispatch(setBoard({ id, favorite: false, ...board }))
   return { id }
 })
 
