@@ -11,6 +11,8 @@ import firebase from 'firebase'
 import { getUser } from '~redux/state/users/actions'
 import { Member } from './reducer'
 import { callCloudFunctions } from '@/scripts/firebase'
+import { ThunkDispatch } from 'redux-thunk'
+import { AnyAction } from 'redux'
 
 const db = firebase.firestore
 const { COLLECTION_PATH } = OPTION
@@ -24,11 +26,14 @@ const mixin = (() => {
   /**
    * 渡した members を元にユーザーを取得し、users state に登録する
    */
-  const fetchMembersAndDispatchAddUser = async (members: {
-    [i: string]: Member
-  }) => {
+  const fetchMembersAndDispatchAddUser = async (
+    members: {
+      [i: string]: Member
+    },
+    dispatch: ThunkDispatch<unknown, any, AnyAction>
+  ) => {
     await Object.keys(members).forEach(async (uid: string) => {
-      await store.dispatch(getUser(uid))
+      await dispatch(getUser(uid))
     })
   }
 
@@ -38,18 +43,6 @@ const mixin = (() => {
   const getBoard = (doc: firebase.firestore.DocumentData): Board => {
     const data = doc.data()
     return { id: doc.id, ...data } as Board
-  }
-
-  /**
-   * ログインしていたら user をリターンする
-   */
-  const getUserStateIfLogin = () => {
-    const { currentUser } = store.getState()
-    if (!currentUser) {
-      throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
-    } else {
-      return currentUser.user
-    }
   }
 
   /**
@@ -95,7 +88,6 @@ const mixin = (() => {
     fetchUser,
     fetchMembersAndDispatchAddUser,
     getBoard,
-    getUserStateIfLogin,
     setFavorite,
     queryWithJunctionTable
   }
@@ -112,7 +104,7 @@ const mixin = (() => {
 export const fetchBoards = asyncActionCreator<void, void, Error>(
   'FETCH_BOARDS',
   async (_, dispatch) => {
-    const { uid } = mixin.getUserStateIfLogin()
+    const { uid } = store.getState().currentUser.user!
 
     const [snapshot, favorites] = await mixin.queryWithJunctionTable(
       db()
@@ -126,7 +118,7 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
       if (!doc.exists) return
 
       const board = mixin.getBoard(doc)
-      mixin.fetchMembersAndDispatchAddUser(board.members)
+      mixin.fetchMembersAndDispatchAddUser(board.members, dispatch)
       dispatch(setBoard(mixin.setFavorite(board, favorites)))
     })
   }
@@ -138,7 +130,7 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
 export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
   'FETCH_ARCHIVED_BOARDS',
   async (_, dispatch) => {
-    const { uid } = mixin.getUserStateIfLogin()
+    const { uid } = store.getState().currentUser.user!
 
     const [snapshot, favorites] = await mixin.queryWithJunctionTable(
       db()
@@ -150,7 +142,7 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
 
     snapshot.forEach(doc => {
       const board = mixin.getBoard(doc)
-      mixin.fetchMembersAndDispatchAddUser(board.members)
+      mixin.fetchMembersAndDispatchAddUser(board.members, dispatch)
       dispatch(setArchivedBoard(mixin.setFavorite(board, favorites)))
     })
   }
@@ -159,7 +151,7 @@ export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
 export const fetchBoard = asyncActionCreator<string, void, Error>(
   'FETCH_BOARD',
   async (params, dispatch) => {
-    const { uid } = mixin.getUserStateIfLogin()
+    const { uid } = store.getState().currentUser.user!
     const boardState = store.getState().board
 
     /**
@@ -178,7 +170,7 @@ export const fetchBoard = asyncActionCreator<string, void, Error>(
     if (!documentReference.exists) return
 
     const board = mixin.getBoard(documentReference)
-    mixin.fetchMembersAndDispatchAddUser(board.members)
+    mixin.fetchMembersAndDispatchAddUser(board.members, dispatch)
     dispatch(setBoard(mixin.setFavorite(board, favorites)))
   }
 )
@@ -193,7 +185,7 @@ export const createBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('CREATE_BOARD', async ({ title, backgroundImage, visibility }, dispatch) => {
-  const user = mixin.getUserStateIfLogin()
+  const user = store.getState().currentUser.user!
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
 
   const board = {
@@ -203,7 +195,7 @@ export const createBoard = asyncActionCreator<
     visibility,
     author: user.uid
   }
-  const { id } = await firebase
+  const { id }: Pick<Board, 'id'> = await firebase
     .firestore()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .add(board)
@@ -229,7 +221,7 @@ export const updateBoard = asyncActionCreator<
   void,
   Error
 >('UPDATE_BOARD', async (params, dispatch) => {
-  mixin.getUserStateIfLogin()
+  store.getState().currentUser.user
   const { boards }: BoardState = store.getState().board
   const { id, ...target } = boards[params.id]
   const { id: paramsId, ...paramsWithoutId } = params
@@ -249,7 +241,7 @@ export const updateBoard = asyncActionCreator<
 export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
   'DELETE_BOARD',
   async ({ id }) => {
-    mixin.getUserStateIfLogin()
+    store.getState().currentUser.user
 
     await db()
       .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
@@ -268,7 +260,7 @@ export const archiveBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('ARCHIVE_BOARD', async ({ id }) => {
-  const user = mixin.getUserStateIfLogin()
+  const user = store.getState().currentUser.user
   const documentReference = await db()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .doc(id)
@@ -301,7 +293,7 @@ export const restoreBoard = asyncActionCreator<
   Pick<Board, 'id'>,
   Error
 >('RESTORE_BOARD', async ({ id }) => {
-  const user = mixin.getUserStateIfLogin()
+  const user = store.getState().currentUser.user
   const documentReference = await db()
     .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
     .doc(id)
@@ -337,7 +329,7 @@ export const deleteBoardMember = asyncActionCreator<
   void,
   Error
 >('DELETE_BOARD_MEMBER', async ({ boardId, uid }, dispatch) => {
-  mixin.getUserStateIfLogin()
+  store.getState().currentUser.user
   const { boards }: BoardState = store.getState().board
   const target = boards[boardId]
   // 他に良い方法が見つかるまで
@@ -378,7 +370,7 @@ export const changeFavoriteRelations = asyncActionCreator<
   void,
   Error
 >('CHANGE_FAVORITE_RELATIONS', async ({ favorite, boardId }, dispatch) => {
-  const { uid } = mixin.getUserStateIfLogin()
+  const { uid } = store.getState().currentUser.user!
   const { boards }: BoardState = store.getState().board
 
   if (favorite) {

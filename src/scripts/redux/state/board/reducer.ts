@@ -64,6 +64,7 @@ export const initialState: BoardState = {
       : { backgroundImage: `url(${backgroundImage})` }
   }
 }
+
 export const boardReducer = reducerWithInitialState(initialState)
   /**
    * async.started
@@ -77,13 +78,12 @@ export const boardReducer = reducerWithInitialState(initialState)
     ],
     state => ({ ...state, isLoading: true })
   )
-  .case(restoreBoard.async.started, state => ({
+  .cases([restoreBoard.async.started, createBoard.async.started], state => ({
     ...state,
     isLoading: true
   }))
   .cases(
     [
-      createBoard.async.started,
       updateBoard.async.started,
       deleteBoard.async.started,
       archiveBoard.async.started,
@@ -128,11 +128,16 @@ export const boardReducer = reducerWithInitialState(initialState)
   .cases(
     [
       fetchBoards.async.done,
-      createBoard.async.done,
       fetchBoard.async.done,
-      changeFavoriteRelations.async.done,
-      updateBoard.async.done,
       deleteBoardMember.async.done
+    ],
+    state => ({ ...state, init: true, isLoading: false })
+  )
+  .cases(
+    [
+      createBoard.async.done,
+      changeFavoriteRelations.async.done,
+      updateBoard.async.done
     ],
     state => ({ ...state, init: true, isLoading: false })
   )

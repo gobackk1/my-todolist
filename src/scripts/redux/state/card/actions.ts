@@ -54,7 +54,7 @@ import { Card } from '~redux/state/card/reducer'
 export const createCard = asyncActionCreator<any, any, Error>(
   'CREATE_CARD',
   async ({ title, listId }) => {
-    const { user }: CurrentUserState = store.getState().user
+    const { user } = store.getState().currentUser
 
     if (!user) {
       throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
@@ -78,7 +78,7 @@ export const updateCard = asyncActionCreator<
   Pick<Card, 'title' | 'id' | 'listId'>,
   Error
 >('UPDATE_CARD', async ({ listId, title, id }) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user } = store.getState().currentUser
 
   if (user && user.uid) {
     try {
@@ -102,7 +102,7 @@ export const deleteCard = asyncActionCreator<
   Pick<Card, 'id' | 'listId'>,
   Error
 >('DELETE_CARD', async ({ listId, id }) => {
-  const { user }: CurrentUserState = store.getState().user
+  const { user } = store.getState().currentUser
 
   if (user && user.uid) {
     try {
