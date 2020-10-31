@@ -17,7 +17,7 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
   const { signUp } = useFirebase()
 
   return (
-    <section className={styles.root}>
+    <section className={`${styles.root} AppSignUpView-root`}>
       <Typography variant="h3" className={styles.title}>
         新規登録
       </Typography>
@@ -55,7 +55,7 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
 const useStyles = makeStyles(() => ({
   root: {
     width: 300,
-    '& .MuiButtonBase-root': {
+    '& > .MuiButtonBase-root': {
       marginBottom: theme.spacing(2)
     }
   },

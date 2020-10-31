@@ -117,7 +117,7 @@ const useStyles = makeStyles(() => ({
   },
   root: {
     width: 300,
-    '& .MuiButtonBase-root': {
+    '& > .MuiButtonBase-root': {
       marginBottom: theme.spacing(2)
     }
   },

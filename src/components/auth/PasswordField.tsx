@@ -1,6 +1,7 @@
 import React from 'react'
-import { TextField, TextFieldProps } from '@material-ui/core'
+import { IconButton, InputAdornment, TextField } from '@material-ui/core'
 import { DeepMap, FieldError } from 'react-hook-form'
+import { Visibility, VisibilityOff } from '@material-ui/icons'
 
 type Props = {
   errors?: DeepMap<Record<string, any>, FieldError>
@@ -8,6 +9,16 @@ type Props = {
 }
 
 export const PasswordField: React.FC<Props> = props => {
+  const [showPassword, setShowPassword] = React.useState<boolean>(false)
+  const handleClickShowPassword = React.useCallback(
+    () => setShowPassword(!showPassword),
+    [setShowPassword, showPassword]
+  )
+  const handleMouseDownPassword = React.useCallback(
+    () => setShowPassword(!showPassword),
+    [setShowPassword, showPassword]
+  )
+
   return (
     <TextField
       error={props.errors ? !!props.errors.password : false}
@@ -27,7 +38,6 @@ export const PasswordField: React.FC<Props> = props => {
           message: 'パスワードは6~20文字の英数小文字で入力してください'
         }
       })}
-      type="password"
       label="パスワード"
       helperText={
         props.errors
@@ -40,6 +50,19 @@ export const PasswordField: React.FC<Props> = props => {
       defaultValue=""
       fullWidth
       className="AppPasswordField-root"
+      type={showPassword ? 'test' : 'password'}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton
+              onClick={handleClickShowPassword}
+              onMouseDown={handleMouseDownPassword}
+            >
+              {showPassword ? <Visibility /> : <VisibilityOff />}
+            </IconButton>
+          </InputAdornment>
+        )
+      }}
     />
   )
 }
