@@ -1,14 +1,11 @@
 import React from 'react'
-import { Modal, LoginView, SignUpView, UserIcon } from '@/components'
-import { Button, IconButton } from '@material-ui/core'
-import { useEventListener, useCurrentUser } from '@/scripts/hooks'
-import { OPTION } from '@/option'
+import { Modal, LoginView, SignUpView } from '@/components'
+import { Button } from '@material-ui/core'
+import { useEventListener } from '@/scripts/hooks'
 import { theme } from '@/styles'
-import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/styles'
 
 export const LoginFormModal: React.FC = () => {
-  const currentUser = useCurrentUser()
   const [view, setView] = React.useState<'login' | 'signup'>('login')
   const styles = useStyles()
 
@@ -20,37 +17,25 @@ export const LoginFormModal: React.FC = () => {
 
   return (
     <div className={`AppLoginFormModal-root ${styles.root}`}>
-      {currentUser === null ? (
-        <Modal
-          render={props => (
-            <Button
-              color="inherit"
-              {...props}
-              className="AppLoginFormModal-buttonLogin"
-            >
-              ログインへ
-            </Button>
-          )}
-        >
-          <div className={styles.modalInner}>
-            {view === 'login' ? (
-              <LoginView setView={setView} />
-            ) : (
-              <SignUpView setView={setView} />
-            )}
-          </div>
-        </Modal>
-      ) : (
-        <>
-          <IconButton
-            component={Link}
-            to={OPTION.PATH.USER_PROFILE}
-            className="AppLoginFormModal-profileLink"
+      <Modal
+        render={props => (
+          <Button
+            color="inherit"
+            {...props}
+            className="AppLoginFormModal-buttonLogin"
           >
-            <UserIcon data={currentUser} />
-          </IconButton>
-        </>
-      )}
+            ログインへ
+          </Button>
+        )}
+      >
+        <div className={styles.modalInner}>
+          {view === 'login' ? (
+            <LoginView setView={setView} />
+          ) : (
+            <SignUpView setView={setView} />
+          )}
+        </div>
+      </Modal>
     </div>
   )
 }

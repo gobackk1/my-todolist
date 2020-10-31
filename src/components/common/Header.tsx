@@ -1,22 +1,27 @@
 import React from 'react'
-import { AppBar, Toolbar, makeStyles } from '@material-ui/core'
+import { AppBar, Toolbar, makeStyles, IconButton } from '@material-ui/core'
 import {
   LoadingSpinner,
   BoardListMenu,
   LoginFormModal,
-  BoardTopLinkButton
+  BoardTopLinkButton,
+  UserIcon
 } from '@/components'
 import { useSelector } from 'react-redux'
 import { theme } from '@/styles'
+import { Link } from 'react-router-dom'
+import { useCurrentUser } from '@/scripts/hooks'
+import { OPTION } from '@/option'
 
 export const Header: React.FC = () => {
-  const { user, isLoggingIn } = useSelector(state => state.currentUser)
+  const { isLoggingIn } = useSelector(state => state.currentUser)
   const styles = useStyles()
+  const currentUser = useCurrentUser()
 
   return (
     <AppBar position="static" className={`AppHeader-root ${styles.root}`}>
       <Toolbar>
-        {user && (
+        {currentUser && (
           <>
             <BoardTopLinkButton />
             <BoardListMenu />
@@ -24,7 +29,17 @@ export const Header: React.FC = () => {
         )}
         <h1 className="AppHeader-title">Pacrello</h1>
         {isLoggingIn && <LoadingSpinner />}
-        {!isLoggingIn && <LoginFormModal />}
+        {currentUser ? (
+          <IconButton
+            component={Link}
+            to={OPTION.PATH.USER_PROFILE}
+            className="AppLoginFormModal-profileLink"
+          >
+            <UserIcon data={currentUser} />
+          </IconButton>
+        ) : (
+          <LoginFormModal />
+        )}
       </Toolbar>
     </AppBar>
   )
