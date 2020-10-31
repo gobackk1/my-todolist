@@ -15,24 +15,37 @@ type Props = {
   setView: React.Dispatch<React.SetStateAction<'login' | 'signup'>>
 }
 
+type FormValue = {
+  email: string
+  password: string
+}
+
 export const LoginView: React.FC<Props> = ({ setView }) => {
   const styles = useStyles()
   const {
     register,
     handleSubmit,
     errors,
-    formState: { isDirty, isSubmitting, isValid }
+    formState: { isDirty, isSubmitting, isValid },
+    reset
   } = useForm({
     mode: 'onChange'
   })
   const { login, loginWithGoogleProvider } = useFirebase()
+
+  const onSubmit = React.useCallback<(value: FormValue) => void>(
+    value => {
+      login({ ...value, reset })
+    },
+    [login]
+  )
 
   return (
     <section className={`AppLoginView-root ${styles.root}`}>
       <Typography variant="h3" className={styles.title}>
         ログイン
       </Typography>
-      <LoginOrSignUpForm onSubmit={handleSubmit(login)}>
+      <LoginOrSignUpForm onSubmit={handleSubmit(onSubmit)}>
         <EMailField errors={errors} register={register} />
         <br />
         <PasswordField register={register} />

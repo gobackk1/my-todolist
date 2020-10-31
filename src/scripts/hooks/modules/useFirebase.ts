@@ -6,16 +6,25 @@ import { SubmitHandler } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
+import { useMountedRef } from './useMountedRef'
 
 type FormValue = {
   email: string
   password: string
+  reset?: any
 }
+
+// NOTE: 連打防止のため
+const disableResendEmailVerificationMilliseconds = 2000
 
 export const useFirebase = () => {
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
   const history = useHistory()
+  const [isResendEmailDisabled, setIsResendEmailDisabled] = React.useState(
+    false
+  )
+  const mounted = useMountedRef()
 
   const signUp: SubmitHandler<FormValue> = React.useCallback(
     async ({ email, password }) => {
@@ -59,7 +68,7 @@ export const useFirebase = () => {
   )
 
   const login: SubmitHandler<FormValue> = React.useCallback(
-    async ({ email, password }) => {
+    async ({ email, password, reset }) => {
       dispatch(setLoggingIn(true))
       try {
         await firebase.auth().signInWithEmailAndPassword(email, password)
@@ -68,6 +77,10 @@ export const useFirebase = () => {
           type: 'success'
         })
         dispatch(setLoggingIn(false))
+        dispatchEvent(new CustomEvent('onDispatchCloseModal'))
+        if (reset) {
+          reset()
+        }
         history.push(OPTION.PATH.BOARD)
       } catch (e) {
         console.log(e)
@@ -127,5 +140,34 @@ export const useFirebase = () => {
     }
   }, [history, showSnackbar, dispatch])
 
-  return { signUp, login, loginWithGoogleProvider }
+  const resendEmailVerification = React.useCallback(
+    action => {
+      const user = firebase.auth().currentUser
+      if (user) {
+        setIsResendEmailDisabled(true)
+        setTimeout(() => {
+          user.sendEmailVerification({
+            url: OPTION.URL_AFTER_EMAIL_CONFIRMATION
+          })
+          showSnackbar({
+            message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
+            type: 'info',
+            action
+          })
+          if (mounted) {
+            setIsResendEmailDisabled(false)
+          }
+        }, disableResendEmailVerificationMilliseconds)
+      }
+    },
+    [setIsResendEmailDisabled, mounted]
+  )
+
+  return {
+    signUp,
+    login,
+    loginWithGoogleProvider,
+    resendEmailVerification,
+    isResendEmailDisabled
+  }
 }
