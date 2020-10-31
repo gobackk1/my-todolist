@@ -27,7 +27,7 @@ export const Header: React.FC = () => {
             <BoardListMenu />
           </>
         )}
-        <h1 className="AppHeader-title">Pacrello</h1>
+        <h1 className="AppHeader-title">CloneApp</h1>
         {isLoggingIn && <LoadingSpinner />}
         {currentUser ? (
           <IconButton

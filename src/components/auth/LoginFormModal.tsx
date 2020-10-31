@@ -4,6 +4,7 @@ import { Button } from '@material-ui/core'
 import { useEventListener } from '@/scripts/hooks'
 import { theme } from '@/styles'
 import { makeStyles } from '@material-ui/styles'
+import { SuccessButton } from '../button'
 
 export const LoginFormModal: React.FC = () => {
   const [view, setView] = React.useState<'login' | 'signup'>('login')
@@ -19,13 +20,9 @@ export const LoginFormModal: React.FC = () => {
     <div className={`AppLoginFormModal-root ${styles.root}`}>
       <Modal
         render={props => (
-          <Button
-            color="inherit"
-            {...props}
-            className="AppLoginFormModal-buttonLogin"
-          >
+          <SuccessButton {...props} className="AppLoginFormModal-buttonLogin">
             ログインへ
-          </Button>
+          </SuccessButton>
         )}
       >
         <div className={styles.modalInner}>
