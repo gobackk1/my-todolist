@@ -50,6 +50,9 @@ describe('E2Eテスト', () => {
     test('ログイン前は、「ボード一覧」ボタンが非表示であること', async () => {
       await loginTestSuite4(page)
     })
+    test('メールアドレスが見つからない場合、フィードバックを返すこと', () => {})
+    test('メールアドレスがある場合もかく', () => {})
+    test('', () => {})
     test('ログインができること', async () => {
       await loginTestSuite5(page)
     })
