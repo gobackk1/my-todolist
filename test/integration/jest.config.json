@@ -1,14 +1,15 @@
 {
-  "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$",
+  "testRegex": "/tests/.*\\.(test|spec)\\.[jt]sx?$",
   "rootDir": "../../",
   "globals": {
     "ts-jest": {
-      "tsConfig": "tsconfig.jest.json"
+      "tsConfig": "./test/integration/tsconfig.json"
     }
   },
   "transform": {
     "^.+\\.(js|jsx|mjs)$": "babel-jest",
-    "^.+\\.(ts|tsx)$": "ts-jest"
+    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(jpg|png|gif)$": "<rootDir>/test/mock/fileMock.js"
   },
   "transformIgnorePatterns": [
     "/node_modules/(?!(xxxx.*?\\.js$))"
@@ -26,10 +27,9 @@
     "@/(.*)$": "<rootDir>/src/$1",
     "~redux(.*)$": "<rootDir>/src/scripts/redux/$1"
   },
-  "snapshotSerializers": [
-    "enzyme-to-json/serializer"
-  ],
   "setupFilesAfterEnv": [
-    "<rootDir>/src/setupEnzyme.ts"
-  ]
+    "@testing-library/jest-dom/extend-expect",
+    "<rootDir>/test/integration/setupFile.ts"
+  ],
+  "snapshotSerializers": ["jest-emotion"]
 }

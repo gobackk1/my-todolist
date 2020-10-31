@@ -30,11 +30,5 @@
   "moduleNameMapper": {
     "@/(.*)$": "<rootDir>/src/$1",
     "~redux(.*)$": "<rootDir>/src/scripts/redux/$1"
-  },
-  "snapshotSerializers": [
-    "enzyme-to-json/serializer"
-  ],
-  "setupFilesAfterEnv": [
-    "<rootDir>/src/setupEnzyme.ts"
-  ]
+  }
 }
