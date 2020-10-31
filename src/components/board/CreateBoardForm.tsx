@@ -16,6 +16,7 @@ import { OPTION } from '@/option'
 import { useHistory } from 'react-router-dom'
 import DoneOutlineRoundedIcon from '@material-ui/icons/DoneOutlineRounded'
 import { theme } from '@/styles'
+import { Board } from '~redux/state/board/reducer'
 
 export const CreateBoardForm: React.FC = () => {
   const dispatch = useDispatch()
@@ -222,8 +223,4 @@ const useStyles = makeStyles({
   }
 })
 
-type FormValue = {
-  title: string
-  backgroundImage: string
-  visibility: string
-}
+type FormValue = Pick<Board, 'title' | 'backgroundImage' | 'visibility'>

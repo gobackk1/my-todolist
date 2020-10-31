@@ -25,7 +25,8 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
       const { id }: Board = await dispatch(
         createBoard({
           title,
-          backgroundImage: OPTION.BOARD.BG.PHOTO[0].src
+          backgroundImage: OPTION.BOARD.BG.PHOTO[0].src,
+          visibility: 'members'
         })
       )
       document.body.click()

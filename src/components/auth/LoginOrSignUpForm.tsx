@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core'
 import { theme } from '@/styles'
 
 const useStyles = makeStyles(() => ({
-  form: {
+  root: {
     '& .MuiTextField-root': {
       marginBottom: theme.spacing(2)
     }
@@ -11,9 +11,9 @@ const useStyles = makeStyles(() => ({
 }))
 
 export const LoginOrSignUpForm: React.FC<any> = ({ children, onSubmit }) => {
-  const muiStyles = useStyles()
+  const styles = useStyles()
   return (
-    <form className={muiStyles['form']} onSubmit={onSubmit}>
+    <form className={styles.root} onSubmit={onSubmit}>
       {children}
     </form>
   )

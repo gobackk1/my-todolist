@@ -2,7 +2,7 @@ import React from 'react'
 import { css } from '@emotion/core'
 
 export const LoadingSpinner: React.FC = () => (
-  <div css={styles['spinner']}>
+  <div css={styles['spinner']} className="AppLoadingSpinner-root">
     <div css={styles['spinner-inner']}></div>
   </div>
 )

@@ -19,7 +19,7 @@ export const Menu: React.FC<Props> = ({ children, render, className }) => {
    * ボードリストの外側をクリックしたらリストを閉じる
    * 内側と判定する要素は、[data-click-area="menu"] で囲む
    *
-   * 追記:
+   * TODO:
    * この機能は MUI の API として提供されているものがあったので書き換える
    * https://material-ui.com/api/click-away-listener/#clickawaylistener-api
    */

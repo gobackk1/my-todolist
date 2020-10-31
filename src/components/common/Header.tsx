@@ -10,21 +10,21 @@ import { useSelector } from 'react-redux'
 import { theme } from '@/styles'
 
 export const Header: React.FC = () => {
-  const currentUserState = useSelector(state => state.currentUser)
+  const { user, isLoggingIn } = useSelector(state => state.currentUser)
   const styles = useStyles()
 
   return (
     <AppBar position="static" className={`AppHeader-root ${styles.root}`}>
       <Toolbar>
-        {currentUserState.user && (
+        {user && (
           <>
             <BoardTopLinkButton />
             <BoardListMenu />
           </>
         )}
         <h1 className="AppHeader-title">Pacrello</h1>
-        {currentUserState.isLoggingIn && <LoadingSpinner />}
-        {!currentUserState.isLoggingIn && <LoginFormModal />}
+        {isLoggingIn && <LoadingSpinner />}
+        {!isLoggingIn && <LoginFormModal />}
       </Toolbar>
     </AppBar>
   )

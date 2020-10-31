@@ -1,156 +1,36 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
 import { Button, makeStyles, Typography } from '@material-ui/core'
-import firebase from 'firebase'
-import { useHistory } from 'react-router-dom'
-import { useSnackbarContext } from '@/scripts/hooks'
-import { OPTION } from '@/option'
-import { setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
-import { css } from '@emotion/core'
+import { useFirebase } from '@/scripts/hooks'
 import { theme } from '@/styles'
 import { EMailField, PasswordField, LoginOrSignUpForm } from '@/components'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import iconGoogle from '@/images/icon_google.png'
-
-const useStyles = makeStyles(() => ({
-  title: {
-    textAlign: 'center',
-    marginBottom: theme.spacing(3),
-    fontWeight: 'bold'
-  },
-  'sub-title': {
-    textAlign: 'center',
-    margin: `${theme.spacing(2)}px 0`
-  },
-  'button-google': {
-    '& img': {
-      marginRight: theme.spacing(1)
-    }
-  }
-}))
-
-const styles = {
-  section: css`
-    width: 300px;
-
-    .MuiButtonBase-root {
-      margin-bottom: ${theme.spacing(2)}px;
-    }
-  `,
-  buttons: css`
-    display: flex;
-    justify-content: space-between;
-  `,
-  license: css`
-    margin-top: ${theme.spacing(2)}px;
-    font-size: 12px;
-    color: #8a8a8a;
-    text-align: center;
-
-    a {
-      color: inherit;
-    }
-  `
-}
 
 type Props = {
   setView: React.Dispatch<React.SetStateAction<'login' | 'signup'>>
 }
 
-type FormValue = {
-  email: string
-  password: string
-}
-
 export const LoginView: React.FC<Props> = ({ setView }) => {
-  const dispatch = useDispatch()
-  const history = useHistory()
-  const { showSnackbar } = useSnackbarContext()
-  const muiStyles = useStyles()
+  const styles = useStyles()
   const {
     register,
     handleSubmit,
     errors,
     formState: { isDirty, isSubmitting, isValid }
   } = useForm({ mode: 'onChange' })
-
-  const onClickGoogleLogin = React.useCallback(async () => {
-    dispatch(setLoggingIn(true))
-    try {
-      await firebase
-        .auth()
-        .signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      showSnackbar({
-        message: OPTION.MESSAGE.LOGIN.SUCCESS,
-        type: 'success'
-      })
-      dispatch(setLoggingIn(false))
-      history.push(OPTION.PATH.BOARD)
-    } catch (e) {
-      showSnackbar({
-        message: OPTION.MESSAGE.LOGIN.ERROR,
-        type: 'error'
-      })
-      dispatch(setLoggingIn(false))
-    }
-  }, [history, showSnackbar, dispatch])
-
-  const onSubmit: SubmitHandler<FormValue> = async ({ email, password }) => {
-    dispatch(setLoggingIn(true))
-    try {
-      await firebase.auth().signInWithEmailAndPassword(email, password)
-      showSnackbar({
-        message: OPTION.MESSAGE.LOGIN.SUCCESS,
-        type: 'success'
-      })
-      dispatch(setLoggingIn(false))
-      history.push(OPTION.PATH.BOARD)
-    } catch (e) {
-      console.log(e)
-      switch (e.code) {
-        case 'auth/user-not-found':
-          showSnackbar({
-            message: OPTION.MESSAGE.AUTH.USER_NOT_FOUND,
-            type: 'error'
-          })
-          break
-
-        case 'auth/user-disabled':
-          showSnackbar({
-            message: OPTION.MESSAGE.AUTH.USER_DISABLED,
-            type: 'error'
-          })
-          break
-
-        case 'auth/wrong-password':
-          showSnackbar({
-            message: OPTION.MESSAGE.AUTH.WRONG_PASSWORD,
-            type: 'error'
-          })
-          break
-
-        default:
-          showSnackbar({
-            message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
-            type: 'error'
-          })
-          break
-      }
-      dispatch(setLoggingIn(false))
-    }
-  }
+  const { login, loginWithGoogleProvider } = useFirebase()
 
   return (
-    <section className="AppLoginView-root" css={styles['section']}>
-      <Typography variant="h3" className={muiStyles['title']}>
+    <section className={`AppLoginView-root ${styles.root}`}>
+      <Typography variant="h3" className={styles.title}>
         ログイン
       </Typography>
-      <LoginOrSignUpForm onSubmit={handleSubmit(onSubmit)}>
+      <LoginOrSignUpForm onSubmit={handleSubmit(login)}>
         <EMailField errors={errors} register={register} />
         <br />
         <PasswordField register={register} />
         <br />
-        <div css={styles['buttons']}>
+        <div className={styles['buttons']}>
           <Button
             variant="contained"
             disableElevation
@@ -172,21 +52,19 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         </div>
       </LoginOrSignUpForm>
       {/* ここから下は切り出して良いかも */}
-      <Typography variant="h4" className={muiStyles['sub-title']}>
+      <Typography variant="h4" className={styles.subTitle}>
         または
       </Typography>
       <Button
-        onClick={onClickGoogleLogin}
+        onClick={loginWithGoogleProvider}
         variant="contained"
         fullWidth
-        className={
-          (muiStyles['button-google'], 'AppLoginView-buttonGoogleProvider')
-        }
+        className={(styles.buttonGoogle, 'AppLoginView-buttonGoogleProvider')}
       >
         <img src={iconGoogle} alt="googleアイコン" />
         Google アカウントでログイン
       </Button>
-      <p css={styles['license']}>
+      <p className={styles.licence}>
         {`Icons made by `}
         <a
           href="https://www.flaticon.com/authors/freepik"
@@ -209,3 +87,39 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
     </section>
   )
 }
+
+const useStyles = makeStyles(() => ({
+  title: {
+    textAlign: 'center',
+    marginBottom: theme.spacing(3),
+    fontWeight: 'bold'
+  },
+  subTitle: {
+    textAlign: 'center',
+    margin: `${theme.spacing(2)}px 0`
+  },
+  buttonGoogle: {
+    '& img': {
+      marginRight: theme.spacing(1)
+    }
+  },
+  root: {
+    width: 300,
+    '& .MuiButtonBase-root': {
+      marginBottom: theme.spacing(2)
+    }
+  },
+  buttons: {
+    display: 'flex',
+    justifyContent: 'space-between'
+  },
+  licence: {
+    marginTop: theme.spacing(2),
+    fontSize: 12,
+    color: '#8a8a8a',
+    textAlign: 'center',
+    '& a': {
+      color: 'inherit'
+    }
+  }
+}))

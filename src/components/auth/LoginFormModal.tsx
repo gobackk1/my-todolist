@@ -28,7 +28,7 @@ export const LoginFormModal: React.FC = () => {
               {...props}
               className="AppLoginFormModal-buttonLogin"
             >
-              ログイン
+              ログインへ
             </Button>
           )}
         >
