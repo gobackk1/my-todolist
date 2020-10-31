@@ -38,15 +38,6 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         <PasswordField register={register} />
         <br />
         <div className={styles['buttons']}>
-          <SuccessButton
-            variant="contained"
-            disableElevation
-            type="submit"
-            disabled={!isDirty || isSubmitting || !isValid}
-            className={`AppLoginView-buttonLogin ${styles.buttonLogin}`}
-          >
-            ログイン
-          </SuccessButton>
           <Button
             onClick={() => {
               setView('signup')
@@ -57,6 +48,15 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
           >
             新規登録へ
           </Button>
+          <SuccessButton
+            variant="contained"
+            disableElevation
+            type="submit"
+            disabled={!isDirty || isSubmitting || !isValid}
+            className={`AppLoginView-buttonLogin ${styles.buttonLogin}`}
+          >
+            ログイン
+          </SuccessButton>
         </div>
       </LoginOrSignUpForm>
       {/* ここから下は切り出して良いかも */}
@@ -67,7 +67,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         onClick={loginWithGoogleProvider}
         variant="contained"
         fullWidth
-        className={(styles.buttonGoogle, 'AppLoginView-buttonGoogleProvider')}
+        className={`AppLoginView-buttonGoogleProvider ${styles.buttonGoogle}`}
       >
         <img src={iconGoogle} alt="googleアイコン" />
         Google アカウントでログイン
@@ -107,6 +107,10 @@ const useStyles = makeStyles(() => ({
     margin: `${theme.spacing(2)}px 0`
   },
   buttonGoogle: {
+    background: theme.palette.white,
+    '&:hover': {
+      background: theme.palette.white
+    },
     '& img': {
       marginRight: theme.spacing(1)
     }

@@ -3,39 +3,21 @@ import {
   Modal as MuiModal,
   Backdrop,
   Fade,
-  IconButton
+  IconButton,
+  ModalProps
 } from '@material-ui/core'
-import { css } from '@emotion/core'
 import { Close } from '@material-ui/icons'
 import { useEventListener } from '@/scripts/hooks'
 import { theme } from '@/styles'
-
-const styles = {
-  modal: css`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: ${theme.borderRadius(1)}px;
-  `,
-  'modal-inner': css`
-    position: relative;
-    background: #fff;
-    border-radius: ${theme.borderRadius(1)}px;
-  `,
-  'modal-inner-header': css`
-    text-align: right;
-  `,
-  'modal-close': css`
-    position: absolute;
-    top: 0;
-    right: 0;
-    z-index: 1;
-  `
-}
+import { makeStyles } from '@material-ui/styles'
 
 type Props = {
-  render: (props: any) => JSX.Element
+  render: ({ onClick }: RenderProps) => JSX.Element
   className?: string
+}
+
+type RenderProps = {
+  onClick: () => void
 }
 
 /**
@@ -44,13 +26,15 @@ type Props = {
  */
 export const Modal: React.FC<Props> = ({ children, render, className }) => {
   const [open, setOpen] = useState(false)
+  const styles = useStyles()
 
-  const handleOpen = () => setOpen(true)
   const handleClose = () => {
     window.dispatchEvent(new CustomEvent('onModalClose'))
     setOpen(false)
   }
-  const onClick = () => handleOpen()
+  const onClick = React.useCallback(() => {
+    setOpen(true)
+  }, [])
 
   useEventListener('onDispatchCloseModal', () => {
     //NOTE: Modalを閉じるため
@@ -61,30 +45,33 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
       })
   })
 
+  const modalProps: Omit<ModalProps, 'children'> = React.useMemo(
+    () => ({
+      open,
+      onClose: handleClose,
+      closeAfterTransition: true,
+      BackdropComponent: Backdrop,
+      BackdropProps: {
+        timeout: 500
+      },
+      keepMounted: true
+    }),
+    [open, handleClose, Backdrop]
+  )
+
   return (
     <div>
       {render({ onClick })}
       <MuiModal
-        open={open}
-        css={styles['modal']}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
-        keepMounted
-        className={className ? className : ''}
-        data-test="Modal"
+        {...modalProps}
+        className={`${styles.modal} ${className ? className : ''}`}
       >
         <Fade in={open}>
-          <div css={styles['modal-inner']}>
+          <div className={styles.modalInner}>
             <IconButton
               size="small"
-              onClick={handleClose as any}
-              // TODO: まとめる
-              className="btn-modal-close Modal-buttonClose"
-              css={styles['modal-close']}
+              onClick={handleClose}
+              className={`${styles.modalClose}`}
             >
               <Close />
             </IconButton>
@@ -95,3 +82,26 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
     </div>
   )
 }
+
+const useStyles = makeStyles({
+  modal: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: theme.borderRadius(1)
+  },
+  modalInner: {
+    position: 'relative',
+    background: '#fff',
+    borderRadius: theme.borderRadius(1)
+  },
+  modalInnerHeader: {
+    textAlign: 'right'
+  },
+  modalClose: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 1
+  }
+})

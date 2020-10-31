@@ -1,6 +1,5 @@
 import React from 'react'
 import { Modal, LoginView, SignUpView } from '@/components'
-import { Button } from '@material-ui/core'
 import { useEventListener } from '@/scripts/hooks'
 import { theme } from '@/styles'
 import { makeStyles } from '@material-ui/styles'

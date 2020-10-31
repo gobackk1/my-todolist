@@ -4,6 +4,7 @@ import { theme } from '@/styles'
 import { EMailField, PasswordField, LoginOrSignUpForm } from '@/components'
 import { useForm } from 'react-hook-form'
 import { useFirebase } from '@/scripts/hooks'
+import { SuccessButton } from '../button'
 
 export const SignUpView: React.FC<Props> = ({ setView }) => {
   const styles = useStyles()
@@ -30,20 +31,21 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
         <br />
         <div className={styles.buttons}>
           <Button
+            onClick={() => setView('login')}
+            variant="contained"
+            disableElevation
+            color="primary"
+          >
+            ログインへ
+          </Button>
+          <SuccessButton
             type="submit"
             variant="contained"
             disableElevation
             disabled={!isDirty || isSubmitting || !isValid}
           >
             登録
-          </Button>
-          <Button
-            onClick={() => setView('login')}
-            variant="contained"
-            disableElevation
-          >
-            ログインへ
-          </Button>
+          </SuccessButton>
         </div>
       </LoginOrSignUpForm>
     </section>
