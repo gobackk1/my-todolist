@@ -16,7 +16,7 @@ const reducers = combineReducers({
   board: boardReducer,
   currentUser: currentUserReducer,
   list: listReducer,
-  // card: cardReducer,
+  card: cardReducer,
   users: usersReducer
 })
 
