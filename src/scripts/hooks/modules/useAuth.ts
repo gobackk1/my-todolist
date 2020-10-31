@@ -25,17 +25,19 @@ export const useAuth = (): void => {
     firebase.auth().onAuthStateChanged(async user => {
       dispatch(setLoggingIn(false))
       if (user) {
-        if (!user.emailVerified) {
+        const { uid, email, emailVerified } = user
+
+        if (!emailVerified) {
           history.push(OPTION.PATH.BEFORE_VERIFIED)
         }
         // if (!isMounted.current) return
         // 'user_detail_secure' ができた時は getUserSecure() になる予定
-        dispatch(setLoginUser({ uid: user.uid }))
-        const userDetailPublic = await dispatch(getUser(user.uid))
+        dispatch(setLoginUser({ uid: uid, emailVerified }))
+        const userDetailPublic = await dispatch(getUser(uid))
 
         // NOTE: 現時点(20/10/29)で firebase.auth().user().onUpdate はない
-        if (user.email && user.email !== userDetailPublic.email) {
-          dispatch(updateUser({ ...userDetailPublic, email: user.email }))
+        if (email && email !== userDetailPublic.email) {
+          dispatch(updateUser({ ...userDetailPublic, email }))
         }
       } else {
         // if (!isMounted.current) return

@@ -3,7 +3,7 @@ import { setLoginUser, setLoggingIn } from './actions'
 
 export interface CurrentUserState {
   isLoggingIn: boolean
-  user: { uid: string } | null
+  user: { uid: string; emailVerified: boolean } | null
 }
 
 const initialState: CurrentUserState = {
