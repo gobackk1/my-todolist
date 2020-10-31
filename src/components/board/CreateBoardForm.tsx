@@ -17,6 +17,7 @@ import { useHistory } from 'react-router-dom'
 import DoneOutlineRoundedIcon from '@material-ui/icons/DoneOutlineRounded'
 import { theme } from '@/styles'
 import { Board } from '~redux/state/board/reducer'
+import { SuccessButton } from '@/components'
 
 export const CreateBoardForm: React.FC = () => {
   const dispatch = useDispatch()
@@ -145,14 +146,14 @@ export const CreateBoardForm: React.FC = () => {
           defaultValue="members"
         />
       </div>
-      <Button
+      <SuccessButton
         type="submit"
         variant="contained"
         disabled={!isDirty || isSubmitting || !isValid}
         className={styles.create}
       >
         ボードを作成
-      </Button>
+      </SuccessButton>
     </form>
   )
 }
@@ -209,17 +210,8 @@ const useStyles = makeStyles({
     }
   },
   create: {
-    backgroundColor: theme.palette.success.main,
-    color: theme.palette.white,
-    fontWeight: 'bold',
     display: 'table',
-    margin: '0 0 0 auto',
-    '&:hover': {
-      backgroundColor: theme.palette.success.light
-    },
-    '&.Mui-disabled': {
-      backgroundColor: theme.palette.grey[200]
-    }
+    margin: '0 0 0 auto'
   }
 })
 

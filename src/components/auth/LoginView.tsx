@@ -2,7 +2,12 @@ import React from 'react'
 import { Button, makeStyles, Typography } from '@material-ui/core'
 import { useFirebase } from '@/scripts/hooks'
 import { theme } from '@/styles'
-import { EMailField, PasswordField, LoginOrSignUpForm } from '@/components'
+import {
+  EMailField,
+  PasswordField,
+  LoginOrSignUpForm,
+  SuccessButton
+} from '@/components'
 import { useForm } from 'react-hook-form'
 import iconGoogle from '@/images/icon_google.png'
 
@@ -17,7 +22,9 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
     handleSubmit,
     errors,
     formState: { isDirty, isSubmitting, isValid }
-  } = useForm({ mode: 'onChange' })
+  } = useForm({
+    mode: 'onChange'
+  })
   const { login, loginWithGoogleProvider } = useFirebase()
 
   return (
@@ -31,21 +38,22 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
         <PasswordField register={register} />
         <br />
         <div className={styles['buttons']}>
-          <Button
+          <SuccessButton
             variant="contained"
             disableElevation
             type="submit"
             disabled={!isDirty || isSubmitting || !isValid}
-            className="AppLoginView-buttonLogin"
+            className={`AppLoginView-buttonLogin ${styles.buttonLogin}`}
           >
             ログイン
-          </Button>
+          </SuccessButton>
           <Button
             onClick={() => {
               setView('signup')
             }}
             variant="contained"
             disableElevation
+            color="primary"
           >
             新規登録へ
           </Button>
@@ -121,5 +129,10 @@ const useStyles = makeStyles(() => ({
     '& a': {
       color: 'inherit'
     }
+  },
+  buttonLogin: {
+    // '&:not(.Mui-disabled)': {
+    //   backgroundColor: theme.palette.success.main
+    // }
   }
 }))
