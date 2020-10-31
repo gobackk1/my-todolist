@@ -14,14 +14,14 @@ import { useCurrentUser } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 
 export const Header: React.FC = () => {
-  const { isLoggingIn } = useSelector(state => state.currentUser)
+  const { isLoggingIn, user } = useSelector(state => state.currentUser)
   const styles = useStyles()
   const currentUser = useCurrentUser()
 
   return (
     <AppBar position="static" className={`AppHeader-root ${styles.root}`}>
       <Toolbar>
-        {currentUser && (
+        {currentUser && user?.emailVerified && (
           <>
             <BoardTopLinkButton />
             <BoardListMenu />
@@ -29,7 +29,7 @@ export const Header: React.FC = () => {
         )}
         <h1 className="AppHeader-title">CloneApp</h1>
         {isLoggingIn && <LoadingSpinner />}
-        {currentUser ? (
+        {currentUser && user?.emailVerified ? (
           <IconButton
             component={Link}
             to={OPTION.PATH.USER_PROFILE}
