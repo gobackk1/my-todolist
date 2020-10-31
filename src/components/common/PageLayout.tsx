@@ -2,14 +2,21 @@ import React from 'react'
 import { Header } from '@/components'
 import { css } from '@emotion/core'
 import { useAuth } from '@/scripts/hooks'
+import { useSelector } from 'react-redux'
+import { BeforeVerified } from '../views'
 
 export const PageLayout: React.FC = ({ children }) => {
   useAuth()
+  const { user } = useSelector(state => state.currentUser)
 
   return (
     <>
       <Header />
-      <div css={style}>{children}</div>
+      {user?.emailVerified ? (
+        <div css={style}>{children}</div>
+      ) : (
+        <BeforeVerified />
+      )}
     </>
   )
 }
