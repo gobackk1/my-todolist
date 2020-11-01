@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
           </>
         )}
         <h1 className="AppHeader-title">CloneApp</h1>
-        {isLoggingIn && <LoadingSpinner />}
+        {/* {isLoggingIn && <LoadingSpinner />} */}
         {currentUser && user?.emailVerified ? (
           <IconButton
             component={Link}
@@ -49,6 +49,7 @@ const useStyles = makeStyles({
   root: {
     position: 'relative',
     zIndex: theme.zIndex.appHeader,
+    fontWeight: 'bold',
     '& .AppHeader-title': {
       flexGrow: 1,
       textAlign: 'center'
