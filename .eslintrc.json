@@ -22,9 +22,7 @@
     "semi": "off",
     "@typescript-eslint/no-extra-semi": "off",
     // typescript なので
-    "react/prop-types": "off",
-    // ジェネリクスの any は許可
-    "@typescript-eslint/no-explicit-any": "off"
+    "react/prop-types": "off"
   },
   "settings": {
     "import/resolver": {
