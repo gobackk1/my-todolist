@@ -4,11 +4,20 @@ import { LoadingSpinner, PageContainer } from '@/components'
 import { useSelector } from 'react-redux'
 import { Button, makeStyles, Typography } from '@material-ui/core'
 import { theme } from '@/styles'
+import { OPTION } from '@/option'
+import { useHistory } from 'react-router-dom'
 
 export const BeforeVerified: React.FC = () => {
-  const { isLoggingIn } = useSelector(state => state.currentUser)
+  const { isLoggingIn, user } = useSelector(state => state.currentUser)
   const { isResendEmailDisabled, resendEmailVerification } = useFirebase()
   const styles = useStyles()
+  const history = useHistory()
+
+  React.useEffect(() => {
+    if (user?.emailVerified) {
+      history.push(OPTION.PATH.BOARD)
+    }
+  }, [history, user])
 
   return (
     <div className={`AppBeforeVerified-root ${styles.root}`}>
