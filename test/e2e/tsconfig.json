@@ -3,7 +3,8 @@
   "compilerOptions": {
     "strict": false,
     "types": ["jest", "node"],
-    "jsx": "react"
+    "jsx": "react",
+    "allowJs": false
   },
   "baseUrl": "../../",
   "paths": {
