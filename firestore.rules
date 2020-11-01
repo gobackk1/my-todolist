@@ -113,7 +113,7 @@ service cloud.firestore {
       function isValidUserData(user) {
         return user.displayName.size() >= 6 && user.displayName.size() <= 30
           && user.profile.size() <= 140
-          && user.avatarURL.matches('^default$') || user.avatarURL.matches('^https://firebasestorage.googleapis.com/.*\\.jpg.*')
+          && user.avatarURL.matches('^https://firebasestorage.googleapis.com/.*\\.jpg.*')
       }
 
       function isValidUpdateUserDetailPublic(req, resrc){

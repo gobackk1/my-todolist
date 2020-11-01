@@ -6,7 +6,8 @@ import { SubmitHandler } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
 import { setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
 import { useMountedRef } from './useMountedRef'
-import { getUser, updateUser } from '~redux/state/users/actions'
+import { updateUser } from '~redux/state/users/actions'
+import { User } from '@/scripts/model/interface'
 
 type SignUpFormValue = {
   displayName: string
@@ -53,13 +54,21 @@ export const useFirebase = (): UseFirebaseReturnType => {
 
         /**
          * NOTE: createUserWithEmailAndPassword は emailとpassword しか渡せないので、
-         * onCreateUser で作成した user_detail_public の displayName は
-         * 別途 update で更新する
+         * displayName はリアルタイムリスナーで更新する
          *
          * onCreateUser で作成しないで、クライアントサイドから user_detail_public を作成しても良いかも
          */
-        const userDetailPublic = await dispatch(getUser(user.uid))
-        await dispatch(updateUser({ ...userDetailPublic, displayName }))
+        const unsubscribe = await firebase
+          .firestore()
+          .collection(OPTION.COLLECTION_PATH.USER_DETAIL_PUBLIC)
+          .doc(user.uid)
+          .onSnapshot(async snapshot => {
+            if (!snapshot.exists) return
+            await dispatch(
+              updateUser({ ...(snapshot.data() as User), displayName })
+            )
+            unsubscribe()
+          })
 
         showSnackbar({
           message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,

@@ -121,7 +121,7 @@
   "eslintIgnore": [
     ".eslintrc.json",
     "./e2e",
-    "*.spec.js"
+    "*.test.js"
   ],
   "browserslist": {
     "production": [

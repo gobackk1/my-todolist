@@ -1,21 +1,14 @@
 import * as firebase from '@firebase/rules-unit-testing'
 import * as fs from 'fs'
-import { Board, BoardRole } from '../../src/scripts/redux/state/board/reducer'
-import {
-  createRef,
-  createAuthApp,
-  createAdminApp,
-  PROJECT_ID,
-  RULES_PATH
-} from './util'
+import { createRef, createAdminApp, PROJECT_ID, RULES_PATH } from './util'
 import * as I from '../../src/scripts/model/interface'
 
-type BoardOnFirestore = Omit<Board, 'id' | 'favorite'>
 const USER: I.User = {
   uid: 'user_id',
   displayName: 'test user',
   profile: 'this is test data',
-  avatarURL: 'default',
+  avatarURL:
+    'https://firebasestorage.googleapis.com/v0/b/todolist-b51fb.appspot.com/o/images%2Fdefault.jpg?alt=media&token=580f70eb-6b3f-406e-8a76-4261851ddf41',
   email: 'test@test.com'
 }
 const path = 'user_detail_public'
@@ -23,16 +16,8 @@ const createUser = (params: Partial<I.User> = {}): I.User => ({
   ...USER,
   ...params
 })
-const getBoardAs = (
-  uid: string,
-  role: BoardRole
-): Partial<BoardOnFirestore> => ({
-  author: uid,
-  members: { [uid]: { role } }
-})
+
 const docId1 = 'USER_DETAIL1'
-const docId2 = 'USER_DETAIL2'
-const docId3 = 'USER_DETAIL3'
 const userA = 'USER_A_ID'
 const userB = 'USER_B_ID'
 const userC = 'USER_C_ID'
@@ -61,7 +46,6 @@ describe(`${path} のセキュリティルール検証`, () => {
   })
 
   describe('認証の検証', () => {
-    beforeEach(async () => {})
     describe('allow read の検証', () => {
       test('認証後のユーザーは read できること', async () => {
         const authorizedRef = createRef({ uid: userA, path, docId: userA })
@@ -88,8 +72,6 @@ describe(`${path} のセキュリティルール検証`, () => {
     })
     describe('allow update の検証', () => {
       test('自身のドキュメントを update できること', async () => {
-        // onUpdate で email を更新する
-
         const ref = createRef({ uid: userB, path, docId: userB })
         const anotherRef = createRef({ uid: userC, path, docId: userC })
 
@@ -161,10 +143,9 @@ describe(`${path} のセキュリティルール検証`, () => {
       await firebase.assertSucceeds(ref.update({ profile: validProfile }))
       await firebase.assertFails(ref.update({ profile: invalidProfile }))
     })
-    test('avatarURL は default または ~ 文字のjpg画像パスであること', async () => {
+    test('avatarURL は jpg画像パスであること', async () => {
       const ref = createRef({ uid: userB, path, docId: userB })
       const validAvatarURL = [
-        'default',
         'https://firebasestorage.googleapis.com/v0/b/todolist-b51fb.appspot.com/o/images%2Favatars%2FdNXcqKe.jpg?alt=media&token=5dbd6201',
         'https://firebasestorage.googleapis.com/v0/b/todolist-b51fb.appspot.com/o/images%2Favatars%2FdNXcqKe.jpg'
       ]

@@ -74,7 +74,8 @@ export const onCreateUser = functions
           displayName: 'デフォルトユーザー',
           email,
           profile: '',
-          avatarURL: 'default'
+          avatarURL:
+            'https://firebasestorage.googleapis.com/v0/b/todolist-b51fb.appspot.com/o/images%2Fdefault.jpg?alt=media&token=580f70eb-6b3f-406e-8a76-4261851ddf41'
         })
     } catch (error) {
       console.error('error occurred', error)
