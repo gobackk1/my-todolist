@@ -47,26 +47,32 @@ export const SnackbarProvider: React.FC<Props> = ({
     []
   )
 
-  const showSnackbar = ({ message, type, action = null }: I.SnackPack) => {
-    setSnackPack(prev => [
-      ...prev,
-      { message, type, key: new Date().getTime(), action }
-    ])
+  const showSnackbar = useCallback(
+    ({ message, type, action = null }: I.SnackPack) => {
+      setSnackPack(prev => [
+        ...prev,
+        { message, type, key: new Date().getTime(), action }
+      ])
 
-    setAutoHideSeconds(autoHideDuration)
-  }
+      setAutoHideSeconds(autoHideDuration)
+    },
+    [autoHideDuration]
+  )
 
-  const closeSnackbar = (
-    event: SyntheticEvent<any, Event>,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === 'clickaway') return
-    setOpen(false)
-  }
+  const closeSnackbar = useCallback(
+    (
+      event: SyntheticEvent<HTMLElement, Event>,
+      reason: SnackbarCloseReason
+    ) => {
+      if (reason === 'clickaway') return
+      setOpen(false)
+    },
+    []
+  )
 
-  const handleExited = () => {
+  const handleExited = useCallback(() => {
     setMessageInfo(undefined)
-  }
+  }, [])
 
   return (
     <>
