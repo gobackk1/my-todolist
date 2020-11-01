@@ -120,8 +120,7 @@
   },
   "eslintIgnore": [
     ".eslintrc.json",
-    "./e2e",
-    "*.test.js"
+    "test/**/*"
   ],
   "browserslist": {
     "production": [
