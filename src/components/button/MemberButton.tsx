@@ -200,7 +200,7 @@ const useStyles = makeStyles({
   root: {
     '& .AppMemberButton-inner': {
       padding: theme.spacing(1),
-      width: 200,
+      width: 250,
       '& .MuiButton-label': {
         justifyContent: 'flex-start',
         textAlign: 'left'
