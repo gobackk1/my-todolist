@@ -3,7 +3,6 @@ import { useParams, Redirect } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import * as I from '@/scripts/model/interface'
 import {
-  LoadingSpinner,
   ListContainer,
   BoardWithBackground,
   FavoriteButton,
@@ -43,7 +42,6 @@ export const BoardDetail: React.FC = () => {
   return (
     <BoardWithBackground>
       <div className={`AppBoardDetail-root ${styles.root}`}>
-        {!boardState.init && <LoadingSpinner />}
         {boardState.init && !boardState.boards[boardId] && (
           /**
            * 存在しない boardId を指定したら、/boards へリダイレクトさせる

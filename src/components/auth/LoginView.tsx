@@ -34,9 +34,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
   const { login, loginWithGoogleProvider } = useFirebase()
 
   const onSubmit = React.useCallback<(value: FormValue) => void>(
-    value => {
-      login({ ...value, reset })
-    },
+    value => login({ ...value, reset }),
     [login]
   )
 
