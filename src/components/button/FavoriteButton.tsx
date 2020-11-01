@@ -30,7 +30,7 @@ export const FavoriteButton: React.FC<{
 
   return (
     <IconButton
-      className={`AppFavoriteButton-root ${styles.root}`}
+      className={`AppFavoriteButton-root MuiButton-contained ${styles.root}`}
       onClick={() => onClickFavorite(favorite)}
     >
       <FavoriteIcon favorite={favorite} />

@@ -114,6 +114,7 @@ export const VariableInput: React.FC<Props> = ({
         className={
           component === 'input' ? styles['button'] : styles['button-textarea']
         }
+        variant="contained"
       >
         {label}
       </BoardButton>

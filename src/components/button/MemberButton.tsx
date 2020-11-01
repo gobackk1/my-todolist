@@ -120,7 +120,7 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
   return (
     <Menu
       render={props => (
-        <IconButton {...props}>
+        <IconButton {...props} className="MuiButton-contained">
           <UserIcon data={data} />
         </IconButton>
       )}

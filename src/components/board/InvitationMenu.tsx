@@ -123,7 +123,6 @@ export const InvitationMenu: React.FC<{ board: Board }> = ({ board }) => {
           variant="contained"
           {...props}
           disabled={isOneOfRoles(['reader', 'editor'])}
-          disableElevation
           startIcon={<Add />}
         >
           招待
