@@ -4,6 +4,7 @@ import { css } from '@emotion/core'
 import { useAuth } from '@/scripts/hooks'
 import { useSelector } from 'react-redux'
 import { BeforeVerified } from '../views'
+import { Home } from '@/components'
 
 export const PageLayout: React.FC = ({ children }) => {
   useAuth()
@@ -12,10 +13,16 @@ export const PageLayout: React.FC = ({ children }) => {
   return (
     <>
       <Header />
-      {user?.emailVerified ? (
-        <div css={style}>{children}</div>
+      {user ? (
+        <>
+          {user.emailVerified ? (
+            <div css={style}>{children}</div>
+          ) : (
+            <BeforeVerified />
+          )}
+        </>
       ) : (
-        <BeforeVerified />
+        <Home />
       )}
     </>
   )

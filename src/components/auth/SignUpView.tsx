@@ -1,7 +1,12 @@
 import React from 'react'
 import { Typography, makeStyles, Button } from '@material-ui/core'
 import { theme } from '@/styles'
-import { EMailField, PasswordField, LoginOrSignUpForm } from '@/components'
+import {
+  EMailField,
+  PasswordField,
+  LoginOrSignUpForm,
+  DisplayNameField
+} from '@/components'
 import { useForm } from 'react-hook-form'
 import { useFirebase } from '@/scripts/hooks'
 import { SuccessButton } from '../button'
@@ -26,6 +31,8 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
       </Typography>
       <LoginOrSignUpForm onSubmit={handleSubmit(signUp)}>
         <EMailField errors={errors} register={register} />
+        <br />
+        <DisplayNameField errors={errors} register={register} />
         <br />
         <PasswordField errors={errors} register={register} />
         <br />

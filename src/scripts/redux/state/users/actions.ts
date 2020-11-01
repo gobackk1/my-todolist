@@ -15,7 +15,6 @@ export const getUser = asyncActionCreator<string, User, Error>(
       .get()
 
     const user = snapshot.data() as User
-    // user.uid = uid
 
     dispatch(setUser(user))
     return user

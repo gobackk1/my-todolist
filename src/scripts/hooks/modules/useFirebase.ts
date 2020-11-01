@@ -1,54 +1,71 @@
 import React from 'react'
-import { useSnackbarContext } from '@/scripts/hooks'
+import { useSnackbarContext, useTypeSafeDispatch } from '@/scripts/hooks'
 import firebase from 'firebase'
 import { OPTION } from '@/option'
 import { SubmitHandler } from 'react-hook-form'
 import { useHistory } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
 import { setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
 import { useMountedRef } from './useMountedRef'
+import { getUser, updateUser } from '~redux/state/users/actions'
 
-type FormValue = {
+type SignUpFormValue = {
+  displayName: string
+} & LoginFormValue
+
+type LoginFormValue = {
   email: string
   password: string
   reset?: any
 }
 
+type UseFirebaseReturnType = {
+  signUp: SubmitHandler<SignUpFormValue>
+  login: SubmitHandler<LoginFormValue>
+  loginWithGoogleProvider: () => Promise<void>
+  resendEmailVerification: (action?: JSX.Element | null) => void
+  isResendEmailDisabled: boolean
+}
+
 // NOTE: 連打防止のため
 const disableResendEmailVerificationMilliseconds = 2000
 
-export const useFirebase = () => {
+export const useFirebase = (): UseFirebaseReturnType => {
   const { showSnackbar } = useSnackbarContext()
-  const dispatch = useDispatch()
+  const dispatch = useTypeSafeDispatch()
   const history = useHistory()
   const [isResendEmailDisabled, setIsResendEmailDisabled] = React.useState(
     false
   )
   const mounted = useMountedRef()
 
-  const signUp: SubmitHandler<FormValue> = React.useCallback(
-    async ({ email, password }) => {
+  const signUp: SubmitHandler<SignUpFormValue> = React.useCallback(
+    async ({ email, password, displayName }) => {
       try {
-        /**
-         * ユーザーを登録する
-         */
         const { user } = await firebase
           .auth()
           .createUserWithEmailAndPassword(email, password)
 
+        if (!user) return
+
+        await user.sendEmailVerification({
+          url: OPTION.URL_AFTER_EMAIL_CONFIRMATION
+        })
+
         /**
-         * 登録後、確認メールを送信する
+         * NOTE: createUserWithEmailAndPassword は emailとpassword しか渡せないので、
+         * onCreateUser で作成した user_detail_public の displayName は
+         * 別途 update で更新する
+         *
+         * onCreateUser で作成しないで、クライアントサイドから user_detail_public を作成しても良いかも
          */
-        if (user) {
-          await user.sendEmailVerification({
-            url: OPTION.URL_AFTER_EMAIL_CONFIRMATION
-          })
-          showSnackbar({
-            message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
-            type: 'info'
-          })
-          dispatchEvent(new CustomEvent('onDispatchCloseModal'))
-        }
+        const userDetailPublic = await dispatch(getUser(user.uid))
+        await dispatch(updateUser({ ...userDetailPublic, displayName }))
+
+        showSnackbar({
+          message: OPTION.MESSAGE.AUTH.SEND_EMAIL_VERIFICATION,
+          type: 'info'
+        })
+        dispatchEvent(new CustomEvent('onDispatchCloseModal'))
       } catch (e) {
         console.log(e)
         if (e.code === 'auth/email-already-in-use') {
@@ -64,10 +81,10 @@ export const useFirebase = () => {
         }
       }
     },
-    []
+    [showSnackbar, dispatch]
   )
 
-  const login: SubmitHandler<FormValue> = React.useCallback(
+  const login: SubmitHandler<LoginFormValue> = React.useCallback(
     async ({ email, password, reset }) => {
       dispatch(setLoggingIn(true))
       try {
@@ -116,7 +133,7 @@ export const useFirebase = () => {
         dispatch(setLoggingIn(false))
       }
     },
-    []
+    [showSnackbar, history, dispatch]
   )
 
   const loginWithGoogleProvider = React.useCallback(async () => {
@@ -160,7 +177,7 @@ export const useFirebase = () => {
         }, disableResendEmailVerificationMilliseconds)
       }
     },
-    [setIsResendEmailDisabled, mounted]
+    [setIsResendEmailDisabled, mounted, showSnackbar]
   )
 
   return {

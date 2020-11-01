@@ -31,7 +31,9 @@ export const BeforeVerified: React.FC = () => {
             </Typography>
             <Button
               color="primary"
-              onClick={resendEmailVerification}
+              onClick={() => {
+                resendEmailVerification()
+              }}
               variant="contained"
               disabled={isResendEmailDisabled}
             >
