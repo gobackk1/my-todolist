@@ -119,8 +119,7 @@
     "typescript-fsa-redux-thunk": "^2.1.9"
   },
   "eslintIgnore": [
-    ".eslintrc.json",
-    "test/**/*"
+    ".eslintrc.json"
   ],
   "browserslist": {
     "production": [
