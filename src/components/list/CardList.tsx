@@ -4,11 +4,10 @@ import { css } from '@emotion/core'
 import { IconButton, Button, Paper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { MoreHoriz, Add } from '@material-ui/icons'
-import { Menu, VariableInput } from '@/components'
+import { Menu, VariableInput, ListMenu } from '@/components'
 // import * as T from '@/scripts/model/type'
 import * as I from '@/scripts/model/interface'
 import { useDispatch, useSelector } from 'react-redux'
-import { archiveList } from '~redux/state/list/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
@@ -27,17 +26,6 @@ export const CardList: React.FC<Props> = ({ list }) => {
   const [isCreating, setCreating] = React.useState(false)
   const [cardTitle, setCardTitle] = React.useState('')
   const inputRef = React.useRef<HTMLLIElement | null>(null)
-
-  const onClickArchive = async () => {
-    if (!user || listState.error) return
-
-    try {
-      await dispatch(archiveList(list))
-      dispatchEvent(new CustomEvent('close_menu'))
-    } catch ({ message }) {
-      showSnackbar({ message, type: 'error' })
-    }
-  }
 
   const updateTitle = React.useCallback(
     async (
@@ -147,22 +135,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
               width={200}
             />
           </div>
-          <Menu
-            render={props => (
-              <IconButton
-                className={muiStyles['card-list-menu-button']}
-                {...props}
-              >
-                <MoreHoriz />
-              </IconButton>
-            )}
-          >
-            <div css={styles['card-list-menu']}>
-              <Button onClick={onClickArchive} fullWidth>
-                リストをアーカイブする
-              </Button>
-            </div>
-          </Menu>
+          <ListMenu data={list} />
         </div>
         <ul>
           {card.lists[list.id] &&

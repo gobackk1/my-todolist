@@ -4,7 +4,6 @@ export * from './board'
 export * from './views'
 export * from './profile'
 export * from './auth'
+export * from './list'
 
-export { CardList } from './list/CardList'
-export { ListContainer } from './list/ListContainer'
 export { FavoriteIcon } from './icon/FavoriteIcon'
