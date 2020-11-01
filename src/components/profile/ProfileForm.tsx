@@ -130,7 +130,7 @@ export const ProfileForm: React.FC = () => {
 
   return (
     <div className={`AppProfileForm-root ${styles.root}`}>
-      {init ? (
+      {init && currentUser ? (
         <>
           <form
             className="AppProfileForm-form"
