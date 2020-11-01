@@ -4,7 +4,6 @@ import { theme } from '@/styles'
 export const SuccessButton = withStyles({
   root: {
     backgroundColor: theme.palette.success.main,
-    marginRight: theme.spacing(1),
     fontWeight: 'bold',
     display: 'table',
     color: theme.palette.white,
