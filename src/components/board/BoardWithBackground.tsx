@@ -25,6 +25,5 @@ const styles = {
     background-size: cover;
     height: inherit;
     padding: ${theme.spacing(1)}px;
-    overflow-x: scroll;
   `
 }

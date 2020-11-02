@@ -107,7 +107,6 @@ type Props = {
 const useStyles = makeStyles({
   root: {
     background: 'none',
-    marginRight: theme.spacing(1),
     '& .AppVariableInput-root button': {
       boxShadow: 'none'
     },

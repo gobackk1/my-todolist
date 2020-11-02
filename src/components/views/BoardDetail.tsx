@@ -79,6 +79,7 @@ const useStyles = makeStyles({
   root: {
     position: 'relative',
     zIndex: 1,
+    height: '100%',
     '& .AppBoardDetail-header': {
       position: 'relative',
       zIndex: 2,
