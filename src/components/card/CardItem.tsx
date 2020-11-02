@@ -59,7 +59,7 @@ export const CardItem: React.FC<Props> = ({ data }) => {
     <Button
       fullWidth
       variant="contained"
-      className={styles.root}
+      className={`${styles.root} drag-handle`}
       onClick={() => {
         onClickUpdate(data.id)
       }}

@@ -70,7 +70,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
   )
 
   return (
-    <Paper elevation={1} className={styles.root}>
+    <Paper elevation={1} className={`${styles.root} drag-handle`}>
       <div className={styles.cardList}>
         <div className={styles.header}>
           <div className={styles.title}>
@@ -107,7 +107,7 @@ type Props = {
 const useStyles = makeStyles({
   root: {
     background: 'none',
-    marginBottom: theme.spacing(1),
+    marginRight: theme.spacing(1),
     '& .AppVariableInput-root button': {
       boxShadow: 'none'
     },

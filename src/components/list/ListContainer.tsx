@@ -6,6 +6,8 @@ import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
 import { CardList, BoardButton } from '@/components'
 import { useBoardAuthority } from '@/scripts/hooks'
+import { Container, Draggable } from 'react-smooth-dnd'
+import arrayMove from 'array-move'
 
 export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { user } = useSelector(state => state.currentUser)
@@ -19,28 +21,36 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
     if (boardId) dispatch(createList({ title: 'new card', boardId }))
   }, [user, listState.error, boardId, dispatch])
 
+  const onDrop = param => console.log('onDrop', param)
+
   return (
-    <ul className={`AppListContainer-root ${styles.root}`}>
-      {boardId &&
-        listState.boards[boardId] &&
-        listState.boards[boardId].lists.map((list, i) => {
-          return (
-            <li className={`${styles.item}`} key={i}>
-              <CardList list={list} />
-            </li>
-          )
-        })}
-      <li>
-        <BoardButton
-          onClick={onClick}
-          startIcon={<Add />}
-          variant="contained"
-          disabled={isOneOfRoles(['reader'])}
-        >
-          リストを追加
-        </BoardButton>
-      </li>
-    </ul>
+    <div className={`AppListContainer-root ${styles.root}`}>
+      <Container
+        dragHandleSelector=".drag-handle"
+        onDrop={onDrop}
+        orientation="horizontal"
+      >
+        {boardId &&
+          listState.boards[boardId] &&
+          listState.boards[boardId].lists.map((list, i) => {
+            return (
+              <Draggable className={`${styles.item}`} key={i}>
+                <CardList list={list} />
+              </Draggable>
+            )
+          })}
+        <li>
+          <BoardButton
+            onClick={onClick}
+            startIcon={<Add />}
+            variant="contained"
+            disabled={isOneOfRoles(['reader'])}
+          >
+            リストを追加
+          </BoardButton>
+        </li>
+      </Container>
+    </div>
   )
 }
 
