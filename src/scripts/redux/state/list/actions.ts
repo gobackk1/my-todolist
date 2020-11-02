@@ -56,7 +56,7 @@ export const fetchList = asyncActionCreator<
         snapshot.forEach(doc => {
           const { id } = doc
           const { listId, title } = doc.data()
-          dispatch(setCards({ listId, card: { title, id } }))
+          dispatch(setCards({ listId, card: { title, id, listId } }))
         })
       })
 
