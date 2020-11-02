@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createList } from '@/scripts/redux/state/list/actions'
-import { makeStyles } from '@material-ui/core'
+import { fade, makeStyles } from '@material-ui/core'
 import { Add } from '@material-ui/icons'
 import { theme } from '@/styles'
 import { CardList, BoardButton } from '@/components'
@@ -30,12 +30,16 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
         nonDragAreaSelector=".non-drag-handle"
         onDrop={onDrop}
         orientation="horizontal"
+        dropPlaceholder={{
+          className: 'drop-placeholder',
+          showOnTop: true
+        }}
       >
         {boardId &&
           listState.boards[boardId] &&
           listState.boards[boardId].lists.map((list, i) => {
             return (
-              <Draggable className={`${styles.item}`} key={i}>
+              <Draggable key={i}>
                 <CardList list={list} />
               </Draggable>
             )
@@ -63,12 +67,13 @@ const useStyles = makeStyles({
     height: '100%',
     '& .smooth-dnd-container': {
       height: '100%',
-      overflowX: 'scroll',
-      display: 'flex'
+      overflowX: 'scroll'
+    },
+    '& .drop-placeholder': {
+      transform: `translateX(${-theme.spacing(1)}px)`,
+      background: fade('#000', 0.3),
+      boxSizing: 'border-box'
     }
-  },
-  item: {
-    marginRight: theme.spacing(1)
   },
   buttonAddList: {
     width: 150
