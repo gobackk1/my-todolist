@@ -89,6 +89,7 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
           }}
           fullWidth
           startIcon={<Add />}
+          className={styles.buttonAdd}
         >
           新しいカードを追加する
         </Button>
@@ -104,5 +105,8 @@ const useStyles = makeStyles({
     '& .MuiButton-outlined': {
       fontWeight: 'normal'
     }
+  },
+  buttonAdd: {
+    justifyContent: 'flex-start'
   }
 })

@@ -11,6 +11,7 @@ import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
 import { useParams } from 'react-router-dom'
 import { theme } from '@/styles'
+import { fade } from '@material-ui/core/styles/colorManipulator'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const styles = useStyles()
@@ -104,12 +105,21 @@ type Props = {
 }
 
 const useStyles = makeStyles({
-  root: {},
+  root: {
+    background: 'none',
+    marginBottom: theme.spacing(1),
+    '& .AppVariableInput-root button': {
+      boxShadow: 'none'
+    },
+    '& .AppVariableInput-root textarea::selection': {
+      backgroundColor: theme.palette.primary.light
+    }
+  },
   cardList: {
     width: 250,
-    background: '#ccc',
+    backgroundColor: fade(theme.palette.white, 0.6),
     padding: theme.spacing(1),
-    borderRadius: theme.borderRadius(1)
+    borderRadius: theme.borderRadius(0.5)
   },
   header: {
     display: 'flex',
