@@ -9,14 +9,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
-import { useParams } from 'react-router-dom'
 import { theme } from '@/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const styles = useStyles()
   const dispatch = useDispatch()
-  const { boardId } = useParams<I.UrlParams>()
   const { showSnackbar } = useSnackbarContext()
   const user = useSelector(state => state.currentUser)
   const listState = useSelector(state => state.list)
@@ -50,7 +48,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
       }
 
       try {
-        await dispatch(updateList({ title, id: list.id, boardId }))
+        await dispatch(updateList({ ...list, title }))
       } catch (e) {
         showSnackbar({
           message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
@@ -58,15 +56,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
         })
       }
     },
-    [
-      boardId,
-      dispatch,
-      list.id,
-      list.title,
-      listState.error,
-      showSnackbar,
-      user
-    ]
+    [dispatch, listState.error, showSnackbar, user, list]
   )
 
   return (

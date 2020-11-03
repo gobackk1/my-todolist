@@ -188,19 +188,20 @@ export const createBoard = asyncActionCreator<
   const user = store.getState().currentUser.user!
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
 
-  const board = {
+  const board: Omit<Board, 'id'> = {
     title,
     backgroundImage,
     members,
     visibility,
-    author: user.uid
+    author: user.uid,
+    favorite: false
   }
   const { id }: Pick<Board, 'id'> = await firebase
     .firestore()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .add(board)
 
-  dispatch(setBoard({ id, favorite: false, ...board }))
+  dispatch(setBoard({ id, ...board }))
   return { id }
 })
 

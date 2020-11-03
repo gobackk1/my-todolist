@@ -65,9 +65,9 @@ const useStyles = makeStyles({
     display: 'flex',
     flexWrap: 'wrap',
     height: '100%',
+    overflowX: 'scroll',
     '& .smooth-dnd-container': {
-      height: '100%',
-      overflowX: 'scroll'
+      height: '100%'
     },
     '& .drop-placeholder': {
       transform: `translateX(${-theme.spacing(1)}px)`,

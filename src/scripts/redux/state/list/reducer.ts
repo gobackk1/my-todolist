@@ -11,14 +11,11 @@ import {
 } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
-export interface Card {
-  title: string
-}
-
 export interface List {
   boardId: string
   id: string
   title: string
+  sortOrder: number
 }
 
 export interface ListState {
@@ -117,17 +114,16 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
-  .case(archiveList.async.done, (state, { result }: any) => {
-    const lists = state.boards[result.boardId].lists
-    const archivedLists = state.boards[result.boardId].archivedLists
-    const index = lists.findIndex(list => list.id === result.id)
+  .case(archiveList.async.done, (state, { result }) => {
+    const [targetList, rerunedLists] = result
+    const archivedLists = state.boards[targetList.boardId].archivedLists
     return {
       ...state,
       isLoading: false,
       boards: {
-        [result.boardId]: {
-          archivedLists: [...archivedLists.concat(lists[index])],
-          lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
+        [targetList.boardId]: {
+          archivedLists: [...archivedLists.concat(targetList)],
+          lists: rerunedLists
         }
       }
     }
@@ -142,10 +138,7 @@ export const listReducer = reducerWithInitialState(initialState)
       boards: {
         ...state.boards,
         [result.boardId]: {
-          archivedLists: [
-            ...targetLists.slice(0, index),
-            ...targetLists.slice(index + 1)
-          ],
+          archivedLists: [...targetLists.slice(0, index), ...targetLists.slice(index + 1)],
           lists
         }
       }
@@ -166,19 +159,16 @@ export const listReducer = reducerWithInitialState(initialState)
     }
   })
   .case(restoreList.async.done, (state, { result }) => {
-    const archivedLists = state.boards[result.boardId].archivedLists
-    const lists = state.boards[result.boardId].lists
-    const index = archivedLists.findIndex(list => list.id === result.id)
+    const [targetList, resortOrderLists] = result
+    const archivedLists = state.boards[targetList.boardId].archivedLists
+    const index = archivedLists.findIndex(list => list.id === targetList.id)
     return {
       ...state,
       isLoading: false,
       boards: {
-        [result.boardId]: {
-          lists: [...lists.concat(archivedLists[index])],
-          archivedLists: [
-            ...archivedLists.slice(0, index),
-            ...archivedLists.slice(index + 1)
-          ]
+        [targetList.boardId]: {
+          lists: resortOrderLists,
+          archivedLists: [...archivedLists.slice(0, index), ...archivedLists.slice(index + 1)]
         }
       }
     }
