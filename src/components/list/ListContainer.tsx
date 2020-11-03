@@ -7,7 +7,8 @@ import { theme } from '@/styles'
 import { CardList, BoardButton } from '@/components'
 import { useBoardAuthority } from '@/scripts/hooks'
 import { Container, Draggable } from 'react-smooth-dnd'
-import arrayMove from 'array-move'
+// import arrayMove from 'array-move'
+import { List } from '~redux/state/list/reducer'
 
 export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
   const { user } = useSelector(state => state.currentUser)
@@ -23,6 +24,11 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
 
   const onDrop = param => console.log('onDrop', param)
 
+  const sortedList: List[] | null = React.useMemo(() => {
+    if (!listState.boards[boardId] || !listState.boards[boardId].lists) return null
+    return listState.boards[boardId].lists.sort((x, y) => x.sortOrder - y.sortOrder)
+  }, [boardId, listState.boards])
+
   return (
     <div className={`AppListContainer-root ${styles.root}`}>
       <Container
@@ -35,9 +41,8 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
           showOnTop: true
         }}
       >
-        {boardId &&
-          listState.boards[boardId] &&
-          listState.boards[boardId].lists.map((list, i) => {
+        {sortedList &&
+          sortedList.map((list, i) => {
             return (
               <Draggable key={i}>
                 <CardList list={list} />
