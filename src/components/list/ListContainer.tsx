@@ -49,18 +49,16 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
               </Draggable>
             )
           })}
-        <Draggable>
-          <BoardButton
-            onClick={onClick}
-            startIcon={<Add />}
-            variant="contained"
-            disabled={isOneOfRoles(['reader'])}
-            className={`non-drag-handle ${styles.buttonAddList}`}
-          >
-            リストを追加
-          </BoardButton>
-        </Draggable>
       </Container>
+      <BoardButton
+        onClick={onClick}
+        startIcon={<Add />}
+        variant="contained"
+        disabled={isOneOfRoles(['reader'])}
+        className={`non-drag-handle ${styles.buttonAddList}`}
+      >
+        リストを追加
+      </BoardButton>
     </div>
   )
 }
@@ -68,7 +66,6 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
 const useStyles = makeStyles({
   root: {
     display: 'flex',
-    flexWrap: 'wrap',
     height: '100%',
     overflowX: 'scroll',
     '& .smooth-dnd-container': {
@@ -81,6 +78,8 @@ const useStyles = makeStyles({
     }
   },
   buttonAddList: {
-    width: 150
+    width: 150,
+    minWidth: 150,
+    alignSelf: 'flex-start'
   }
 })
