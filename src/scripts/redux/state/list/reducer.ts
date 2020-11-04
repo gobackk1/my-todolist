@@ -7,7 +7,8 @@ import {
   restoreList,
   // moveToArchivedList,
   // moveToList,
-  updateList
+  updateList,
+  changeListSortOrder
 } from './actions'
 import { reducerWithInitialState } from 'typescript-fsa-reducers'
 
@@ -21,6 +22,7 @@ export interface List {
 export interface ListState {
   isLoading: boolean
   error: Error | null
+  history: List[][]
   boards: {
     [i: string]: {
       lists: List[]
@@ -32,6 +34,7 @@ export interface ListState {
 const initialState: ListState = {
   isLoading: true,
   error: null,
+  history: [],
   boards: {
     '': {
       lists: [],
@@ -64,13 +67,13 @@ export const listReducer = reducerWithInitialState(initialState)
       return { ...state, isLoading: true }
     }
   )
-  .case(createList.async.failed, (state, { error }: any) => {
+  .case(createList.async.failed, (state, { error }) => {
     return { ...state, isLoading: false, error }
   })
-  .case(archiveList.async.failed, (state, { error }: any) => {
+  .case(archiveList.async.failed, (state, { error }) => {
     return { ...state, isLoading: false, error }
   })
-  .case(deleteList.async.failed, (state, { error }: any) => {
+  .case(deleteList.async.failed, (state, { error }) => {
     return { ...state, isLoading: false, error }
   })
   .cases(
@@ -80,7 +83,7 @@ export const listReducer = reducerWithInitialState(initialState)
       restoreList.async.failed,
       updateList.async.failed
     ],
-    (state, { error }: any) => {
+    (state, { error }) => {
       return { ...state, isLoading: false, error }
     }
   )
@@ -97,6 +100,7 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [boardId]: { lists: lists.concat(result), archivedLists: [] }
       }
     }
@@ -107,6 +111,7 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [params.boardId]: {
           lists,
           archivedLists
@@ -121,6 +126,7 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [targetList.boardId]: {
           archivedLists: [...archivedLists.concat(targetList)],
           lists: rerunedLists
@@ -151,6 +157,7 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [params.boardId]: {
           archivedLists,
           lists
@@ -158,6 +165,7 @@ export const listReducer = reducerWithInitialState(initialState)
       }
     }
   })
+
   .case(restoreList.async.done, (state, { result }) => {
     const [targetList, resortOrderLists] = result
     const archivedLists = state.boards[targetList.boardId].archivedLists
@@ -166,11 +174,72 @@ export const listReducer = reducerWithInitialState(initialState)
       ...state,
       isLoading: false,
       boards: {
+        ...state.boards,
         [targetList.boardId]: {
           lists: resortOrderLists,
           archivedLists: [...archivedLists.slice(0, index), ...archivedLists.slice(index + 1)]
         }
       }
+    }
+  })
+  /**
+   * NOTE: UX確保のため、started の時点で並び替えを変更する
+   * トランザクションが失敗したら、state をロールバックする
+   */
+  .case(changeListSortOrder.async.started, (state, params) => {
+    const { removedIndex, addedIndex, boardId } = params
+    const lists = state.boards[boardId].lists
+    const isLargeToSmallOrders = removedIndex > addedIndex
+    const maxIndex = isLargeToSmallOrders ? removedIndex : addedIndex
+    const minIndex = isLargeToSmallOrders ? addedIndex : removedIndex
+    const check = list => {
+      return isLargeToSmallOrders
+        ? minIndex <= list.sortOrder && list.sortOrder < maxIndex
+        : minIndex < list.sortOrder && list.sortOrder <= maxIndex
+    }
+    const add = isLargeToSmallOrders ? 1 : -1
+
+    const resortedLists = lists.map(list => {
+      if (list.sortOrder === removedIndex) {
+        return { ...list, sortOrder: addedIndex }
+      } else if (check(list)) {
+        return { ...list, sortOrder: list.sortOrder + add }
+      } else {
+        return list
+      }
+    })
+    return {
+      ...state,
+      isLoading: true,
+      history: state.history.concat([lists]),
+      boards: {
+        ...state.boards,
+        [boardId]: {
+          ...state.boards[boardId],
+          lists: resortedLists
+        }
+      }
+    }
+  })
+  .case(changeListSortOrder.async.failed, (state, { error, params }) => {
+    return {
+      ...state,
+      isLoading: false,
+      error,
+      history: state.history.slice(0, state.history.length - 1),
+      boards: {
+        ...state.boards,
+        [params.boardId]: {
+          ...state.boards[params.boardId],
+          lists: state.history.slice(state.history.length - 1)[0]
+        }
+      }
+    }
+  })
+  .case(changeListSortOrder.async.done, state => {
+    return {
+      ...state,
+      isLoading: false
     }
   })
   // .case(moveToList, (state, params) => {

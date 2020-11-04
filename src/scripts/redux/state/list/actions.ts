@@ -112,24 +112,21 @@ export const createList = asyncActionCreator<
   const boards = store.getState().list.boards[params.boardId]
   const sortOrder: number = boards.lists.length
 
-  if (user && user.uid) {
-    try {
-      const ref: firebase.firestore.DocumentReference = await firebase
-        .firestore()
-        .collection(`users/${user.uid}/lists`)
-        .add({ ...params, sortOrder })
-      // dispatch(setCardList(id))
-      return { ...params, id: ref.id, sortOrder }
-    } catch (e) {
-      console.log('CREATE_LIST', e)
-      throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
-    }
-  } else {
-    throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+  if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+
+  try {
+    const ref: firebase.firestore.DocumentReference = await firebase
+      .firestore()
+      .collection(`users/${user.uid}/lists`)
+      .add({ ...params, sortOrder })
+    // dispatch(setCardList(id))
+    return { ...params, id: ref.id, sortOrder }
+  } catch (e) {
+    console.log('CREATE_LIST', e)
+    throw new Error(OPTION.MESSAGE.SERVER_CONNECTION_ERROR)
   }
 })
 
-// TODO: トランザクション失敗時のハンドリングをどうするか？
 export const archiveList = asyncActionCreator<List, [List, List[]], Error>(
   'ARCHIVE_LIST',
   async targetList => {
@@ -149,18 +146,6 @@ export const archiveList = asyncActionCreator<List, [List, List[]], Error>(
         return l
       })
 
-    const snapshot = await firebase
-      .firestore()
-      .collection(`users/${user.uid}/lists/`)
-      .where('boardId', '==', targetList.boardId)
-      .get()
-
-    const refsWithoutTarget: firebase.firestore.DocumentReference[] = []
-    snapshot.forEach(doc => {
-      if (doc.id === targetList.id) return
-      refsWithoutTarget.push(doc.ref)
-    })
-
     const fromRef = await firebase
       .firestore()
       .collection(`users/${user.uid}/lists/`)
@@ -171,25 +156,37 @@ export const archiveList = asyncActionCreator<List, [List, List[]], Error>(
       .collection(`users/${user.uid}/archivedLists/`)
       .doc(targetList.id)
 
-    await firebase.firestore().runTransaction(async t => {
-      const snapshots = await Promise.all(
-        refsWithoutTarget.map(
-          async ref =>
-            [await t.get(ref), ref] as [
-              firebase.firestore.DocumentSnapshot,
-              firebase.firestore.DocumentReference
-            ]
-        )
-      )
+    /**
+     * FIXME: トランザクション内でクエリができないので、
+     * 1.トランザクション外でクエリ
+     * 2.トランザクション内で querySnapshot 内の ref を再び t.get() する
+     * この方法は読み取りが余分に発生してしまうし、これが正しいやり方かは分からない
+     */
+    const querySnapshot = await firebase
+      .firestore()
+      .collection(`users/${user.uid}/lists/`)
+      .where('boardId', '==', targetList.boardId)
+      .get()
 
-      snapshots.forEach(async ([snapshot, ref]) => {
-        const list = resortOrderLists.find(rerunedList => rerunedList.id === snapshot.id)
-        if (!list) return
-        await t.update(ref, {
-          sortOrder: list.sortOrder
+    await firebase.firestore().runTransaction(async t => {
+      const operations: Promise<void>[] = []
+
+      querySnapshot.forEach(async doc => {
+        if (doc.id === targetList.id) return
+
+        const operation = t.get(doc.ref).then(snapshot => {
+          // NOTE: トランザクションのチェック
+          // if (i === 1) throw 'check'
+          const list = resortOrderLists.find(list => list.id === snapshot.id)
+          if (!list) return
+          t.update(doc.ref, {
+            sortOrder: list.sortOrder
+          })
         })
+        operations.push(operation)
       })
 
+      await Promise.all(operations)
       await t.set(toRef, targetList)
       await t.delete(fromRef)
     })
@@ -222,22 +219,6 @@ export const restoreList = asyncActionCreator<RestoreParams, [List, List[]], Err
       return list
     })
 
-    const targetRef = firebase
-      .firestore()
-      .collection(`users/${user.uid}/archivedLists/`)
-      .doc(targetList.id)
-
-    const snapshot = await firebase
-      .firestore()
-      .collection(`users/${user.uid}/lists/`)
-      .where('boardId', '==', boardId)
-      .get()
-
-    const refsWithTarget: firebase.firestore.DocumentReference[] = [targetRef]
-    snapshot.forEach(doc => {
-      refsWithTarget.push(doc.ref)
-    })
-
     const fromRef = await firebase
       .firestore()
       .collection(`users/${user.uid}/archivedLists/`)
@@ -248,27 +229,39 @@ export const restoreList = asyncActionCreator<RestoreParams, [List, List[]], Err
       .collection(`users/${user.uid}/lists/`)
       .doc(targetList.id)
 
-    await firebase.firestore().runTransaction(async t => {
-      const snapshots = await Promise.all(
-        refsWithTarget.map(
-          async ref =>
-            [await t.get(ref), ref] as [
-              firebase.firestore.DocumentSnapshot,
-              firebase.firestore.DocumentReference
-            ]
-        )
-      )
+    /**
+     * FIXME: トランザクション内でクエリができないので、
+     * 1.トランザクション外でクエリして sortOrder を変更する ref の配列を作る
+     * 2.トランザクション内で再び t.get() する
+     * 読み取りが余分に発生してしまうし、これが正しいやり方かは分からない
+     *
+     * また、sortOrder を変更しなくて良い対象もクエリしている
+     */
+    const querySnapshot = await firebase
+      .firestore()
+      .collection(`users/${user.uid}/lists/`)
+      .where('boardId', '==', boardId)
+      .get()
 
-      snapshots.forEach(async ([snapshot, ref]) => {
-        const list = resortOrderLists.find(rerunedList => rerunedList.id === snapshot.id)
-        if (!list) return
-        await t.update(ref, {
-          sortOrder: list.sortOrder
+    await firebase.firestore().runTransaction(async t => {
+      const operations: Promise<void>[] = []
+
+      querySnapshot.forEach(async doc => {
+        const operation = t.get(doc.ref).then(snapshot => {
+          const list = resortOrderLists.find(list => list.id === snapshot.id)
+          if (!list) return
+          // NOTE: トランザクションのチェック
+          // if (i === 1) throw 'check'
+          t.update(doc.ref, {
+            sortOrder: list.sortOrder
+          })
         })
+        operations.push(operation)
       })
 
-      await t.set(toRef, targetList)
-      await t.delete(fromRef)
+      await Promise.all(operations)
+      t.set(toRef, targetList)
+      t.delete(fromRef)
     })
 
     return [targetList, resortOrderLists]
@@ -318,6 +311,60 @@ export const updateList = asyncActionCreator<List, List, Error>('UPDATE_LIST', a
     throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
   }
 })
+
+type changeSortOrderParam = { removedIndex: number; addedIndex: number } & Pick<List, 'boardId'>
+export const changeListSortOrder = asyncActionCreator<changeSortOrderParam, void, Error>(
+  'CHANGE_SORT_ORDER',
+  async param => {
+    const { removedIndex, addedIndex, boardId } = param
+    const { user } = store.getState().currentUser
+    const { boards } = store.getState().list
+    /**
+     * NOTE: UXのため、async.started で state を変更している
+     * ここは変更後の state を参照している
+     */
+    const from = boards[boardId].lists.find(list => list.sortOrder === addedIndex)
+
+    if (!user || !from) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+
+    const isLargeToSmallOrders = removedIndex > addedIndex
+    const maxOrder = isLargeToSmallOrders ? removedIndex : addedIndex
+    const minOrder = isLargeToSmallOrders ? addedIndex : removedIndex
+
+    const fromToSnapshot = await firebase
+      .firestore()
+      .collection(`users/${user.uid}/lists`)
+      .where('boardId', '==', boardId)
+      .where('sortOrder', '<=', maxOrder)
+      .where('sortOrder', '>=', minOrder)
+      .get()
+
+    await firebase.firestore().runTransaction(async t => {
+      const add = isLargeToSmallOrders ? 1 : -1
+      const oparations: Promise<void>[] = []
+
+      fromToSnapshot.forEach(async doc => {
+        const operation = t.get(doc.ref).then(() => {
+          if (doc.id === from.id) {
+            // NOTE: トランザクションのチェック
+            // throw new Error('トランザクションに失敗しました')
+            t.update(doc.ref, {
+              sortOrder: addedIndex
+            })
+          } else {
+            const sortOrder = doc.data().sortOrder + add
+            t.update(doc.ref, { sortOrder })
+          }
+        })
+        oparations.push(operation)
+      })
+
+      await Promise.all(oparations)
+    })
+
+    return
+  }
+)
 
 export const moveToList = actionCreator<List>('MOVE_TO_LIST')
 export const moveToArchivedList = actionCreator<List>('MOVE_TO_ARCHIVED_LIST')
