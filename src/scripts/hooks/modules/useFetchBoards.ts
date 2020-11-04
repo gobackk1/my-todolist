@@ -28,13 +28,8 @@ export const useFetchBoards = (): void => {
   }, [dispatch])
 
   React.useEffect(() => {
-    if (!currentUserState.user || boardState.error || boardState.init) return
+    if (!currentUserState.user || boardState.error) return
 
     dispatchFetchBoards()
-  }, [
-    currentUserState.user,
-    dispatchFetchBoards,
-    boardState.init,
-    boardState.error
-  ])
+  }, [currentUserState.user, dispatchFetchBoards, boardState.error])
 }
