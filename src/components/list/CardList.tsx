@@ -11,6 +11,7 @@ import { OPTION } from '@/option'
 import { updateList } from '~redux/state/list/actions'
 import { theme } from '@/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
+import { Card } from '@/scripts/redux/state/card/reducer'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const styles = useStyles()
@@ -18,7 +19,7 @@ export const CardList: React.FC<Props> = ({ list }) => {
   const { showSnackbar } = useSnackbarContext()
   const user = useSelector(state => state.currentUser)
   const listState = useSelector(state => state.list)
-  const card = useSelector(state => state.card)
+  const { cards } = useSelector(state => state.card)
 
   const updateTitle = React.useCallback(
     async (
@@ -59,6 +60,13 @@ export const CardList: React.FC<Props> = ({ list }) => {
     [dispatch, listState.error, showSnackbar, user, list]
   )
 
+  const getCardsByListId = React.useCallback(
+    (listId: ValueOf<List, 'id'>) => {
+      return Object.values<Card>(cards).filter(card => card.listId === listId)
+    },
+    [cards]
+  )
+
   return (
     <Paper elevation={1} className={`${styles.root} drag-handle`}>
       <div className={styles.cardList}>
@@ -74,15 +82,11 @@ export const CardList: React.FC<Props> = ({ list }) => {
           <ListMenu data={list} />
         </div>
         <ul>
-          {card.lists[list.id] &&
-            card.lists[list.id].cards &&
-            card.lists[list.id].cards.map((card, i) => {
-              return (
-                <li className={styles.item} key={i}>
-                  <CardItem data={card} />
-                </li>
-              )
-            })}
+          {getCardsByListId(list.id).map((card, i) => (
+            <li className={styles.item} key={i}>
+              <CardItem data={card} />
+            </li>
+          ))}
         </ul>
         <CardCreator data={list} />
       </div>

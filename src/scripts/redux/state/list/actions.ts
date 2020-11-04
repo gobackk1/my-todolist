@@ -4,7 +4,8 @@ import firebase from 'firebase/app'
 import { OPTION } from '@/option'
 import { List } from './reducer'
 import { CurrentUserState } from '@/scripts/redux/state/currentUser/reducer'
-import { setCards } from '~redux/state/card/actions'
+import { setCard } from '~redux/state/card/actions'
+import { Card } from '~redux/state/card/reducer'
 
 export const fetchList = asyncActionCreator<Pick<List, 'boardId'>, List[][], Error>(
   'FETCH_LIST',
@@ -53,8 +54,8 @@ export const fetchList = asyncActionCreator<Pick<List, 'boardId'>, List[][], Err
         results.forEach(snapshot => {
           snapshot.forEach(doc => {
             const { id } = doc
-            const { listId, title } = doc.data()
-            dispatch(setCards({ listId, card: { title, id, listId } }))
+            const data = doc.data() as Omit<Card, 'id'>
+            dispatch(setCard({ id, ...data }))
           })
         })
 
