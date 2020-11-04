@@ -80,7 +80,8 @@ const useStyles = makeStyles({
     height: '100%',
     overflowX: 'scroll',
     '& .smooth-dnd-container': {
-      height: '100%'
+      height: '100%',
+      minWidth: 0
     },
     '& .drop-placeholder': {
       transform: `translateX(${-theme.spacing(1)}px)`,
