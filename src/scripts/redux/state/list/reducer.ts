@@ -276,6 +276,7 @@ export const listReducer = reducerWithInitialState(initialState)
     const index = lists.findIndex(list => list.id === result.id)
     return {
       ...state,
+      isLoading: false,
       boards: {
         [result.boardId]: {
           archivedLists,

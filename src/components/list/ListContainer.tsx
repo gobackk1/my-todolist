@@ -65,7 +65,7 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
         onClick={onClick}
         startIcon={<Add />}
         variant="contained"
-        disabled={isOneOfRoles(['reader'])}
+        disabled={isOneOfRoles(['reader']) || listState.isLoading}
         className={`non-drag-handle ${styles.buttonAddList}`}
       >
         リストを追加
