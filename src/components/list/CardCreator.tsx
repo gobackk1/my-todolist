@@ -1,11 +1,8 @@
 import React from 'react'
 import { List } from '~redux/state/list/reducer'
-import { Button } from '@material-ui/core'
+import { Button, TextareaAutosize } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { Add } from '@material-ui/icons'
-import { VariableInput } from '@/components'
-// import * as T from '@/scripts/model/type'
-// import * as I from '@/scripts/model/interface'
 import { useDispatch } from 'react-redux'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
@@ -19,27 +16,28 @@ type Props = {
 
 export const CardCreator: React.FC<Props> = ({ data }) => {
   const [isCreating, setCreating] = React.useState(false)
-  const [cardTitle, setCardTitle] = React.useState('')
   const inputRef = React.useRef<HTMLDivElement | null>(null)
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const styles = useStyles()
-  // 追加ボタン以外をクリックした時も発火させる
-  const onClickAdd = async listId => {
-    if (!cardTitle) {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+
+  const onClickAdd = React.useCallback(async () => {
+    const title = textareaRef.current?.value
+    if (!title) {
       showSnackbar({
         message: 'カードタイトルを入力してください',
-        type: 'error'
+        type: 'warning'
       })
+      textareaRef.current?.focus()
       return
     }
-    setCardTitle('')
     setCreating(false)
     try {
       await dispatch(
         createCard({
-          listId,
-          title: cardTitle
+          listId: data.id,
+          title
         })
       )
     } catch ({ message }) {
@@ -48,12 +46,11 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
         type: 'error'
       })
     }
-  }
+  }, [data.id, dispatch, showSnackbar])
 
   // NOTE: 新しいカードを追加するボタンをクリックしたら、インプットにフォーカスさせる
   React.useEffect(() => {
-    if (!isCreating) return
-    inputRef.current?.querySelector('button')?.click()
+    if (isCreating) textareaRef.current?.focus()
   }, [isCreating])
 
   return (
@@ -65,24 +62,13 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
             style={{ display: isCreating ? 'block' : 'none' }}
             ref={inputRef}
           >
-            <VariableInput
-              label={cardTitle}
-              onUpdate={(e, close) => {
-                setCardTitle(e.currentTarget.value)
-                close()
-              }}
-              component="textarea"
-              width={234}
+            <TextareaAutosize
+              className={`${styles.textarea} MuiButton-contained`}
+              ref={textareaRef}
             />
           </div>
           <div className={styles.buttons}>
-            <SuccessButton
-              onClick={() => {
-                onClickAdd(data.id)
-              }}
-              variant="contained"
-              size="small"
-            >
+            <SuccessButton onClick={onClickAdd} variant="contained" size="small">
               追加
             </SuccessButton>
             <Button onClick={() => setCreating(false)} variant="contained" size="small">
@@ -107,7 +93,6 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
 const useStyles = makeStyles({
   root: {},
   input: {
-    marginBottom: theme.spacing(1),
     '& .MuiButton-outlined': {
       fontWeight: 'normal'
     }
@@ -120,6 +105,17 @@ const useStyles = makeStyles({
     justifyContent: 'flex-end',
     '& button': {
       marginLeft: theme.spacing(1)
+    }
+  },
+  textarea: {
+    width: '100%',
+    resize: 'none',
+    height: 'auto',
+    border: 'none',
+    borderRadius: theme.borderRadius(0.5),
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
+    '&:focus': {
+      outlineColor: 'red'
     }
   }
 })
