@@ -26,7 +26,7 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
     const title = textareaRef.current?.value
     if (!title) {
       showSnackbar({
-        message: 'カードタイトルを入力してください',
+        message: 'カード名を入力してください',
         type: 'warning'
       })
       textareaRef.current?.focus()
@@ -115,7 +115,7 @@ const useStyles = makeStyles({
     borderRadius: theme.borderRadius(0.5),
     padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
     '&:focus': {
-      outlineColor: 'red'
+      outlineColor: theme.palette.primary.main
     }
   }
 })
