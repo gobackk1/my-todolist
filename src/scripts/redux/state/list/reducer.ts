@@ -242,35 +242,6 @@ export const listReducer = reducerWithInitialState(initialState)
       isLoading: false
     }
   })
-  // .case(moveToList, (state, params) => {
-  //   const { archivedLists, lists } = state.boards[params.boardId]
-  //   const index = archivedLists.findIndex(list => list.id === params.id)
-  //   return {
-  //     ...state,
-  //     boards: {
-  //       [params.boardId]: {
-  //         lists: lists.concat(params),
-  //         archivedLists: [
-  //           ...archivedLists.slice(0, index),
-  //           ...archivedLists.slice(index + 1)
-  //         ]
-  //       }
-  //     }
-  //   }
-  // })
-  // .case(moveToArchivedList, (state, params) => {
-  //   const { archivedLists, lists } = state.boards[params.boardId]
-  //   const index = lists.findIndex(list => list.id === params.id)
-  //   return {
-  //     ...state,
-  //     boards: {
-  //       [params.boardId]: {
-  //         archivedLists: archivedLists.concat(params),
-  //         lists: [...lists.slice(0, index), ...lists.slice(index + 1)]
-  //       }
-  //     }
-  //   }
-  // })
   .case(updateList.async.done, (state, { result }) => {
     const { archivedLists, lists } = state.boards[result.boardId]
     const index = lists.findIndex(list => list.id === result.id)

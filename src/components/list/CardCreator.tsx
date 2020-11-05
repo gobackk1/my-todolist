@@ -11,6 +11,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { createCard } from '~redux/state/card/actions'
 import { theme } from '@/styles'
+import { SuccessButton } from '../button'
 
 type Props = {
   data: List
@@ -48,6 +49,13 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
       })
     }
   }
+
+  // NOTE: 新しいカードを追加するボタンをクリックしたら、インプットにフォーカスさせる
+  React.useEffect(() => {
+    if (!isCreating) return
+    inputRef.current?.querySelector('button')?.click()
+  }, [isCreating])
+
   return (
     <div className="AppCardCreator-root">
       {isCreating ? (
@@ -67,26 +75,24 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
               width={234}
             />
           </div>
-          <Button
-            onClick={() => {
-              onClickAdd(data.id)
-            }}
-            variant="contained"
-          >
-            追加
-          </Button>
-          <Button onClick={() => setCreating(false)} variant="contained">
-            閉じる
-          </Button>
+          <div className={styles.buttons}>
+            <SuccessButton
+              onClick={() => {
+                onClickAdd(data.id)
+              }}
+              variant="contained"
+              size="small"
+            >
+              追加
+            </SuccessButton>
+            <Button onClick={() => setCreating(false)} variant="contained" size="small">
+              閉じる
+            </Button>
+          </div>
         </>
       ) : (
         <Button
-          onClick={() => {
-            setCreating(true)
-            // 両エレメントはアンマウントしないので
-            /* eslint-disable-next-line */
-            inputRef.current!.querySelector('button')!.click()
-          }}
+          onClick={() => setCreating(true)}
           fullWidth
           startIcon={<Add />}
           className={styles.buttonAdd}
@@ -101,12 +107,19 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
 const useStyles = makeStyles({
   root: {},
   input: {
-    marginBlock: theme.spacing(1),
+    marginBottom: theme.spacing(1),
     '& .MuiButton-outlined': {
       fontWeight: 'normal'
     }
   },
   buttonAdd: {
     justifyContent: 'flex-start'
+  },
+  buttons: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    '& button': {
+      marginLeft: theme.spacing(1)
+    }
   }
 })
