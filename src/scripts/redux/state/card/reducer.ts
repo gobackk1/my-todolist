@@ -92,6 +92,7 @@ export const cardReducer = reducerWithInitialState(initialState)
     return {
       ...state,
       cards: {
+        ...state.cards,
         [params.id]: params
       }
     }
