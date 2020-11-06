@@ -1,6 +1,6 @@
 import React from 'react'
 import { List } from '~redux/state/list/reducer'
-import { Button, TextareaAutosize } from '@material-ui/core'
+import { Button, TextareaAutosize, ClickAwayListener } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { Add } from '@material-ui/icons'
 import { useDispatch } from 'react-redux'
@@ -16,7 +16,7 @@ type Props = {
 
 export const CardCreator: React.FC<Props> = ({ data }) => {
   const [isCreating, setCreating] = React.useState(false)
-  const inputRef = React.useRef<HTMLDivElement | null>(null)
+  const inputRef = React.useRef<HTMLDivElement>(null)
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const styles = useStyles()
@@ -25,21 +25,13 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
   const onClickAdd = React.useCallback(async () => {
     const title = textareaRef.current?.value
     if (!title) {
-      showSnackbar({
-        message: 'カード名を入力してください',
-        type: 'warning'
-      })
+      showSnackbar({ message: 'カード名を入力してください', type: 'warning' })
       textareaRef.current?.focus()
       return
     }
     setCreating(false)
     try {
-      await dispatch(
-        createCard({
-          listId: data.id,
-          title
-        })
-      )
+      await dispatch(createCard({ listId: data.id, title }))
     } catch ({ message }) {
       showSnackbar({
         message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
@@ -53,40 +45,46 @@ export const CardCreator: React.FC<Props> = ({ data }) => {
     if (isCreating) textareaRef.current?.focus()
   }, [isCreating])
 
+  const handleClickAway = React.useCallback(() => {
+    setCreating(false)
+  }, [setCreating])
+
   return (
-    <div className="AppCardCreator-root">
-      {isCreating ? (
-        <>
-          <div
-            className={styles.input}
-            style={{ display: isCreating ? 'block' : 'none' }}
-            ref={inputRef}
+    <ClickAwayListener onClickAway={handleClickAway}>
+      <div className="AppCardCreator-root">
+        {isCreating ? (
+          <>
+            <div
+              className={styles.input}
+              style={{ display: isCreating ? 'block' : 'none' }}
+              ref={inputRef}
+            >
+              <TextareaAutosize
+                className={`${styles.textarea} MuiButton-contained`}
+                ref={textareaRef}
+              />
+            </div>
+            <div className={styles.buttons}>
+              <SuccessButton onClick={onClickAdd} variant="contained" size="small">
+                追加
+              </SuccessButton>
+              <Button onClick={() => setCreating(false)} variant="contained" size="small">
+                閉じる
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Button
+            onClick={() => setCreating(true)}
+            fullWidth
+            startIcon={<Add />}
+            className={styles.buttonAdd}
           >
-            <TextareaAutosize
-              className={`${styles.textarea} MuiButton-contained`}
-              ref={textareaRef}
-            />
-          </div>
-          <div className={styles.buttons}>
-            <SuccessButton onClick={onClickAdd} variant="contained" size="small">
-              追加
-            </SuccessButton>
-            <Button onClick={() => setCreating(false)} variant="contained" size="small">
-              閉じる
-            </Button>
-          </div>
-        </>
-      ) : (
-        <Button
-          onClick={() => setCreating(true)}
-          fullWidth
-          startIcon={<Add />}
-          className={styles.buttonAdd}
-        >
-          新しいカードを追加する
-        </Button>
-      )}
-    </div>
+            新しいカードを追加する
+          </Button>
+        )}
+      </div>
+    </ClickAwayListener>
   )
 }
 
