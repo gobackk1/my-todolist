@@ -4,7 +4,7 @@ import { Paper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { VariableInput, ListMenu, CardItem, CardCreator } from '@/components'
 // import * as T from '@/scripts/model/type'
-import * as I from '@/scripts/model/interface'
+// import * as I from '@/scripts/model/interface'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
@@ -12,6 +12,7 @@ import { updateList } from '~redux/state/list/actions'
 import { theme } from '@/styles'
 import { fade } from '@material-ui/core/styles/colorManipulator'
 import { Card } from '@/scripts/redux/state/card/reducer'
+import { blueGrey } from '@material-ui/core/colors'
 
 export const CardList: React.FC<Props> = ({ list }) => {
   const styles = useStyles()
@@ -111,7 +112,7 @@ const useStyles = makeStyles({
   },
   cardList: {
     width: 250,
-    backgroundColor: fade(theme.palette.white, 0.6),
+    backgroundColor: blueGrey[100],
     padding: theme.spacing(1),
     borderRadius: theme.borderRadius(0.5)
   },

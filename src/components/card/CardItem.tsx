@@ -8,6 +8,7 @@ import { useSnackbarContext } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { updateCard, deleteCard } from '~redux/state/card/actions'
 import { Card } from '~redux/state/card/reducer'
+import { blueGrey } from '@material-ui/core/colors'
 
 type Props = {
   data: Card
@@ -75,6 +76,7 @@ export const CardItem: React.FC<Props> = ({ data }) => {
 const useStyles = makeStyles({
   root: {
     wordBreak: 'break-all',
+    backgroundColor: blueGrey[50],
     '& .MuiButton-label': {
       justifyContent: 'left',
       textAlign: 'left'
