@@ -45,6 +45,16 @@ export interface BoardState {
     [i: string]: Board
   }
   getBackgroundStyle: (id: string) => React.CSSProperties
+  snapshots: BoardState[]
+}
+
+function getBackgroundStyle(this: BoardState, boardId: ValueOf<Board, 'id'>): React.CSSProperties {
+  const backgroundImage = this.boards[boardId] ? this.boards[boardId].backgroundImage : null
+  if (!backgroundImage) return {} as React.CSSProperties
+  const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
+  return hexColorRegex.test(backgroundImage)
+    ? { backgroundColor: backgroundImage }
+    : { backgroundImage: `url(${backgroundImage})` }
 }
 
 export const initialState: BoardState = {
@@ -53,16 +63,8 @@ export const initialState: BoardState = {
   error: null,
   boards: {},
   archivedBoards: {},
-  getBackgroundStyle(boardId) {
-    const backgroundImage = this.boards[boardId]
-      ? this.boards[boardId].backgroundImage
-      : null
-    if (!backgroundImage) return {} as React.CSSProperties
-    const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
-    return hexColorRegex.test(backgroundImage)
-      ? { backgroundColor: backgroundImage }
-      : { backgroundImage: `url(${backgroundImage})` }
-  }
+  getBackgroundStyle,
+  snapshots: []
 }
 
 export const boardReducer = reducerWithInitialState(initialState)
@@ -92,6 +94,22 @@ export const boardReducer = reducerWithInitialState(initialState)
     state => ({ ...state, isLoading: true })
   )
 
+  .case(updateBoard.async.started, (state, params) => {
+    return {
+      ...state,
+      isLoading: true,
+      boards: {
+        ...state.boards,
+        [params.id]: params
+      },
+      snapshots: state.snapshots.concat(state)
+    }
+  })
+  .case(updateBoard.async.failed, state => {
+    return { ...state.snapshots[0] }
+  })
+  .case(updateBoard.async.done, state => ({ ...state, init: true, isLoading: false }))
+
   /**
    * async.failed
    */
@@ -113,34 +131,25 @@ export const boardReducer = reducerWithInitialState(initialState)
     ],
     (state, { error }) => ({ ...state, isLoading: false, error })
   )
-  .cases(
-    [restoreBoard.async.failed, changeFavoriteRelations.async.failed],
-    (state, { error }) => ({
-      ...state,
-      isLoading: false,
-      error
-    })
-  )
+  .cases([restoreBoard.async.failed, changeFavoriteRelations.async.failed], (state, { error }) => ({
+    ...state,
+    isLoading: false,
+    error
+  }))
 
   /**
    * async.done
    */
-  .cases(
-    [
-      fetchBoards.async.done,
-      fetchBoard.async.done,
-      deleteBoardMember.async.done
-    ],
-    state => ({ ...state, init: true, isLoading: false })
-  )
-  .cases(
-    [
-      createBoard.async.done,
-      changeFavoriteRelations.async.done,
-      updateBoard.async.done
-    ],
-    state => ({ ...state, init: true, isLoading: false })
-  )
+  .cases([fetchBoards.async.done, fetchBoard.async.done, deleteBoardMember.async.done], state => ({
+    ...state,
+    init: true,
+    isLoading: false
+  }))
+  .cases([createBoard.async.done, changeFavoriteRelations.async.done], state => ({
+    ...state,
+    init: true,
+    isLoading: false
+  }))
   .case(fetchArchivedBoards.async.done, state => ({
     ...state,
     init: true,
@@ -201,9 +210,6 @@ export const boardReducer = reducerWithInitialState(initialState)
     }
   })
 
-  /**
-   * sync
-   */
   .case(setBoard, (state, params) => ({
     ...state,
     boards: {

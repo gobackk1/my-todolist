@@ -19,17 +19,15 @@ export const BoardTitle: React.FC = () => {
   const styles = useStyles()
 
   const updateTitle = React.useCallback(
-    async (
-      e: React.FocusEvent<any> | React.KeyboardEvent<any>,
-      close: () => void
-    ) => {
+    async (e: React.FocusEvent<any> | React.KeyboardEvent<any>, close: () => void) => {
       if (!currentUser || board.error || !boardState.boards[boardId]) return
 
       const title = e.currentTarget.value
+      const oldBoard = boardState.boards[boardId]
 
       close()
 
-      if (title === boardState.boards[boardId].title) return
+      if (title === oldBoard.title) return
 
       if (title.length > 50) {
         showSnackbar({
@@ -46,7 +44,7 @@ export const BoardTitle: React.FC = () => {
       }
 
       try {
-        await dispatch(updateBoard({ title, id: boardId }))
+        await dispatch(updateBoard({ ...oldBoard, title }))
       } catch (e) {
         console.log(e)
         showSnackbar({
@@ -55,14 +53,7 @@ export const BoardTitle: React.FC = () => {
         })
       }
     },
-    [
-      board.error,
-      boardId,
-      boardState.boards,
-      dispatch,
-      showSnackbar,
-      currentUser
-    ]
+    [board.error, boardId, boardState.boards, dispatch, showSnackbar, currentUser]
   )
 
   return (

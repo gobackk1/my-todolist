@@ -76,9 +76,7 @@ const mixin = (() => {
    *
    */
   const queryWithJunctionTable = async (
-    callback: Promise<
-      firebase.firestore.QuerySnapshot | firebase.firestore.DocumentSnapshot
-    >,
+    callback: Promise<firebase.firestore.QuerySnapshot | firebase.firestore.DocumentSnapshot>,
     uid: string
   ): Promise<[any, any]> => {
     return await Promise.all([callback, getFavorites(uid)])
@@ -208,32 +206,15 @@ export const createBoard = asyncActionCreator<
 /**
  * ボードをアップデートする
  */
-type PartiallyPartial<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-export const updateBoard = asyncActionCreator<
-  PartiallyPartial<
-    Board,
-    | 'title'
-    | 'backgroundImage'
-    | 'favorite'
-    | 'members'
-    | 'visibility'
-    | 'author'
-  >,
-  void,
-  Error
->('UPDATE_BOARD', async (params, dispatch) => {
-  store.getState().currentUser.user
-  const { boards }: BoardState = store.getState().board
-  const { id, ...target } = boards[params.id]
-  const { id: paramsId, ...paramsWithoutId } = params
+export const updateBoard = asyncActionCreator<Board, Board, Error>('UPDATE_BOARD', async board => {
+  const { id, ...paramsWithoutId } = board
 
-  const documentReference = await db()
+  const ref = await firebase
+    .firestore()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
-    .doc(paramsId)
-  const query = { ...target, ...paramsWithoutId }
-  await documentReference.set({ ...query }, { merge: true })
-  const newBoard: Board = { id, ...query }
-  dispatch(updateBoardInState(newBoard))
+    .doc(id)
+  await ref.set({ ...paramsWithoutId }, { merge: true })
+  return board
 })
 
 /**
@@ -256,68 +237,66 @@ export const deleteBoard = asyncActionCreator<Pick<Board, 'id'>, string, Error>(
 /**
  * ボードをアーカイブする
  */
-export const archiveBoard = asyncActionCreator<
-  Pick<Board, 'id'>,
-  Pick<Board, 'id'>,
-  Error
->('ARCHIVE_BOARD', async ({ id }) => {
-  const user = store.getState().currentUser.user
-  const documentReference = await db()
-    .collection(COLLECTION_PATH.BOARDS_LIVE)
-    .doc(id)
-
-  await db().runTransaction(async t => {
-    /**
-     * ドキュメントを live から archived へ移動する
-     */
-    const doc = await t.get(documentReference)
-
-    if (!doc.exists || !user) return
-    // existsで見てるので
-    /* eslint-disable-next-line */
-    const archiveBoard = doc.data()!
-    await db()
-      .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
+export const archiveBoard = asyncActionCreator<Pick<Board, 'id'>, Pick<Board, 'id'>, Error>(
+  'ARCHIVE_BOARD',
+  async ({ id }) => {
+    const user = store.getState().currentUser.user
+    const documentReference = await db()
+      .collection(COLLECTION_PATH.BOARDS_LIVE)
       .doc(id)
-      .set(archiveBoard)
 
-    await t.delete(documentReference)
-  })
-  return { id }
-})
+    await db().runTransaction(async t => {
+      /**
+       * ドキュメントを live から archived へ移動する
+       */
+      const doc = await t.get(documentReference)
+
+      if (!doc.exists || !user) return
+      // existsで見てるので
+      /* eslint-disable-next-line */
+      const archiveBoard = doc.data()!
+      await db()
+        .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
+        .doc(id)
+        .set(archiveBoard)
+
+      await t.delete(documentReference)
+    })
+    return { id }
+  }
+)
 
 /**
  * アーカイブしたボードを元に戻す
  */
-export const restoreBoard = asyncActionCreator<
-  Pick<Board, 'id'>,
-  Pick<Board, 'id'>,
-  Error
->('RESTORE_BOARD', async ({ id }) => {
-  const user = store.getState().currentUser.user
-  const documentReference = await db()
-    .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
-    .doc(id)
-
-  await db().runTransaction(async t => {
-    /**
-     * ドキュメントを archived から live へ移動する
-     */
-    const doc = await t.get(documentReference)
-
-    if (!doc.exists || !user) return
-    // existsで見てるので
-    /* eslint-disable-next-line */
-    const archiveBoard = doc.data()!
-    await db()
-      .collection(COLLECTION_PATH.BOARDS_LIVE)
+export const restoreBoard = asyncActionCreator<Pick<Board, 'id'>, Pick<Board, 'id'>, Error>(
+  'RESTORE_BOARD',
+  async ({ id }) => {
+    const user = store.getState().currentUser.user
+    const documentReference = await db()
+      .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
       .doc(id)
-      .set(archiveBoard)
 
-    await t.delete(documentReference)
-  })
-  return { id }
-})
+    await db().runTransaction(async t => {
+      /**
+       * ドキュメントを archived から live へ移動する
+       */
+      const doc = await t.get(documentReference)
+
+      if (!doc.exists || !user) return
+      // existsで見てるので
+      /* eslint-disable-next-line */
+      const archiveBoard = doc.data()!
+      await db()
+        .collection(COLLECTION_PATH.BOARDS_LIVE)
+        .doc(id)
+        .set(archiveBoard)
+
+      await t.delete(documentReference)
+    })
+    return { id }
+  }
+)
 
 export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
 
@@ -325,38 +304,37 @@ export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
  * ボードメンバーを削除する
  */
 
-export const deleteBoardMember = asyncActionCreator<
-  { boardId: string; uid: string },
-  void,
-  Error
->('DELETE_BOARD_MEMBER', async ({ boardId, uid }, dispatch) => {
-  store.getState().currentUser.user
-  const { boards }: BoardState = store.getState().board
-  const target = boards[boardId]
-  // 他に良い方法が見つかるまで
-  /* eslint-disable-next-line */
-  const { [uid]: _, ...newMembers } = target.members
-  const newBoard = {
-    ...target,
-    members: {
-      ...newMembers
-    }
-  }
-
-  const documentReference = await db()
-    .collection(COLLECTION_PATH.BOARDS_LIVE)
-    .doc(boardId)
-
-  await documentReference.set(
-    {
+export const deleteBoardMember = asyncActionCreator<{ boardId: string; uid: string }, void, Error>(
+  'DELETE_BOARD_MEMBER',
+  async ({ boardId, uid }, dispatch) => {
+    store.getState().currentUser.user
+    const { boards }: BoardState = store.getState().board
+    const target = boards[boardId]
+    // 他に良い方法が見つかるまで
+    /* eslint-disable-next-line */
+    const { [uid]: _, ...newMembers } = target.members
+    const newBoard = {
+      ...target,
       members: {
-        [uid]: firebase.firestore.FieldValue.delete()
+        ...newMembers
       }
-    },
-    { merge: true }
-  )
-  dispatch(updateBoardInState(newBoard))
-})
+    }
+
+    const documentReference = await db()
+      .collection(COLLECTION_PATH.BOARDS_LIVE)
+      .doc(boardId)
+
+    await documentReference.set(
+      {
+        members: {
+          [uid]: firebase.firestore.FieldValue.delete()
+        }
+      },
+      { merge: true }
+    )
+    dispatch(updateBoardInState(newBoard))
+  }
+)
 
 /**
  * ログアウト時など、stateを初期化する
