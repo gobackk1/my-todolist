@@ -165,7 +165,7 @@ export const fetchBoard = asyncActionCreator<ValueOf<Board, 'id'>, void, Error>(
  */
 export const createBoard = asyncActionCreator<
   Pick<Board, 'title' | 'backgroundImage' | 'visibility'>,
-  void,
+  Pick<Board, 'id'>,
   Error
 >('CREATE_BOARD', async ({ title, backgroundImage, visibility }, dispatch) => {
   const { user } = store.getState().currentUser
@@ -187,6 +187,9 @@ export const createBoard = asyncActionCreator<
     .add(board)
 
   dispatch(setBoard({ id, ...board, favorite: false }))
+
+  // NOTE: 呼び出し元で利用するため
+  return { id }
 })
 
 /**

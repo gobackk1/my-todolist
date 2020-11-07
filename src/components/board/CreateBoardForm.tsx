@@ -1,17 +1,8 @@
 import React from 'react'
-import {
-  Button,
-  TextField,
-  makeStyles,
-  Radio,
-  RadioGroup,
-  Select,
-  MenuItem
-} from '@material-ui/core'
+import { TextField, makeStyles, Radio, RadioGroup, Select, MenuItem } from '@material-ui/core'
 import { useForm, SubmitHandler, Controller } from 'react-hook-form'
 import { createBoard } from '~redux/state/board/actions'
-import { useSnackbarContext } from '@/scripts/hooks'
-import { useDispatch, useStore } from 'react-redux'
+import { useSnackbarContext, useTypeSafeDispatch } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { useHistory } from 'react-router-dom'
 import DoneOutlineRoundedIcon from '@material-ui/icons/DoneOutlineRounded'
@@ -19,8 +10,13 @@ import { theme } from '@/styles'
 import { Board } from '~redux/state/board/reducer'
 import { SuccessButton } from '@/components'
 
-export const CreateBoardForm: React.FC = () => {
-  const dispatch = useDispatch()
+type Props = {
+  open: boolean
+  handleClose: () => void
+}
+
+export const CreateBoardForm: React.FC<Props> = ({ open, handleClose }) => {
+  const dispatch = useTypeSafeDispatch()
   const { showSnackbar } = useSnackbarContext()
   const styles = useStyles()
   const {
@@ -32,35 +28,41 @@ export const CreateBoardForm: React.FC = () => {
     control
   } = useForm({ mode: 'onChange' })
   const history = useHistory()
-  const { currentUser, board } = useStore().getState()
   const defaultBg = OPTION.BOARD.BG.PHOTO[0].src
   const [bg, setBg] = React.useState(defaultBg)
+  const inputWrapperRef = React.useRef<HTMLDivElement>(null)
 
-  const onSubmit: SubmitHandler<FormValue> = async (
-    { title, backgroundImage, visibility },
-    e: any
-  ) => {
-    if (!currentUser || board.error) return
-    e.target.previousSibling.children[0].click()
+  const onSubmit: SubmitHandler<FormValue> = React.useCallback(
+    async ({ title, backgroundImage, visibility }) => {
+      try {
+        const { id } = await dispatch(createBoard({ title, backgroundImage, visibility }))
+        handleClose()
+        reset()
+        history.push(`/boards/${id}`)
+      } catch (e) {
+        console.log('debug: CreateBoardForm onSubmit', e)
+        showSnackbar({
+          message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
+          type: 'error'
+        })
+      }
+    },
+    [dispatch, handleClose, history, reset, showSnackbar]
+  )
 
-    try {
-      const { id } = await dispatch(
-        createBoard({ title, backgroundImage, visibility })
-      )
-      reset()
-      history.push(`/boards/${id}`)
-    } catch (e) {
-      console.log('debug: CreateBoardForm onSubmit', e)
-      showSnackbar({
-        message: OPTION.MESSAGE.SERVER_CONNECTION_ERROR,
-        type: 'error'
-      })
+  const style = React.useMemo(
+    () =>
+      /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(bg)
+        ? { backgroundColor: bg }
+        : { backgroundImage: `url(${bg})` },
+    [bg]
+  )
+
+  React.useEffect(() => {
+    if (open) {
+      inputWrapperRef.current?.querySelector('input')?.focus()
     }
-  }
-
-  const style = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(bg)
-    ? { backgroundColor: bg }
-    : { backgroundImage: `url(${bg})` }
+  }, [open])
 
   return (
     <form
@@ -70,7 +72,7 @@ export const CreateBoardForm: React.FC = () => {
       id="form-create-board"
       style={style}
     >
-      <div className="AppCreateBoardForm-input">
+      <div className="AppCreateBoardForm-input" ref={inputWrapperRef}>
         <TextField
           error={!!errors.title}
           id="test"
@@ -91,7 +93,6 @@ export const CreateBoardForm: React.FC = () => {
           helperText={errors.title && errors.title.message}
           variant="filled"
           size="small"
-          autoFocus={true}
           required={true}
           defaultValue=""
           fullWidth
@@ -161,9 +162,7 @@ export const CreateBoardForm: React.FC = () => {
 const useStyles = makeStyles({
   root: {
     width: 284,
-    padding: `${theme.spacing(5)}px ${theme.spacing(2)}px ${theme.spacing(
-      2
-    )}px`,
+    padding: `${theme.spacing(5)}px ${theme.spacing(2)}px ${theme.spacing(2)}px`,
     backgroundPosition: 'center',
     backgroundSize: 'cover',
     borderRadius: theme.borderRadius(1),

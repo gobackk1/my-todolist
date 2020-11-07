@@ -1,12 +1,6 @@
 import React from 'react'
 import { CreateBoardForm } from '@/components'
-import {
-  makeStyles,
-  Modal as MuiModal,
-  Fade,
-  Backdrop,
-  IconButton
-} from '@material-ui/core'
+import { makeStyles, Modal as MuiModal, Fade, Backdrop, IconButton } from '@material-ui/core'
 import { useEventListener } from '@/scripts/hooks'
 import { Close } from '@material-ui/icons'
 import * as CreateBoardModal from '@/scripts/context/CreateBoardModalContext'
@@ -55,7 +49,7 @@ export const CreateBoardModalProvider: React.FC = ({ children }) => {
             >
               <Close />
             </IconButton>
-            <CreateBoardForm />
+            <CreateBoardForm open={open} handleClose={handleClose} />
           </div>
         </Fade>
       </MuiModal>
