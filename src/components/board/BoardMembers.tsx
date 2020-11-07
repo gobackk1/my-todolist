@@ -9,26 +9,24 @@ import { theme } from '@/styles'
 export const BoardMembers: React.FC<{ data: Board }> = ({ data }) => {
   const { users } = useSelector(state => state.users)
   const styles = useStyles()
-  const boardState = useSelector(state => state.board)
+  const { init } = useSelector(state => state.board)
 
-  const boardMembers = React.useMemo(() => {
-    return boardState.init
-      ? Object.keys(data.members)
-          .map(uid => users[uid])
-          .filter(Boolean)
-      : []
-  }, [boardState, data.members, users])
+  const boardMembers = React.useMemo(
+    () =>
+      init
+        ? Object.keys(data.members)
+            .map(uid => users[uid])
+            .filter(Boolean)
+        : [],
+    [init, data.members, users]
+  )
 
   return (
     <div className={`AppBoardMembers-root ${styles.root}`}>
       <AvatarGroup max={3}>
-        {boardMembers.map((member, i) => {
-          return (
-            <span key={i}>
-              <MemberButton data={member} />
-            </span>
-          )
-        })}
+        {boardMembers.map((member, i) => (
+          <MemberButton data={member} key={i} />
+        ))}
       </AvatarGroup>
       <InvitationMenu board={data} />
     </div>
