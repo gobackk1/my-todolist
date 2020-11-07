@@ -34,10 +34,7 @@ export const BoardDetail: React.FC = () => {
     []
   )
 
-  const currentBoard = React.useMemo(() => boardState.boards[boardId], [
-    boardState.boards,
-    boardId
-  ])
+  const currentBoard = React.useMemo(() => boardState.boards[boardId], [boardState.boards, boardId])
 
   return (
     <BoardWithBackground>
@@ -48,24 +45,19 @@ export const BoardDetail: React.FC = () => {
            */
           <Redirect to={redirect} />
         )}
-        {boardState.init && boardState.boards[boardId] && (
+        {boardState.boards[boardId] && (
           <>
             <div className="AppBoardDetail-header">
               <Grid container alignItems="center">
                 <BoardTitle />
-                <FavoriteButton
-                  favorite={boardState.boards[boardId].favorite}
-                  boardId={boardId}
-                />
+                <FavoriteButton favorite={boardState.boards[boardId].favorite} boardId={boardId} />
                 <Divider orientation="vertical" flexItem />
                 <BoardMembers data={currentBoard} />
                 <Divider orientation="vertical" flexItem />
                 <BoardVisibilitySelection data={currentBoard} />
               </Grid>
             </div>
-            {boardState.error && (
-              <>エラーメッセージ{boardState.error.message}</>
-            )}
+            {boardState.error && <>エラーメッセージ{boardState.error.message}</>}
             <ListContainer boardId={boardId} />
           </>
         )}

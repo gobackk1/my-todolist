@@ -10,7 +10,6 @@ import { OPTION } from '@/option'
 import firebase from 'firebase'
 import { getUser } from '~redux/state/users/actions'
 import { Member } from './reducer'
-import { callCloudFunctions } from '@/scripts/firebase'
 import { ThunkDispatch } from 'redux-thunk'
 import { AnyAction } from 'redux'
 
@@ -18,11 +17,6 @@ const db = firebase.firestore
 const { COLLECTION_PATH } = OPTION
 
 const mixin = (() => {
-  /**
-   * uid を渡して、サーバーからユーザーを取得する
-   */
-  const fetchUser = (uid: string) => callCloudFunctions('getUser', { uid })
-
   /**
    * 渡した members を元にユーザーを取得し、users state に登録する
    */
@@ -38,11 +32,14 @@ const mixin = (() => {
   }
 
   /**
-   * ドキュメントを渡して Board に整形する
+   * ドキュメントをクライアントサイドジョインする
    */
-  const getBoard = (doc: firebase.firestore.DocumentData): Board => {
-    const data = doc.data()
-    return { id: doc.id, ...data } as Board
+  const joinBoard = (doc: firebase.firestore.DocumentData, favorites: string[]): Board => {
+    return {
+      ...doc.data(),
+      id: doc.id,
+      favorite: favorites.includes(doc.id) ? true : false
+    } as Board
   }
 
   /**
@@ -64,17 +61,6 @@ const mixin = (() => {
     return favorites
   }
 
-  /**
-   * Board の favorite をクライアントサイドジョインする
-   */
-  const setFavorite = (board: Board, favorites: string[]): Board => ({
-    ...board,
-    favorite: favorites.includes(board.id) ? true : false
-  })
-
-  /**
-   *
-   */
   const queryWithJunctionTable = async (
     callback: Promise<firebase.firestore.QuerySnapshot | firebase.firestore.DocumentSnapshot>,
     uid: string
@@ -83,10 +69,8 @@ const mixin = (() => {
   }
 
   return {
-    fetchUser,
     fetchMembersAndDispatchAddUser,
-    getBoard,
-    setFavorite,
+    joinBoard,
     queryWithJunctionTable
   }
 })()
@@ -102,22 +86,22 @@ const mixin = (() => {
 export const fetchBoards = asyncActionCreator<void, void, Error>(
   'FETCH_BOARDS',
   async (_, dispatch) => {
-    const { uid } = store.getState().currentUser.user!
+    const { user } = store.getState().currentUser
+
+    if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
 
     const [snapshot, favorites] = await mixin.queryWithJunctionTable(
       db()
         .collection(COLLECTION_PATH.BOARDS_LIVE)
-        .where(`members.${uid}.role`, 'in', ['owner', 'editor', 'reader'])
+        .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
         .get(),
-      uid
+      user.uid
     )
 
     snapshot.forEach(async doc => {
-      if (!doc.exists) return
-
-      const board = mixin.getBoard(doc)
+      const board = mixin.joinBoard(doc, favorites)
       mixin.fetchMembersAndDispatchAddUser(board.members, dispatch)
-      dispatch(setBoard(mixin.setFavorite(board, favorites)))
+      dispatch(setBoard(board))
     })
   }
 )
@@ -128,62 +112,66 @@ export const fetchBoards = asyncActionCreator<void, void, Error>(
 export const fetchArchivedBoards = asyncActionCreator<void, void, Error>(
   'FETCH_ARCHIVED_BOARDS',
   async (_, dispatch) => {
-    const { uid } = store.getState().currentUser.user!
+    const { user } = store.getState().currentUser
+
+    if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
 
     const [snapshot, favorites] = await mixin.queryWithJunctionTable(
       db()
         .collection(COLLECTION_PATH.BOARDS_ARCHIVED)
-        .where(`members.${uid}.role`, 'in', ['owner', 'editor', 'reader'])
+        .where(`members.${user.uid}.role`, 'in', ['owner', 'editor', 'reader'])
         .get(),
-      uid
+      user.uid
     )
 
     snapshot.forEach(doc => {
-      const board = mixin.getBoard(doc)
+      const board = mixin.joinBoard(doc, favorites)
       mixin.fetchMembersAndDispatchAddUser(board.members, dispatch)
-      dispatch(setArchivedBoard(mixin.setFavorite(board, favorites)))
+      dispatch(setArchivedBoard(board))
     })
   }
 )
 
-export const fetchBoard = asyncActionCreator<string, void, Error>(
+export const fetchBoard = asyncActionCreator<ValueOf<Board, 'id'>, void, Error>(
   'FETCH_BOARD',
-  async (params, dispatch) => {
-    const { uid } = store.getState().currentUser.user!
+  async (boardId, dispatch) => {
+    const { user } = store.getState().currentUser
+
+    if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+
     const boardState = store.getState().board
 
     /**
      * 存在していたらキャッシュを使う
      */
-    if (params in boardState.boards) return
+    if (boardId in boardState.boards) return
 
     const [documentReference, favorites] = await mixin.queryWithJunctionTable(
       db()
         .collection(COLLECTION_PATH.BOARDS_LIVE)
-        .doc(params)
+        .doc(boardId)
         .get(),
-      uid
+      user.uid
     )
 
-    if (!documentReference.exists) return
-
-    const board = mixin.getBoard(documentReference)
+    const board = mixin.joinBoard(documentReference, favorites)
     mixin.fetchMembersAndDispatchAddUser(board.members, dispatch)
-    dispatch(setBoard(mixin.setFavorite(board, favorites)))
+    dispatch(setBoard(board))
   }
 )
-
-export const setBoard = actionCreator<Board>('SET_BOARD')
 
 /**
  * ボードを新規作成する
  */
 export const createBoard = asyncActionCreator<
   Pick<Board, 'title' | 'backgroundImage' | 'visibility'>,
-  Pick<Board, 'id'>,
+  void,
   Error
 >('CREATE_BOARD', async ({ title, backgroundImage, visibility }, dispatch) => {
-  const user = store.getState().currentUser.user!
+  const { user } = store.getState().currentUser
+
+  if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
 
   const board: Omit<Board, 'id'> = {
@@ -194,27 +182,24 @@ export const createBoard = asyncActionCreator<
     author: user.uid,
     favorite: false
   }
-  const { id }: Pick<Board, 'id'> = await firebase
-    .firestore()
+
+  const { id }: Pick<Board, 'id'> = await db()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .add(board)
 
   dispatch(setBoard({ id, ...board }))
-  return { id }
 })
 
 /**
  * ボードをアップデートする
  */
-export const updateBoard = asyncActionCreator<Board, Board, Error>('UPDATE_BOARD', async board => {
+export const updateBoard = asyncActionCreator<Board, void, Error>('UPDATE_BOARD', async board => {
   const { id, ...paramsWithoutId } = board
 
-  const ref = await firebase
-    .firestore()
+  const ref = await db()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .doc(id)
   await ref.set({ ...paramsWithoutId }, { merge: true })
-  return board
 })
 
 /**
@@ -241,6 +226,9 @@ export const archiveBoard = asyncActionCreator<Pick<Board, 'id'>, Pick<Board, 'i
   'ARCHIVE_BOARD',
   async ({ id }) => {
     const user = store.getState().currentUser.user
+
+    if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+
     const documentReference = await db()
       .collection(COLLECTION_PATH.BOARDS_LIVE)
       .doc(id)
@@ -251,7 +239,8 @@ export const archiveBoard = asyncActionCreator<Pick<Board, 'id'>, Pick<Board, 'i
        */
       const doc = await t.get(documentReference)
 
-      if (!doc.exists || !user) return
+      if (!doc.exists) return
+
       // existsで見てるので
       /* eslint-disable-next-line */
       const archiveBoard = doc.data()!
@@ -298,16 +287,12 @@ export const restoreBoard = asyncActionCreator<Pick<Board, 'id'>, Pick<Board, 'i
   }
 )
 
-export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
-
 /**
  * ボードメンバーを削除する
  */
-
 export const deleteBoardMember = asyncActionCreator<{ boardId: string; uid: string }, void, Error>(
   'DELETE_BOARD_MEMBER',
   async ({ boardId, uid }, dispatch) => {
-    store.getState().currentUser.user
     const { boards }: BoardState = store.getState().board
     const target = boards[boardId]
     // 他に良い方法が見つかるまで
@@ -327,18 +312,20 @@ export const deleteBoardMember = asyncActionCreator<{ boardId: string; uid: stri
     await documentReference.set(
       {
         members: {
-          [uid]: firebase.firestore.FieldValue.delete()
+          [uid]: db.FieldValue.delete()
         }
       },
       { merge: true }
     )
-    dispatch(updateBoardInState(newBoard))
+    dispatch(setBoard(newBoard))
   }
 )
 
 /**
  * ログアウト時など、stateを初期化する
  */
+export const setBoard = actionCreator<Board>('SET_BOARD')
+export const setArchivedBoard = actionCreator<Board>('SET_ARCHIVED_BOARD')
 export const resetBoard = actionCreator('RESET_BOARD')
 
 /**
@@ -349,26 +336,44 @@ export const changeFavoriteRelations = asyncActionCreator<
   void,
   Error
 >('CHANGE_FAVORITE_RELATIONS', async ({ favorite, boardId }, dispatch) => {
-  const { uid } = store.getState().currentUser.user!
+  const { user } = store.getState().currentUser
+
+  if (!user) throw new Error(OPTION.MESSAGE.UNAUTHORIZED_OPERATION)
+
   const { boards }: BoardState = store.getState().board
 
+  /**
+   * NOTE: お気に入りしていたら、お気に入りを解除
+   * お気に入りにしていなかったら、お気に入りに登録
+   */
   if (favorite) {
     await db()
       .collection(COLLECTION_PATH.RELATIONSHIPS_FAVORITE)
-      .doc(`${uid}_${boardId}`)
+      .doc(`${user.uid}_${boardId}`)
       .delete()
-    const newBoard = { ...boards[boardId], favorite: false }
-    dispatch(updateBoardInState(newBoard))
+
+    dispatch(
+      setBoard({
+        ...boards[boardId],
+        favorite: false
+      })
+    )
   } else {
     const createdAt = db.FieldValue.serverTimestamp()
-
     await db()
       .collection(COLLECTION_PATH.RELATIONSHIPS_FAVORITE)
-      .doc(`${uid}_${boardId}`)
-      .set({ uid, boardId, createdAt })
-    const newBoard = { ...boards[boardId], favorite: true }
-    dispatch(updateBoardInState(newBoard))
+      .doc(`${user.uid}_${boardId}`)
+      .set({
+        uid: user.uid,
+        boardId,
+        createdAt
+      })
+
+    dispatch(
+      setBoard({
+        ...boards[boardId],
+        favorite: true
+      })
+    )
   }
 })
-
-export const updateBoardInState = actionCreator<Board>('UPDATE_BOARD_IN_STATE')
