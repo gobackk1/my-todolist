@@ -199,7 +199,7 @@ export const archiveList = asyncActionCreator<List, [List, List[]], Error>(
 type RestoreParams = Pick<List, 'id' | 'boardId'>
 export const restoreList = asyncActionCreator<RestoreParams, [List, List[]], Error>(
   'RESTORE_LIST',
-  async ({ id, boardId }) => {
+  async ({ id, boardId }, dispatch) => {
     const { user }: CurrentUserState = store.getState().currentUser
     const { lists, archivedLists } = store.getState().list.boards[boardId]
     const targetList = archivedLists.find(list => list.id === id)
@@ -264,6 +264,9 @@ export const restoreList = asyncActionCreator<RestoreParams, [List, List[]], Err
       t.set(toRef, targetList)
       t.delete(fromRef)
     })
+
+    // NOTE: カードを取得するためにサーバから取得する
+    dispatch(fetchList({ boardId }))
 
     return [targetList, resortOrderLists]
   }

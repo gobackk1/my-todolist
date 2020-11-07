@@ -7,7 +7,7 @@ service cloud.firestore {
 
     function isValidBoardSchema(board){
       // author は owner 以外の role を割り当てられない
-      return board.size() == 5
+      return debug(board.size()) == 5
         && 'author' in board && board.author is string
         && 'title' in board && board.title is string
         && 'backgroundImage' in board && board.backgroundImage is string

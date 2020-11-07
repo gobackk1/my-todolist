@@ -174,27 +174,27 @@ export const createBoard = asyncActionCreator<
 
   const members = { [user.uid]: { role: 'owner' as BoardRole } }
 
-  const board: Omit<Board, 'id'> = {
+  const board: Omit<Board, 'id' | 'favorite'> = {
     title,
     backgroundImage,
     members,
     visibility,
-    author: user.uid,
-    favorite: false
+    author: user.uid
   }
 
   const { id }: Pick<Board, 'id'> = await db()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
     .add(board)
 
-  dispatch(setBoard({ id, ...board }))
+  dispatch(setBoard({ id, ...board, favorite: false }))
 })
 
 /**
  * ボードをアップデートする
  */
 export const updateBoard = asyncActionCreator<Board, void, Error>('UPDATE_BOARD', async board => {
-  const { id, ...paramsWithoutId } = board
+  // NOTE: id, favorite はクライアントサイドジョイン
+  const { id, favorite, ...paramsWithoutId } = board
 
   const ref = await db()
     .collection(COLLECTION_PATH.BOARDS_LIVE)
