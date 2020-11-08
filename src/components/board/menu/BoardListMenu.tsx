@@ -71,7 +71,7 @@ const useStyles = makeStyles({
     color: '#000',
     padding: theme.spacing(2),
     width: 300,
-    boarderRadius: `${theme.borderRadius(1)}px`,
+    borderRadius: `${theme.borderRadius(1)}px`,
     '& .MuiButton-label': {
       justifyContent: 'flex-start'
     }
