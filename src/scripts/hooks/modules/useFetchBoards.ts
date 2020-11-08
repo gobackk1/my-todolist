@@ -4,8 +4,8 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useSnackbarContext } from '@/scripts/hooks'
 
 export const useFetchBoards = (): void => {
-  const boardState = useSelector(state => state.board)
-  const currentUserState = useSelector(state => state.currentUser)
+  const { init } = useSelector(state => state.board)
+  const { user } = useSelector(state => state.currentUser)
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useDispatch()
 
@@ -28,8 +28,11 @@ export const useFetchBoards = (): void => {
   }, [dispatch])
 
   React.useEffect(() => {
-    if (!currentUserState.user || boardState.error) return
+    /**
+     * TODO: 他のユーザーの更新に追従する
+     */
+    if (!user || init) return
 
     dispatchFetchBoards()
-  }, [currentUserState.user, dispatchFetchBoards, boardState.error])
+  }, [user, dispatchFetchBoards, init])
 }

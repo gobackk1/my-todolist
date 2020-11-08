@@ -2,15 +2,16 @@ import React from 'react'
 import { makeStyles, Theme, Typography } from '@material-ui/core'
 import { useSelector } from 'react-redux'
 import { LoadingSpinner, BoardListItem, ToggleList } from '@/components'
+import { useFetchBoards } from '@/scripts/hooks'
 
 export const BoardListView: React.FC = () => {
   const boardState = useSelector(state => state.board)
   const styles = useStyles()
 
   const personalBoards = Object.values(boardState.boards)
-  const favoriteBoards = Object.values(boardState.boards).filter(
-    board => board.favorite === true
-  )
+  const favoriteBoards = Object.values(boardState.boards).filter(board => board.favorite === true)
+
+  useFetchBoards()
 
   return (
     <div className={`AppBoardListView ${styles.root}`}>
@@ -54,9 +55,7 @@ export const BoardListView: React.FC = () => {
                   )
                 })
               ) : (
-                <Typography variant="body2">
-                  作成したボードがありません。
-                </Typography>
+                <Typography variant="body2">作成したボードがありません。</Typography>
               )}
             </ul>
           </ToggleList>
