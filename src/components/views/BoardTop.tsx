@@ -1,25 +1,24 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import {
-  LoadingSpinner,
-  PageContainer,
-  BoardListItem,
-  FavoriteIcon
-} from '@/components'
+import { LoadingSpinner, PageContainer, BoardListItem, FavoriteIcon } from '@/components'
 import {
   useFetchBoards,
   useSnackbarContext,
-  useCreateBoardModalContext
+  useCreateBoardModalContext,
+  useCurrentUser
 } from '@/scripts/hooks'
 import { OPTION } from '@/option'
 import { Typography, makeStyles, Button } from '@material-ui/core'
 import { theme } from '@/styles'
 import PersonOutlineRoundedIcon from '@material-ui/icons/PersonOutlineRounded'
 import AddRoundedIcon from '@material-ui/icons/AddRounded'
+import PeopleAltOutlinedIcon from '@material-ui/icons/PeopleAltOutlined'
 
 export const BoardTop: React.FC = () => {
   const boardState = useSelector(state => state.board)
+
+  const user = useCurrentUser()
   const { state } = useLocation<string | undefined>()
   const { showSnackbar } = useSnackbarContext()
   const { openCreateBoardModal } = useCreateBoardModalContext()
@@ -41,13 +40,18 @@ export const BoardTop: React.FC = () => {
 
   useFetchBoards()
 
-  const personalBoards = React.useMemo(() => Object.values(boardState.boards), [
-    boardState.boards
-  ])
+  const personalBoards = React.useMemo(() => {
+    if (!user) return []
+    return Object.values(boardState.boards).filter(board => board.author === user.uid)
+  }, [boardState.boards, user])
+
+  const joiningBoards = React.useMemo(() => {
+    if (!user) return []
+    return Object.values(boardState.boards).filter(board => board.author !== user.uid)
+  }, [boardState.boards, user])
 
   const favoriteBoards = React.useMemo(
-    () =>
-      Object.values(boardState.boards).filter(board => board.favorite === true),
+    () => Object.values(boardState.boards).filter(board => board.favorite === true),
     [boardState.boards]
   )
 
@@ -56,6 +60,23 @@ export const BoardTop: React.FC = () => {
       {!boardState.init || (boardState.isLoading && <LoadingSpinner />)}
       {boardState.init && !boardState.isLoading && (
         <section id="board-inner">
+          <Typography variant="h2">
+            <PeopleAltOutlinedIcon />
+            参加しているボード
+          </Typography>
+          <ul className="AppPageContainer-list">
+            {joiningBoards.length ? (
+              joiningBoards.map((board, i) => (
+                <li key={i}>
+                  <BoardListItem data={board} variant="block" />
+                </li>
+              ))
+            ) : (
+              <li className="AppPageContainer-listNotFound">
+                <Typography variant="body2">参加しているボードはありません</Typography>
+              </li>
+            )}
+          </ul>
           <Typography variant="h2">
             <FavoriteIcon favorite={false} />
             お気に入りボード
@@ -69,9 +90,7 @@ export const BoardTop: React.FC = () => {
               ))
             ) : (
               <li className="AppPageContainer-listNotFound">
-                <Typography variant="body2">
-                  お気に入りのボードはありません
-                </Typography>
+                <Typography variant="body2">お気に入りのボードはありません</Typography>
               </li>
             )}
           </ul>

@@ -25,7 +25,10 @@ export const BoardMembers: React.FC<{ data: Board }> = ({ data }) => {
     <div className={`AppBoardMembers-root ${styles.root}`}>
       <AvatarGroup max={3}>
         {boardMembers.map((member, i) => (
-          <MemberButton data={member} key={i} />
+          <span key={i}>
+            {/* NOTE: ここは span で囲わないとアイコンが重ならない */}
+            <MemberButton data={member} />
+          </span>
         ))}
       </AvatarGroup>
       <InvitationMenu board={data} />

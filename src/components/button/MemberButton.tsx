@@ -4,18 +4,11 @@ import { UserIcon, Menu } from '@/components'
 import { User } from '@/scripts/model/interface'
 import { makeStyles } from '@material-ui/styles'
 import { theme } from '@/styles'
-import {
-  deleteBoardMember,
-  updateBoard
-} from '@/scripts/redux/state/board/actions'
+import { deleteBoardMember, updateBoard } from '@/scripts/redux/state/board/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import * as I from '@/scripts/model/interface'
-import {
-  useSnackbarContext,
-  useCustomEvent,
-  useBoardAuthority
-} from '@/scripts/hooks'
+import { useSnackbarContext, useCustomEvent, useBoardAuthority } from '@/scripts/hooks'
 import { KeyboardBackspaceRounded } from '@material-ui/icons/'
 import { OPTION } from '@/option'
 
@@ -31,12 +24,7 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
 
   const onClickDeleteMember = React.useCallback(
     ({ uid, displayName }) => {
-      if (
-        !confirm(
-          `このボードから以下のメンバーを削除しても良いですか？\n\n${displayName}`
-        )
-      )
-        return
+      if (!confirm(`このボードから以下のメンバーを削除しても良いですか？\n\n${displayName}`)) return
       try {
         dispatch(
           deleteBoardMember({
@@ -60,18 +48,12 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
     [dispatch, showSnackbar, dispatchCustomEvent, boardId]
   )
 
-  const currentBoard = React.useMemo(() => boardState.boards[boardId], [
-    boardState.boards,
-    boardId
-  ])
+  const currentBoard = React.useMemo(() => boardState.boards[boardId], [boardState.boards, boardId])
 
   /**
    * 同期処理にすると、.closest([data-click-area="menu"]) が null になる
    */
-  const asyncSetView = React.useCallback(
-    view => window.setTimeout(() => setView(view)),
-    [setView]
-  )
+  const asyncSetView = React.useCallback(view => window.setTimeout(() => setView(view)), [setView])
 
   const onClickChangeRoleTo = React.useCallback(
     role => {
@@ -185,9 +167,7 @@ export const MemberButton: React.FC<{ data: User }> = ({ data }) => {
                 ボード作成者の権限は、管理者から変更できません。
               </Typography>
             ) : (
-              <Typography variant="body1">
-                権限の変更は管理者のみが行えます。
-              </Typography>
+              <Typography variant="body1">権限の変更は管理者のみが行えます。</Typography>
             )}
           </div>
         )}
