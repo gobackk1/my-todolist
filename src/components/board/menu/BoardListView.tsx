@@ -30,7 +30,7 @@ export const BoardListView: React.FC = () => {
       {boardState.isLoading ? (
         <LoadingSpinner />
       ) : (
-        <section>
+        <section className={styles.section}>
           <ToggleList
             component={
               <Typography variant="h4" className={styles.title}>
@@ -110,5 +110,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   title: {
     display: 'flex',
     alignItems: 'center'
+  },
+  section: {
+    maxHeight: 600,
+    overflowY: 'scroll',
+    marginBottom: theme.spacing(1)
   }
 }))

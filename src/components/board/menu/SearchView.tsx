@@ -1,11 +1,11 @@
 import React from 'react'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
-import { useStore, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { OPTION } from '@/option'
 import { Board } from '~redux/state/board/reducer'
 import { createBoard } from '@/scripts/redux/state/board/actions'
-import { useSnackbarContext } from '@/scripts/hooks'
+import { useCurrentUser, useSnackbarContext } from '@/scripts/hooks'
 import { SearchState } from './BoardListMenu'
 import { BoardListItem } from '@/components'
 
@@ -13,14 +13,18 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
   const dispatch = useDispatch()
   const { showSnackbar } = useSnackbarContext()
   const history = useHistory()
-  const { currentUser, board } = useStore().getState()
+  const currentUser = useCurrentUser()
   const styles = useStyles()
 
-  const onClickCreate = async ({
-    title
-  }: Pick<Board, 'title'>): Promise<void> => {
-    if (!currentUser || board.error) return
-
+  const onClickCreate = async ({ title }: Pick<Board, 'title'>): Promise<void> => {
+    if (!currentUser) return
+    if (
+      title.length < OPTION.BOARD.TITLE.MIN_LENGTH ||
+      title.length > OPTION.BOARD.TITLE.MAX_LENGTH
+    ) {
+      showSnackbar({ message: OPTION.MESSAGE.BOARD.TITLE.LENGTH_ERROR, type: 'warning' })
+      return
+    }
     try {
       const { id }: Board = await dispatch(
         createBoard({
@@ -40,17 +44,13 @@ export const SearchView: React.FC<{ state: SearchState }> = ({ state }) => {
   return (
     <div className={`AppSearchListView-root ${styles.root}`}>
       <Typography>結果は{state.result.length}件です</Typography>
-      {state.result.length ? (
-        <ul className="AppSearchListView-result">
-          {state.result.map((board, i) => {
-            return (
-              <li key={i}>
-                <BoardListItem data={board} />
-              </li>
-            )
-          })}
-        </ul>
-      ) : null}
+      <ul className="AppSearchListView-result">
+        {state.result.map((board, i) => (
+          <li key={i}>
+            <BoardListItem data={board} />
+          </li>
+        ))}
+      </ul>
       {/* NOTE: サーバーからも検索するのであればここに表示 */}
       <Button
         onClick={() => {
@@ -77,6 +77,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   createButton: {
     textDecoration: 'underline',
-    textAlign: 'left'
+    textAlign: 'left',
+    '& .MuiButton-label': {
+      wordBreak: 'break-all'
+    }
   }
 }))
