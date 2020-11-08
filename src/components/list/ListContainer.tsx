@@ -77,8 +77,8 @@ export const ListContainer: React.FC<{ boardId: string }> = ({ boardId }) => {
 const useStyles = makeStyles({
   root: {
     display: 'flex',
-    height: '100%',
     overflowX: 'scroll',
+    flexGrow: 1,
     '& .smooth-dnd-container': {
       height: '100%',
       minWidth: 0

@@ -10,26 +10,25 @@ export const PageLayout: React.FC = ({ children }) => {
   const { user, isLoggingIn } = useSelector(state => state.currentUser)
   const styles = useStyles()
   return (
-    <div className="AppPageLayout-root">
+    <div className={`AppPageLayout-root ${styles.root}`}>
       <Header />
       {isLoggingIn ? (
         <div className={styles.spinner}>
           <LoadingSpinner />
         </div>
       ) : (
-        <>
-          {user?.emailVerified ? (
-            <div className={styles.child}>{children}</div>
-          ) : (
-            <BeforeVerified />
-          )}
-        </>
+        <>{user?.emailVerified ? children : <BeforeVerified />}</>
       )}
     </div>
   )
 }
 
 const useStyles = makeStyles({
+  root: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column'
+  },
   spinner: {
     display: 'flex',
     justifyContent: 'center',
@@ -37,6 +36,9 @@ const useStyles = makeStyles({
   },
   child: {
     position: 'relative',
-    height: 'calc(100vh - 64px)'
+    display: 'flex',
+    flexGrow: 1,
+    flexDirection: 'column'
+    // height: 'calc(100vh - 64px)'
   }
 })

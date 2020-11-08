@@ -22,4 +22,10 @@ export const global = css`
   body {
     line-height: 1.8;
   }
+
+  html,
+  body,
+  [id='root'] {
+    height: 100%;
+  }
 `
