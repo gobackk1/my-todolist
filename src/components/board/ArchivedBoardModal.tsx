@@ -1,11 +1,7 @@
 import React from 'react'
 import { Modal, LoadingSpinner } from '@/components'
 import { Button, makeStyles, Theme, Typography } from '@material-ui/core'
-import {
-  fetchArchivedBoards,
-  deleteBoard,
-  restoreBoard
-} from '~redux/state/board/actions'
+import { fetchArchivedBoards, deleteBoard, restoreBoard } from '~redux/state/board/actions'
 import { useSnackbarContext } from '@/scripts/hooks'
 import { useDispatch, useSelector } from 'react-redux'
 import { Reply, DeleteForever } from '@material-ui/icons'
@@ -14,8 +10,7 @@ import { OPTION } from '@/option'
 
 export const TEXT = {
   DELETE_BOARD: 'ボードを削除しました。',
-  DELETE_CONFIRM:
-    '本当にボードを削除しても良いですか？ボードを再び開くことが出来なくなります'
+  DELETE_CONFIRM: '本当にボードを削除しても良いですか？ボードを再び開くことが出来なくなります'
 }
 
 export const ArchivedBoardModal: React.FC = () => {
@@ -45,18 +40,13 @@ export const ArchivedBoardModal: React.FC = () => {
             dispatchFetchArchiveBoards()
           }}
           id="open-archived-board-modal"
+          fullWidth
         >
           アーカイブ済みのボードを確認
         </Button>
       )
     },
-    [
-      styles.buttonCreate,
-      dispatch,
-      showSnackbar,
-      currentUserState.user,
-      boardState
-    ]
+    [styles.buttonCreate, dispatch, showSnackbar, currentUserState.user, boardState]
   )
 
   const onClickDelete = async (id: string) => {
@@ -96,23 +86,15 @@ export const ArchivedBoardModal: React.FC = () => {
 
   return (
     <Modal render={renderButton}>
-      <div
-        className={`AppArchivedBoardModal-root ${styles.root}`}
-        id="modal-archived-board"
-      >
+      <div className={`AppArchivedBoardModal-root ${styles.root}`} id="modal-archived-board">
         <div className="AppArchivedBoardModal-title">アーカイブ済みボード</div>
         {boardState.isLoading && <LoadingSpinner />}
         {!boardState.isLoading && (
-          <ul
-            className="AppArchivedBoardModal-list"
-            id="modal-archived-board-list"
-          >
+          <ul className="AppArchivedBoardModal-list" id="modal-archived-board-list">
             {Object.values(boardState.archivedBoards).length ? (
               Object.values(boardState.archivedBoards).map((board, i) => (
                 <li className="AppArchivedBoardModal-item" key={i}>
-                  <div className="AppArchivedBoardModal-itemTitle">
-                    {board.title}
-                  </div>
+                  <div className="AppArchivedBoardModal-itemTitle">{board.title}</div>
                   <Button
                     onClick={e => {
                       onClickRestore(e, board.id, board.title)
@@ -138,9 +120,7 @@ export const ArchivedBoardModal: React.FC = () => {
                 </li>
               ))
             ) : (
-              <Typography variant="body1">
-                アーカイブしたボードはありません
-              </Typography>
+              <Typography variant="body1">アーカイブしたボードはありません</Typography>
             )}
           </ul>
         )}
@@ -152,9 +132,7 @@ export const ArchivedBoardModal: React.FC = () => {
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     width: 600,
-    padding: `${theme.spacing(5)}px ${theme.spacing(4)}px ${theme.spacing(
-      3
-    )}px`,
+    padding: `${theme.spacing(5)}px ${theme.spacing(4)}px ${theme.spacing(3)}px`,
     '& .AppArchivedBoardModal-title': {
       fontWeight: 'bold',
       marginBottom: theme.spacing(4),

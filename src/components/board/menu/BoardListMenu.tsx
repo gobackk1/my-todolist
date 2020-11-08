@@ -38,15 +38,10 @@ export const BoardListMenu: React.FC = () => {
       )}
       className={styles.root}
     >
-      <div className="AppBoardListMenu-content">
-        <div css={styles['board-list']}>
-          <BoardListSearchForm state={state} setState={setState} />
-          {state.isSearching ? <SearchView state={state} /> : <BoardListView />}
-        </div>
-        <Button
-          onClick={openCreateBoardModal}
-          className="AppBoardListMenu-button-create"
-        >
+      <div className={`AppBoardListMenu-content ${styles.content}`}>
+        <BoardListSearchForm state={state} setState={setState} />
+        {state.isSearching ? <SearchView state={state} /> : <BoardListView />}
+        <Button onClick={openCreateBoardModal} className="AppBoardListMenu-button-create" fullWidth>
           新しいボードを作成
         </Button>
         <ArchivedBoardModal />
@@ -69,13 +64,16 @@ const useStyles = makeStyles({
       '& .MuiButton-label': {
         textDecoration: 'underline'
       }
-    },
-    '& .AppBoardListMenu-content': {
-      background: '#fff',
-      color: '#000',
-      padding: theme.spacing(2),
-      width: 300,
-      boarderRadius: theme.borderRadius(1)
+    }
+  },
+  content: {
+    background: '#fff',
+    color: '#000',
+    padding: theme.spacing(2),
+    width: 300,
+    boarderRadius: `${theme.borderRadius(1)}px`,
+    '& .MuiButton-label': {
+      justifyContent: 'flex-start'
     }
   }
 })
