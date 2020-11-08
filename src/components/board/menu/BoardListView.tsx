@@ -7,9 +7,21 @@ import { useFetchBoards } from '@/scripts/hooks'
 export const BoardListView: React.FC = () => {
   const boardState = useSelector(state => state.board)
   const styles = useStyles()
+  const { user } = useSelector(state => state.currentUser)
 
-  const personalBoards = Object.values(boardState.boards)
-  const favoriteBoards = Object.values(boardState.boards).filter(board => board.favorite === true)
+  const personalBoards = React.useMemo(() => {
+    if (!user) return []
+    return boardState.getBoardsByUid(user.uid)
+  }, [user, boardState])
+
+  const joiningBoards = React.useMemo(() => {
+    if (!user) return []
+    return boardState.getBoardsByUid(null)
+  }, [user, boardState])
+
+  const favoriteBoards = React.useMemo(() => {
+    return Object.values(boardState.boards).filter(board => board.favorite === true)
+  }, [boardState])
 
   useFetchBoards()
 
@@ -19,7 +31,28 @@ export const BoardListView: React.FC = () => {
         <LoadingSpinner />
       ) : (
         <section>
-          {favoriteBoards.length ? (
+          <ToggleList
+            component={
+              <Typography variant="h4" className={styles.title}>
+                参加しているボード
+              </Typography>
+            }
+          >
+            <ul>
+              {joiningBoards.length ? (
+                joiningBoards.map((board, i) => {
+                  return (
+                    <li key={i}>
+                      <BoardListItem data={board} />
+                    </li>
+                  )
+                })
+              ) : (
+                <Typography variant="body2">参加しているボードがありません。</Typography>
+              )}
+            </ul>
+          </ToggleList>
+          {favoriteBoards.length && (
             <ToggleList
               component={
                 <Typography variant="h4" className={styles.title}>
@@ -37,7 +70,7 @@ export const BoardListView: React.FC = () => {
                 })}
               </ul>
             </ToggleList>
-          ) : null}
+          )}
           <ToggleList
             component={
               <Typography variant="h4" className={styles.title}>
