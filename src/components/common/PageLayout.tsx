@@ -1,5 +1,5 @@
 import React from 'react'
-import { Header, BeforeVerified, LoadingSpinner } from '@/components'
+import { Header, LoadingSpinner } from '@/components'
 import { useAuth } from '@/scripts/hooks'
 import { useSelector } from 'react-redux'
 import { makeStyles } from '@material-ui/core'
@@ -7,7 +7,7 @@ import { theme } from '@/styles'
 
 export const PageLayout: React.FC = ({ children }) => {
   useAuth()
-  const { user, isLoggingIn } = useSelector(state => state.currentUser)
+  const { isLoggingIn } = useSelector(state => state.currentUser)
   const styles = useStyles()
   return (
     <div className={`AppPageLayout-root ${styles.root}`}>
@@ -17,7 +17,7 @@ export const PageLayout: React.FC = ({ children }) => {
           <LoadingSpinner />
         </div>
       ) : (
-        <>{user?.emailVerified ? children : <BeforeVerified />}</>
+        <>{children}</>
       )}
     </div>
   )

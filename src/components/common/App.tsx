@@ -7,7 +7,8 @@ import {
   EmotionGlobal,
   PageLayout,
   UserProfile,
-  BeforeVerified
+  BeforeVerified,
+  PrivateRoute
 } from '@/components'
 import { Switch, Route, BrowserRouter } from 'react-router-dom'
 import { theme } from '@/styles'
@@ -48,21 +49,10 @@ export const App: React.FC = () => {
             <CreateBoardModalProvider>
               <PageLayout>
                 <Switch>
-                  <Route
-                    path={`${OPTION.PATH.BOARD}/:boardId`}
-                    component={BoardDetail}
-                  />
-                  <Route path={OPTION.PATH.BOARD} component={BoardTop} />
-                  <Route
-                    path={OPTION.PATH.USER_PROFILE}
-                    component={UserProfile}
-                  />
-                  <Route
-                    path={OPTION.PATH.BEFORE_VERIFIED}
-                    exact
-                    component={BeforeVerified}
-                  />
-                  <Route path="/login" exact component={Home} />
+                  <PrivateRoute path={`${OPTION.PATH.BOARD}/:boardId`} component={BoardDetail} />
+                  <PrivateRoute path={OPTION.PATH.BOARD} component={BoardTop} />
+                  <PrivateRoute path={OPTION.PATH.USER_PROFILE} component={UserProfile} />
+                  <Route path={OPTION.PATH.BEFORE_VERIFIED} exact component={BeforeVerified} />
                   <Route path="/" exact component={Home} />
                 </Switch>
               </PageLayout>
