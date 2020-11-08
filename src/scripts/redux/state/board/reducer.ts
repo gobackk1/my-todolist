@@ -14,6 +14,8 @@ import {
   resetBoard,
   changeFavoriteRelations
 } from './actions'
+import { User } from '@/scripts/model/interface'
+import { store } from '~redux/store'
 
 export type BoardRole = 'owner' | 'editor' | 'reader'
 export type BoardVisibility = 'public' | 'members'
@@ -43,8 +45,9 @@ export interface BoardState {
   archivedBoards: {
     [i: string]: Board
   }
-  getBackgroundStyle: (id: string) => React.CSSProperties
   snapshots: BoardState[]
+  getBackgroundStyle: (id: string) => React.CSSProperties
+  getBoardsByUid: (uid: ValueOf<User, 'uid'> | null) => Board[]
 }
 
 function getBackgroundStyle(this: BoardState, boardId: ValueOf<Board, 'id'>): React.CSSProperties {
@@ -56,14 +59,24 @@ function getBackgroundStyle(this: BoardState, boardId: ValueOf<Board, 'id'>): Re
     : { backgroundImage: `url(${backgroundImage})` }
 }
 
+function getBoardsByUid(this: BoardState, uid: ValueOf<User, 'uid'> | null): Board[] {
+  const boards = this.boards
+  if (uid === null) {
+    const { user } = store.getState().currentUser
+    return (user && Object.values(boards).filter(board => board.author !== user.uid)) || []
+  }
+  return Object.values(boards).filter(board => board.author === uid)
+}
+
 export const initialState: BoardState = {
   init: false,
   isLoading: false,
   error: null,
   boards: {},
   archivedBoards: {},
+  snapshots: [],
   getBackgroundStyle,
-  snapshots: []
+  getBoardsByUid
 }
 
 export const boardReducer = reducerWithInitialState(initialState)

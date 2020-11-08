@@ -42,13 +42,13 @@ export const BoardTop: React.FC = () => {
 
   const personalBoards = React.useMemo(() => {
     if (!user) return []
-    return Object.values(boardState.boards).filter(board => board.author === user.uid)
-  }, [boardState.boards, user])
+    return boardState.getBoardsByUid(user.uid)
+  }, [boardState, user])
 
   const joiningBoards = React.useMemo(() => {
     if (!user) return []
-    return Object.values(boardState.boards).filter(board => board.author !== user.uid)
-  }, [boardState.boards, user])
+    return boardState.getBoardsByUid(null)
+  }, [boardState, user])
 
   const favoriteBoards = React.useMemo(
     () => Object.values(boardState.boards).filter(board => board.favorite === true),
@@ -99,12 +99,11 @@ export const BoardTop: React.FC = () => {
             パーソナルボード
           </Typography>
           <ul className="AppPageContainer-list">
-            {personalBoards &&
-              personalBoards.map((board, i) => (
-                <li key={i}>
-                  <BoardListItem data={board} variant="block" />
-                </li>
-              ))}
+            {personalBoards.map((board, i) => (
+              <li key={i}>
+                <BoardListItem data={board} variant="block" />
+              </li>
+            ))}
             <li>
               <Button
                 variant="contained"
