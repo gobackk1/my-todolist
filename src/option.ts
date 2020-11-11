@@ -21,9 +21,7 @@ export const OPTION = {
     USER_DETAIL_PUBLIC: 'user_detail_public',
     RUNTIME_ERROR_REPORTS: 'runtime_error_reports'
   },
-  URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${
-    document.domain ? '8080' : ''
-  }/boards`,
+  URL_AFTER_EMAIL_CONFIRMATION: `http://${document.domain}:${document.domain ? '8080' : ''}/boards`,
   SNACKBAR: {
     AUTO_HIDE_DURATION: 5000,
     POSITION: {
@@ -37,14 +35,7 @@ export const OPTION = {
       MIN_LENGTH: 1
     },
     BG: {
-      COLORS: [
-        '#cccccc',
-        '#00bcd4',
-        '#6bff9f',
-        '#ff9800',
-        '#e91e63',
-        '#4caf50'
-      ],
+      COLORS: ['#cccccc', '#00bcd4', '#6bff9f', '#ff9800', '#e91e63', '#4caf50'],
       PHOTO: [
         {
           alt: '背景1を選択するボタン',
@@ -101,11 +92,10 @@ export const OPTION = {
         'メールアドレスが見つかりませんでした。まずはサインインしてユーザーを登録してください。',
       USER_DISABLED:
         'ロックされたアカウントです。ロックを解除するにはサポートに問い合わせてください。',
-      WRONG_PASSWORD:
-        'パスワードが正しくありません。もう一度やり直してください。'
+      WRONG_PASSWORD: 'パスワードが正しくありません。もう一度やり直してください。',
+      INVALID_EMAIL: 'メールアドレスが正しくありません。もう一度やり直してください。'
     },
-    ABORT:
-      'state でエラーが発生しているか、board の fetch 中に呼び出そうとしました。'
+    ABORT: 'state でエラーが発生しているか、board の fetch 中に呼び出そうとしました。'
   },
   ROLE: {
     owner: '管理者',

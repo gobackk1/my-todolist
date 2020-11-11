@@ -34,17 +34,13 @@ export const useFirebase = (): UseFirebaseReturnType => {
   const { showSnackbar } = useSnackbarContext()
   const dispatch = useTypeSafeDispatch()
   const history = useHistory()
-  const [isResendEmailDisabled, setIsResendEmailDisabled] = React.useState(
-    false
-  )
+  const [isResendEmailDisabled, setIsResendEmailDisabled] = React.useState(false)
   const mounted = useMountedRef()
 
   const signUp: SubmitHandler<SignUpFormValue> = React.useCallback(
     async ({ email, password, displayName }) => {
       try {
-        const { user } = await firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password)
+        const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password)
 
         if (!user) return
 
@@ -64,9 +60,7 @@ export const useFirebase = (): UseFirebaseReturnType => {
           .doc(user.uid)
           .onSnapshot(async snapshot => {
             if (!snapshot.exists) return
-            await dispatch(
-              updateUser({ ...(snapshot.data() as User), displayName })
-            )
+            await dispatch(updateUser({ ...(snapshot.data() as User), displayName }))
             unsubscribe()
           })
 
@@ -81,6 +75,11 @@ export const useFirebase = (): UseFirebaseReturnType => {
           showSnackbar({
             message: OPTION.MESSAGE.AUTH.EMAIL_ALREADY_IN_USE,
             type: 'info'
+          })
+        } else if (e.code === 'auth/invalid-email') {
+          showSnackbar({
+            message: OPTION.MESSAGE.AUTH.INVALID_EMAIL,
+            type: 'error'
           })
         } else {
           showSnackbar({
@@ -148,9 +147,7 @@ export const useFirebase = (): UseFirebaseReturnType => {
   const loginWithGoogleProvider = React.useCallback(async () => {
     dispatch(setLoggingIn(true))
     try {
-      await firebase
-        .auth()
-        .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
       showSnackbar({
         message: OPTION.MESSAGE.LOGIN.SUCCESS,
         type: 'success'
