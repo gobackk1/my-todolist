@@ -30,7 +30,7 @@ export const BoardListMenu: React.FC = () => {
           {...props}
           variant="outlined"
           color="inherit"
-          className="AppBoardListMenu-button-open"
+          className="AppBoardListMenu-openButton"
           id="button-menu-open"
         >
           ボード一覧

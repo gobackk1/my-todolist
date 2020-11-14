@@ -1,12 +1,7 @@
 import React from 'react'
 import { Typography, makeStyles, Button } from '@material-ui/core'
 import { theme } from '@/styles'
-import {
-  EMailField,
-  PasswordField,
-  LoginOrSignUpForm,
-  DisplayNameField
-} from '@/components'
+import { EMailField, PasswordField, LoginOrSignUpForm, DisplayNameField } from '@/components'
 import { useForm } from 'react-hook-form'
 import { useFirebase } from '@/scripts/hooks'
 import { SuccessButton } from '../button'
@@ -42,6 +37,7 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
             variant="contained"
             disableElevation
             color="primary"
+            className="AppSignUpView-loginButton"
           >
             ログインへ
           </Button>
@@ -50,6 +46,7 @@ export const SignUpView: React.FC<Props> = ({ setView }) => {
             variant="contained"
             disableElevation
             disabled={!isDirty || isSubmitting || !isValid}
+            className="AppSignUpView-submitButton"
           >
             登録
           </SuccessButton>

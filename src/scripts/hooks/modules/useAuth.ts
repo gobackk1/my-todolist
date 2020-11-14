@@ -1,10 +1,7 @@
 import { useEffect } from 'react'
 import firebase from 'firebase'
 import { useMountedRef, useTypeSafeDispatch } from '@/scripts/hooks'
-import {
-  setLoginUser,
-  setLoggingIn
-} from '@/scripts/redux/state/currentUser/actions'
+import { setLoginUser, setLoggingIn } from '@/scripts/redux/state/currentUser/actions'
 import { getUser, updateUser } from '@/scripts/redux/state/users/actions'
 import { useHistory } from 'react-router'
 import { resetUsers } from '~redux/state/users/actions'
@@ -29,6 +26,7 @@ export const useAuth = (): void => {
 
         if (!emailVerified) {
           history.push(OPTION.PATH.BEFORE_VERIFIED)
+          dispatch(setLoginUser({ uid, emailVerified }))
           return
         }
         // if (!isMounted.current) return

@@ -1,11 +1,5 @@
 import React, { useState } from 'react'
-import {
-  Modal as MuiModal,
-  Backdrop,
-  Fade,
-  IconButton,
-  ModalProps
-} from '@material-ui/core'
+import { Modal as MuiModal, Backdrop, Fade, IconButton, ModalProps } from '@material-ui/core'
 import { Close } from '@material-ui/icons'
 import { useEventListener } from '@/scripts/hooks'
 import { theme } from '@/styles'
@@ -28,10 +22,11 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
   const [open, setOpen] = useState(false)
   const styles = useStyles()
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     window.dispatchEvent(new CustomEvent('onModalClose'))
     setOpen(false)
-  }
+  }, [])
+
   const onClick = React.useCallback(() => {
     setOpen(true)
   }, [])
@@ -56,7 +51,7 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
       },
       keepMounted: true
     }),
-    [open, handleClose, Backdrop]
+    [open, handleClose]
   )
 
   return (
@@ -64,15 +59,11 @@ export const Modal: React.FC<Props> = ({ children, render, className }) => {
       {render({ onClick })}
       <MuiModal
         {...modalProps}
-        className={`${styles.modal} ${className ? className : ''}`}
+        className={`AppModal-root ${styles.modal} ${className ? className : ''}`}
       >
         <Fade in={open}>
           <div className={styles.modalInner}>
-            <IconButton
-              size="small"
-              onClick={handleClose}
-              className={`${styles.modalClose}`}
-            >
+            <IconButton size="small" onClick={handleClose} className={`${styles.modalClose}`}>
               <Close />
             </IconButton>
             {children}

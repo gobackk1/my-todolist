@@ -20,7 +20,7 @@ module.exports = (env, argv) => {
         {
           test: [/\.tsx?$/],
           loader: 'babel-loader',
-          exclude: /node_modules/,
+          exclude: [/node_modules/, /test/],
           options: {
             presets: [
               ['@babel/preset-env', { useBuiltIns: 'usage', corejs: 3 }],
@@ -34,12 +34,12 @@ module.exports = (env, argv) => {
         {
           test: /\.tsx?$/,
           loader: 'ts-loader',
-          exclude: /node_modules/
+          exclude: [/node_modules/, /test/]
         },
         {
           test: /\.tsx?$/,
           loader: 'eslint-loader',
-          exclude: /node_modules/,
+          exclude: [/node_modules/, /test/],
           include: resolveApp(`src`),
           options: {
             eslintPath: 'eslint'

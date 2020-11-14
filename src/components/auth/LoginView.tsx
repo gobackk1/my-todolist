@@ -2,12 +2,7 @@ import React from 'react'
 import { Button, makeStyles, Typography } from '@material-ui/core'
 import { useFirebase } from '@/scripts/hooks'
 import { theme } from '@/styles'
-import {
-  EMailField,
-  PasswordField,
-  LoginOrSignUpForm,
-  SuccessButton
-} from '@/components'
+import { EMailField, PasswordField, LoginOrSignUpForm, SuccessButton } from '@/components'
 import { useForm } from 'react-hook-form'
 import iconGoogle from '@/images/icon_google.png'
 
@@ -35,7 +30,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
 
   const onSubmit = React.useCallback<(value: FormValue) => void>(
     value => login({ ...value, reset }),
-    [login]
+    [login, reset]
   )
 
   return (
@@ -56,6 +51,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
             variant="contained"
             disableElevation
             color="primary"
+            className="AppLoginView-signInButton"
           >
             新規登録へ
           </Button>
@@ -94,12 +90,7 @@ export const LoginView: React.FC<Props> = ({ setView }) => {
           Freepik
         </a>
         {` from `}
-        <a
-          href="https://www.flaticon.com/"
-          target="_blank"
-          rel="noreferrer"
-          title="Flaticon"
-        >
+        <a href="https://www.flaticon.com/" target="_blank" rel="noreferrer" title="Flaticon">
           www.flaticon.com
         </a>
       </p>

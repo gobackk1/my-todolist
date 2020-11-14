@@ -52,7 +52,7 @@ export const BoardListView: React.FC = () => {
               )}
             </ul>
           </ToggleList>
-          {favoriteBoards.length && (
+          {favoriteBoards.length ? (
             <ToggleList
               component={
                 <Typography variant="h4" className={styles.title}>
@@ -70,7 +70,7 @@ export const BoardListView: React.FC = () => {
                 })}
               </ul>
             </ToggleList>
-          )}
+          ) : null}
           <ToggleList
             component={
               <Typography variant="h4" className={styles.title}>
